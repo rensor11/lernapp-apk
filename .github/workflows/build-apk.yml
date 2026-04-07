@@ -41,7 +41,6 @@ jobs:
 
       - name: Build APK
         run: |
-          cd "$(pwd)"
           yes | buildozer android debug 2>&1 | tee build.log
 
       - name: Upload APK
