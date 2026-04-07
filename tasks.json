@@ -1,0 +1,87 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🔧 Setup Build-Umgebung",
+      "type": "shell",
+      "command": "bash setup_env.sh",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "📱 APK bauen (Debug)",
+      "type": "shell",
+      "command": "bash build.sh debug",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "dependsOn": []
+    },
+    {
+      "label": "🚀 APK bauen (Release)",
+      "type": "shell",
+      "command": "bash build.sh release",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🧪 Lokal testen (PC)",
+      "type": "shell",
+      "command": "python3 app/main_desktop.py",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "📦 APK auf Gerät installieren (ADB)",
+      "type": "shell",
+      "command": "adb install -r bin/*.apk && echo '✅ APK installiert!'",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "📋 ADB Logs anzeigen",
+      "type": "shell",
+      "command": "adb logcat -s python",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

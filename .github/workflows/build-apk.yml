@@ -1,0 +1,60 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential git zip unzip openjdk-17-jdk \
+            python3-pip python3-venv autoconf automake libtool \
+            pkg-config zlib1g-dev libncurses5-dev libincurses5-dev \
+            libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev \
+            libjpeg-dev libsqlite3-dev ccache
+
+      - name: Install Python build tools
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install Cython==0.29.37 virtualenv buildozer
+
+      - name: Copy app files
+        run: |
+          cp fragenpool.json app/fragenpool.json || true
+          cp lernapp.html app/lernapp.html || true
+          cp server_neu.py app/server_neu.py || true
+
+      - name: Build APK
+        run: |
+          cd "$(pwd)"
+          yes | buildozer android debug 2>&1 | tee build.log
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LernApp-APK
+          path: bin/*.apk
+          retention-days: 30
+
+      - name: Upload build log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          retention-days: 7
