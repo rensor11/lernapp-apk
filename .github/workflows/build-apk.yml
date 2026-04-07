@@ -35,13 +35,27 @@ jobs:
 
       - name: Copy app files
         run: |
+         mkdir -p app
+          cp main.py app/main.py || true
+          cp flask_server.py app/flask_server.py || true
           cp fragenpool.json app/fragenpool.json || true
+          cp "fragenpool (2).json" app/fragenpool2.json || true
           cp lernapp.html app/lernapp.html || true
           cp server_neu.py app/server_neu.py || true
+          cp server.py app/server.py || true
+          echo "=== Files in app/ ==="
+          ls -la app/
 
-      - name: Build APK
-        run: |
-          yes | buildozer android debug 2>&1 | tee build.log
+          - name: Build APK
+            run: |
+         echo "=== Files in workspace ==="
+         ls -la
+         echo "=== Files in app/ ==="
+         ls -la app/
+         echo "=== Starting Buildozer ==="
+         yes | buildozer android debug 2>&1 | tee build.log
+         echo "=== Searching for APK ==="
+         find . -name "*.apk" -type f
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
