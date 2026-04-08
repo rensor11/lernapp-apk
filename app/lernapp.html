@@ -753,6 +753,11 @@
                     </div>
                 </div>
 
+                <div style="display:flex;align-items:center;gap:10px;background:var(--bg-window);padding:10px;border-radius:8px;margin-bottom:10px;">
+                    <input type="checkbox" id="repeat-fill-checkbox-setup" style="width:18px;height:18px;cursor:pointer;">
+                    <label for="repeat-fill-checkbox-setup" style="cursor:pointer;font-size:13px;color:var(--text-primary);">Falsche Fill-in Fragen sofort wiederholen (nur Test-Modus)</label>
+                </div>
+
                 <button class="btn btn-back" onclick="goToMenu()">← Zurück</button>
             </div>
         </div>
@@ -760,7 +765,7 @@
         <!-- TEST SETUP -->
         <div id="test-setup-view" class="hidden">
             <div class="setup-card">
-                <h2>📋 Übungstest - Alle Kategorien</h2>
+                <h2 id="test-setup-title">📋 Übungstest - Alle Kategorien</h2>
 
                 <div class="form-group">
                     <label>Anzahl Fragen (aus allen Kategorien):</label>
@@ -784,6 +789,10 @@
                 <div style="display:flex;align-items:center;gap:10px;background:var(--bg-window);padding:10px;border-radius:8px;margin-bottom:10px;">
                     <input type="checkbox" id="show-solution-checkbox" style="width:18px;height:18px;cursor:pointer;">
                     <label for="show-solution-checkbox" style="cursor:pointer;font-size:13px;color:var(--text-primary);">Lösung sofort nach Antwort anzeigen</label>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;background:var(--bg-window);padding:10px;border-radius:8px;margin-bottom:10px;">
+                    <input type="checkbox" id="repeat-fill-checkbox" style="width:18px;height:18px;cursor:pointer;">
+                    <label for="repeat-fill-checkbox" style="cursor:pointer;font-size:13px;color:var(--text-primary);">Falsche Fill-in Fragen sofort wiederholen</label>
                 </div>
                 <button class="btn btn-back" onclick="goToMenu()">← Zurück</button>
             </div>
@@ -844,6 +853,9 @@
         let questionHistory = {};
         let wrongAttempts = {};
         let merksatzVisible = {};
+        let isFillOnlyMode = false;
+        let repeatFillOnWrong = false;
+        let fillRetryState = {};
 
 
         function loadFromFile() {
@@ -1496,6 +1508,15 @@
             testBtn.addEventListener('mouseenter', () => document.body.classList.add('body-dark-shake'));
             testBtn.addEventListener('mouseleave', () => document.body.classList.remove('body-dark-shake'));
             grid.appendChild(testBtn);
+            let fillCount = 0;
+            Object.keys(fragenpool).forEach(cat => { fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
+            if (fillCount > 0) {
+                const fillBtn = document.createElement('button');
+                fillBtn.className = `category-btn ${moodClass}`;
+                fillBtn.innerHTML = `<span class="cat-icon">⌨️</span><span class="cat-name">Nur Fill-in</span><span class="cat-count">(${fillCount})</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
+                fillBtn.onclick = () => goToFillInSetup();
+                grid.appendChild(fillBtn);
+            }
             Object.keys(fragenpool).forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = `category-btn ${moodClass}`;
@@ -1540,18 +1561,37 @@
                 alert('Bitte meld dich zuerst an, um ein Quiz zu starten.');
                 return;
             }
+            isFillOnlyMode = false;
             isTestMode = true;
             let total = 0;
             Object.keys(fragenpool).forEach(cat => total += fragenpool[cat].length);
             document.getElementById('test-range').max = total;
             document.getElementById('test-number').max = total;
             document.getElementById('max-test-questions').textContent = total;
+            document.getElementById('test-setup-title').textContent = '📋 Übungstest - Alle Kategorien';
+            showView('test-setup-view');
+        }
+
+        function goToFillInSetup() {
+            if (!currentUser) {
+                alert('Bitte meld dich zuerst an, um ein Quiz zu starten.');
+                return;
+            }
+            isFillOnlyMode = true;
+            isTestMode = true;
+            let fillCount = 0;
+            Object.keys(fragenpool).forEach(cat => { fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
+            document.getElementById('test-range').max = fillCount;
+            document.getElementById('test-number').max = fillCount;
+            document.getElementById('max-test-questions').textContent = fillCount;
+            document.getElementById('test-setup-title').textContent = '⌨️ Nur Fill-in Fragen';
             showView('test-setup-view');
         }
 
         function startQuiz(mode) {
             currentQuizMode = mode;
             showSolutionImmediately = document.getElementById('show-solution-checkbox')?.checked || false;
+            repeatFillOnWrong = mode === 'test' ? (document.getElementById('repeat-fill-checkbox-setup')?.checked || false) : false;
             const num = parseInt(document.getElementById('question-number').value);
             let all = [...fragenpool[selectedCategory]];
             questions = pickRandomQuestions(all, num, `category:${selectedCategory}`);
@@ -1561,12 +1601,20 @@
         function startTestMode() {
             currentQuizMode = 'test';
             showSolutionImmediately = document.getElementById('show-solution-checkbox-test')?.checked || false;
+            repeatFillOnWrong = document.getElementById('repeat-fill-checkbox')?.checked || false;
             const num = parseInt(document.getElementById('test-number').value);
             let all = [];
-            Object.keys(fragenpool).forEach(cat => {
-                fragenpool[cat].forEach(q => all.push({...q, category: cat}));
-            });
-            questions = pickRandomQuestions(all, num, 'all-categories');
+            if (isFillOnlyMode) {
+                Object.keys(fragenpool).forEach(cat => {
+                    fragenpool[cat].forEach(q => { if (q.type === 'fill') all.push({...q, category: cat}); });
+                });
+            } else {
+                Object.keys(fragenpool).forEach(cat => {
+                    fragenpool[cat].forEach(q => all.push({...q, category: cat}));
+                });
+            }
+            const scope = isFillOnlyMode ? 'fill-only' : 'all-categories';
+            questions = pickRandomQuestions(all, num, scope);
             startQuizLogic();
         }
 
@@ -1622,6 +1670,7 @@
             userAnswers = {};
             quizFinished = false;
             selectedAnswer = null;
+            fillRetryState = {};
             overallRecordedThisDisplay = false;
             questionStartTime = Date.now();
             if (currentQuizMode === 'learning') {
@@ -1710,8 +1759,11 @@
                 const host = q.host || detectedHost;
                 const user = q.user || 'user';
                 const terminalPrompt = `${user}@${host}:~#`;
-                if (!showAnswer && (currentQuizMode === 'test' || isTestMode)) {
-                    div.innerHTML = `<div class="fill-input-group"><span class="terminal-user">${user}</span><span class="terminal-prompt">@</span><span class="terminal-host">${host}</span><span class="terminal-prompt">:</span><span class="terminal-path">~</span><span class="terminal-prompt">#</span><input type="text" id="fill-input" placeholder="command --option" onkeydown="if(event.key==='Enter') submitFillAnswer()"><button class="btn btn-submit" onclick="submitFillAnswer()">✅ Antwort bestätigen</button></div>`;
+                const isRetry = !!(fillRetryState[currentIdx]?.needed);
+                if ((!showAnswer && (currentQuizMode === 'test' || isTestMode)) || isRetry) {
+                    const retryMsg = isRetry ? `<div style="margin-bottom:8px;padding:8px;background:#3d1f1f;border-radius:4px;color:#EF5350;font-weight:bold;">❌ Falsch! Bitte versuche es nochmal:</div>` : '';
+                    const skipBtn = isRetry ? `<button class="btn" style="margin-top:8px;width:100%;font-size:12px;" onclick="skipFillRetry()">Überspringen → Antwort anzeigen</button>` : '';
+                    div.innerHTML = `${retryMsg}<div class="fill-input-group"><span class="terminal-user">${user}</span><span class="terminal-prompt">@</span><span class="terminal-host">${host}</span><span class="terminal-prompt">:</span><span class="terminal-path">~</span><span class="terminal-prompt">#</span><input type="text" id="fill-input" placeholder="command --option" onkeydown="if(event.key==='Enter') submitFillAnswer()"><button class="btn btn-submit" onclick="submitFillAnswer()">✅ Antwort bestätigen</button></div>${skipBtn}`;
                 } else {
                     const answered = userAnswers[currentIdx];
                     const wasCorrect = answered ? answered.isCorrect : null;
@@ -1786,6 +1838,10 @@
             }
         }
 
+        function normalizeFillAnswer(s) {
+            return (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
         function submitAnswer(ans) {
             const q = questions[currentIdx];
             const alreadyAnswered = !!userAnswers[currentIdx];
@@ -1796,9 +1852,8 @@
                 correct = selected.length === correctOptions.length && selected.every(a => correctOptions.includes(a));
             } else {
                 const correctAnswer = (q.answer || '').trim();
-                const userAns = (typeof ans === 'string' ? ans : '').toLowerCase().trim();
                 // "|" als Trenner für mehrere akzeptable Antworten (z.B. "swapon -s|free")
-                correct = correctAnswer.split('|').some(a => a.toLowerCase().trim() === userAns);
+                correct = correctAnswer.split('|').some(a => normalizeFillAnswer(a) === normalizeFillAnswer(typeof ans === 'string' ? ans : ''));
             }
             userAnswers[currentIdx] = { answer: ans, isCorrect: correct };
             if (!alreadyAnswered) {
@@ -1826,6 +1881,13 @@
                 // Benutzerdaten an Server schicken
                 submitUserProgress(q.id, correct);
             }
+            if (!correct && !alreadyAnswered && q.type === 'fill' && repeatFillOnWrong && (currentQuizMode === 'test' || isTestMode)) {
+                fillRetryState[currentIdx] = { needed: true };
+                selectedAnswer = null;
+                questionStartTime = null;
+                renderQuiz();
+                return;
+            }
             showAnswer = true;
             selectedAnswer = null;
             questionStartTime = null;
@@ -1848,7 +1910,16 @@
             const input = document.getElementById('fill-input');
             const val = input ? input.value.trim() : '';
             if (!val) { alert('Bitte eine Antwort eingeben.'); return; }
+            if (fillRetryState[currentIdx]?.needed) {
+                fillRetryState[currentIdx].needed = false;
+            }
             submitAnswer(val);
+        }
+
+        function skipFillRetry() {
+            if (fillRetryState[currentIdx]) fillRetryState[currentIdx].needed = false;
+            showAnswer = true;
+            renderQuiz();
         }
 
         function selectAnswer(ans) {
