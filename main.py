@@ -29,6 +29,7 @@ server_thread = None
 server_running = False
 flask_app = None
 PORT = 5000
+PUBLIC_URL = 'https://renlern.org'
 
 # ─── Hilfsfunktionen ──────────────────────────────────────────────────────────
 
@@ -109,9 +110,8 @@ class ServerUI(BoxLayout):
         self.add_widget(self.status_label)
 
         # ── IP-Adresse Anzeige ──
-        ip = get_local_ip()
         self.ip_label = Label(
-            text=f'[b][color=#22d3ee]http://{ip}:{PORT}[/color][/b]',
+            text=f'[b][color=#22d3ee]{PUBLIC_URL}[/color][/b]',
             markup=True,
             font_size='20sp',
             size_hint_y=None,
@@ -120,7 +120,7 @@ class ServerUI(BoxLayout):
         self.add_widget(self.ip_label)
 
         hint = Label(
-            text='[color=#64748b]← Diese Adresse im PC-Browser öffnen[/color]',
+            text='[color=#64748b]← Diese feste Domain im Browser öffnen[/color]',
             markup=True,
             font_size='13sp',
             size_hint_y=None,
@@ -129,8 +129,9 @@ class ServerUI(BoxLayout):
         self.add_widget(hint)
 
         # ── SSH Info ──
+        ip = get_local_ip()
         self.ssh_label = Label(
-            text=f'[color=#64748b]SSH: ssh user@{ip} -p 8022[/color]',
+            text=f'[color=#64748b]Lokal: http://{ip}:{PORT}  |  SSH: ssh user@{ip} -p 8022[/color]',
             markup=True,
             font_size='13sp',
             size_hint_y=None,
@@ -213,10 +214,10 @@ class ServerUI(BoxLayout):
         if server_running:
             ip = get_local_ip()
             self.status_label.text = '[color=#22c55e]✅ Server läuft![/color]'
-            self.ip_label.text = f'[b][color=#22d3ee]http://{ip}:{PORT}[/color][/b]'
+            self.ip_label.text = f'[b][color=#22d3ee]{PUBLIC_URL}[/color][/b]'
             self._log(f'✅ Server gestartet auf Port {PORT}')
-            self._log(f'🌐 Erreichbar unter: http://{ip}:{PORT}')
-            self._log('📱 PC-Browser → diese Adresse öffnen')
+            self._log(f'🌐 Öffentliche URL: {PUBLIC_URL}')
+            self._log(f'🛠️ Lokale Fallback-URL: http://{ip}:{PORT}')
         else:
             self.status_label.text = '[color=#ef4444]❌ Server-Fehler![/color]'
             self._log('❌ Server konnte nicht gestartet werden')
@@ -234,8 +235,8 @@ class ServerUI(BoxLayout):
 
     def _refresh_ip(self, instance):
         ip = get_local_ip()
-        self.ip_label.text = f'[b][color=#22d3ee]http://{ip}:{PORT}[/color][/b]'
-        self.ssh_label.text = f'[color=#64748b]SSH: ssh user@{ip} -p 8022[/color]'
+        self.ip_label.text = f'[b][color=#22d3ee]{PUBLIC_URL}[/color][/b]'
+        self.ssh_label.text = f'[color=#64748b]Lokal: http://{ip}:{PORT}  |  SSH: ssh user@{ip} -p 8022[/color]'
         self._log(f'🔄 IP aktualisiert: {ip}')
 
     def _log(self, message):

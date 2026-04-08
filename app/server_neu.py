@@ -2,15 +2,25 @@ import os
 import sqlite3
 import json
 from datetime import datetime
-from flask import Flask, request, jsonify, send_from_directory, g
+from flask import Flask, request, jsonify, redirect, send_from_directory, g
 from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.path.join(BASE_DIR, 'lernapp.db')
 QUESTIONPOOL_FILE = os.path.join(BASE_DIR, 'fragenpool.json')
+CANONICAL_HOST = 'renlern.org'
+CANONICAL_URL = f'https://{CANONICAL_HOST}'
 
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+
+
+@app.before_request
+def redirect_www_to_canonical_host():
+    host = (request.headers.get('Host') or '').split(':', 1)[0].lower()
+    if host == f'www.{CANONICAL_HOST}':
+        target = request.full_path if request.query_string else request.path
+        return redirect(f'{CANONICAL_URL}{target}', code=301)
 
 @app.after_request
 def add_cors_headers(response):
@@ -547,7 +557,7 @@ def admin_set_password():
 
 if __name__ == '__main__':
 
-    print('''\n╔════════════════════════════════════════════════════╗\n║          🎓 Lernapp Server mit Datenbank           ║\n╚════════════════════════════════════════════════════╝\n\n✅ Server läuft!\n\n🌐 Lokale Adresse:    http://localhost:5000\n🌐 Netzwerk-Adresse:  http://<deine-ip>:5000\n\n📱 Zugriff von überall im Netzwerk möglich!\n\nDatenbank: lernapp.db (SQLite)\n- Benutzer: gespeichert\n- Fragen: aus fragenpool.json geladen\n- Fortschritt: wird gespeichert\n\n🛑 Server beenden: Drücke Ctrl+C\n''')
+    print(f'''\n╔════════════════════════════════════════════════════╗\n║          🎓 Lernapp Server mit Datenbank           ║\n╚════════════════════════════════════════════════════╝\n\n✅ Server läuft!\n\n🌐 Öffentliche Adresse: {CANONICAL_URL}\n🌐 Lokale Adresse:      http://localhost:5000\n\n📱 Zugriff über Cloudflare Tunnel aktiv.\n\nDatenbank: lernapp.db (SQLite)\n- Benutzer: gespeichert\n- Fragen: aus fragenpool.json geladen\n- Fortschritt: wird gespeichert\n\n🛑 Server beenden: Drücke Ctrl+C\n''')
     with app.app_context():
         setup_app()
     app.run(host='0.0.0.0', port=5000, debug=False)
