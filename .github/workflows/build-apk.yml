@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - uses: actions/checkout@v4
@@ -33,12 +33,18 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install Cython==0.29.37 virtualenv buildozer
 
-      - name: Copy app files
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+      - name: Sync app files
         run: |
           mkdir -p app
-          cp main.py app/main.py || true
           cp flask_server.py app/flask_server.py || true
-          cp fragenpool.json app/fragenpool.json || true
           cp "fragenpool (2).json" app/fragenpool2.json || true
           cp lernapp.html app/lernapp.html || true
           cp server_neu.py app/server_neu.py || true
@@ -54,20 +60,22 @@ jobs:
           ls -la app/
           echo "=== Starting Buildozer ==="
           yes | buildozer android debug 2>&1 | tee build.log
-          echo "=== Searching for APK ==="
-          find . -name "*.apk" -type f
+          echo "=== APK Suche ==="
+          find . -name "*.apk" -type f || echo "Kein APK gefunden"
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: LernApp-APK
-          path: ./**/*.apk
+          path: bin/*.apk
+          if-no-files-found: warn
           retention-days: 30
 
-      - name: Upload build log (on failure)
-        if: failure()
+      - name: Upload build log (immer)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
           path: build.log
+          if-no-files-found: ignore
           retention-days: 7

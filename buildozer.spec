@@ -13,9 +13,6 @@ source.include_exts = py,json,html,txt
 # Version
 version = 1.0.0
 
-# Entry Point
-entrypoint = main.py
-
 # -------------------------------------------
 # Abhängigkeiten (werden automatisch geladen)
 # -------------------------------------------
