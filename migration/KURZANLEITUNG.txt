@@ -1,0 +1,167 @@
+======================================================================
+         KURZANLEITUNG - LernApp Server Migration v2
+         (jetzt mit automatischem Tunnel + Security)
+======================================================================
+
+DU BRAUCHST:
+  - Alten Laptop
+  - 2x USB-Sticks (1x Debian ISO, 1x diese Dateien)
+  - Cloudflare-Konto (fuer den Tunnel)
+
+======================================================================
+
+SCHRITT 1: DEBIAN ISO AUF USB
+------------------------------
+  1. Debian 12 runterladen:
+     https://www.debian.org/download
+     -> "debian-12-amd64-netinst.iso" (ca. 600 MB)
+
+  2. Rufus runterladen (Windows):
+     https://rufus.ie
+
+  3. USB-Stick #1 einstecken
+  4. Rufus oeffnen -> ISO auswaehlen -> START
+
+SCHRITT 2: TUNNEL-TOKEN HOLEN (VOR DER INSTALLATION!)
+------------------------------------------------------
+  1. https://one.dash.cloudflare.com einloggen
+  2. Zero Trust -> Networks -> Tunnels
+  3. "Create a tunnel" klicken
+  4. Name: "lernapp"
+  5. Betriebssystem: "Debian" waehlen
+  6. Den TOKEN kopieren (der lange String nach '--token')
+  7. Die Datei "server.env" in diesem Ordner oeffnen
+  8. Den Token bei CLOUDFLARE_TUNNEL_TOKEN="" einfuegen
+  9. Optional: Dein LAN-Subnetz anpassen (Default: 192.168.1.0/24)
+  10. Optional: SSH-Public-Key eintragen (sehr empfohlen!)
+
+  WICHTIG - Ingress-Regeln im Dashboard setzen:
+    -> Im Tunnel auf "Public Hostname" -> "Add"
+    -> Hostname: renlern.org     -> Service: http://localhost:5000
+    -> Hostname: www.renlern.org -> Service: http://localhost:5000
+
+SCHRITT 3: DIESE DATEIEN AUF USB
+----------------------------------
+  -> Zweiten USB-Stick einstecken
+  -> Den ganzen "migrations guide" Ordner draufkopieren
+  (mit der bearbeiteten server.env!)
+
+SCHRITT 4: DEBIAN INSTALLIEREN
+--------------------------------
+  1. USB-Stick #1 (Debian) in den Laptop stecken
+  2. Laptop starten, F12/F2/Entf druecken fuer Boot-Menue
+  3. "USB" auswaehlen
+  4. "Install" (NICHT graphical!)
+  5. Sprache: Deutsch
+  6. Hostname: lernapp-server
+  7. Root-Passwort setzen (MERKEN!)
+  8. Benutzer: renas (oder dein Name)
+  9. Partitionierung: "Gesamte Festplatte verwenden"
+  10. Software-Auswahl: NUR diese zwei:
+      [x] SSH-Server
+      [x] Standard-Systemwerkzeuge
+      (KEIN Desktop!)
+  11. GRUB installieren: Ja, auf /dev/sda
+
+SCHRITT 5: ALLES INSTALLIEREN (1 BEFEHL!)
+-------------------------------------------
+  1. Als root einloggen
+  2. USB-Stick #2 (diese Dateien) einstecken
+  3. USB mounten:
+
+     lsblk
+     mount /dev/sdb1 /mnt
+     cd /mnt/migrations_guide
+
+  4. DAS EINE SKRIPT ausfuehren:
+
+     bash INSTALL.sh
+
+  5. Warten (ca. 10-15 Min)
+  6. FERTIG!
+
+  Das Skript macht ALLES automatisch:
+  - System updaten
+  - SSH haerten (Port 8022, max 3 Versuche)
+  - Firewall mit Netzwerk-Zonen
+  - Kernel-Hardening (SYN-Flood-Schutz etc.)
+  - fail2ban (Brute-Force-Schutz)
+  - Automatische Sicherheitsupdates
+  - Python + Flask installieren
+  - Node.js installieren
+  - Cloudflared mit Token starten (AUTOMATISCH!)
+  - yt-dlp installieren
+  - App-Dateien kopieren
+  - systemd-Services mit Sandboxing einrichten
+  - Sicherheitsaudit durchfuehren
+
+SCHRITT 6: TESTEN
+-------------------
+  curl http://localhost:5000/api/health
+  -> Sollte {"status":"ok",...} zeigen
+
+  Von anderem Geraet:
+  https://renlern.org
+  -> LernApp sollte laden
+
+======================================================================
+
+WICHTIGE BEFEHLE:
+  lernapp-manager status       Alle Dienste anzeigen
+  lernapp-manager restart      Alles neustarten
+  fail2ban-client status       Gesperrte IPs anzeigen
+  ufw status verbose           Firewall-Regeln
+  journalctl -u lernapp-flask  Flask-Logs
+  journalctl -u cloudflared-tunnel  Tunnel-Logs
+  lynis audit system           Sicherheitsaudit
+
+SSH VON DEINEM PC:
+  ssh -p 8022 lernapp@IP-DES-LAPTOPS
+
+======================================================================
+
+SICHERHEITS-ARCHITEKTUR:
+
+  Internet
+    |
+    v
+  [Cloudflare CDN + WAF + DDoS-Schutz]
+    |  verschluesselter Tunnel
+    v
+  [FIREWALL] -> Alles blockiert ausser SSH (LAN only)
+    |
+    v
+  [fail2ban] -> 3 Versuche = 2h Ban, Wiederholung = 24h
+    |
+    v
+  [cloudflared] --> [Flask :5000 nur localhost]
+   (sandboxed)      (sandboxed, MemoryMax 512M)
+                     |
+                     v
+                   [SQLite DB] (Rechte: 700)
+
+  7 Schutzschichten:
+  1. Cloudflare WAF + DDoS
+  2. Firewall (nur SSH, kein Web-Port offen)
+  3. fail2ban (SSH + Login Brute-Force)
+  4. SSH-Haertung (Port 8022, nur moderne Crypto)
+  5. Kernel-Hardening (kein Forwarding, ASLR, SYN-Cookies)
+  6. systemd-Sandboxing (NoNewPrivileges, ProtectSystem)
+  7. Dateirechte (750/700, dedizierter User)
+
+======================================================================
+
+FALLS DER TOKEN FEHLT:
+  Kein Problem - alles andere funktioniert trotzdem.
+  Token spaeter nachtragen:
+
+  1. server.env bearbeiten (Token eintragen)
+  2. bash INSTALL.sh  (nochmal ausfuehren)
+
+  ODER manuell:
+  nano /etc/systemd/system/cloudflared-tunnel.service
+  -> ExecStart-Zeile: --token DEIN-TOKEN einfuegen
+  systemctl daemon-reload
+  systemctl restart cloudflared-tunnel
+
+======================================================================

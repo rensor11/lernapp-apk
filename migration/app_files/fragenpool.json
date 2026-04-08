@@ -1,0 +1,3893 @@
+{
+  "Rechte & Berechtigungen": [
+    {
+      "id": 1,
+      "type": "multiple",
+      "question": "Welche drei Benutzerkategorien gibt es bei Linux-Dateirechten?",
+      "options": [
+        {
+          "text": "User, Admin, Root",
+          "correct": false
+        },
+        {
+          "text": "Owner, Group, Others",
+          "correct": true
+        },
+        {
+          "text": "Read, Write, Execute",
+          "correct": false
+        },
+        {
+          "text": "System, User, Network",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "fill",
+      "question": "Mit welchem Befehl ändert man den Besitzer einer Datei?",
+      "answer": "chown"
+    },
+    {
+      "id": 3,
+      "type": "fill",
+      "question": "Mit welchem Befehl ändert man die Gruppe einer Datei?",
+      "answer": "chgrp"
+    },
+    {
+      "id": 4,
+      "type": "multiple",
+      "question": "Welche Rechte hat der Befehl chmod 644 datei.txt?",
+      "options": [
+        {
+          "text": "rw-r--r--",
+          "correct": true
+        },
+        {
+          "text": "rwxr-xr-x",
+          "correct": false
+        },
+        {
+          "text": "rwxrw-r--",
+          "correct": false
+        },
+        {
+          "text": "r--r--r--",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "fill",
+      "question": "Welche Zahl steht für das Recht \"read\"?",
+      "answer": "4"
+    },
+    {
+      "id": 6,
+      "type": "fill",
+      "question": "Welche Zahl steht für das Recht \"write\"?",
+      "answer": "2"
+    },
+    {
+      "id": 7,
+      "type": "fill",
+      "question": "Welche Zahl steht für das Recht \"execute\"?",
+      "answer": "1"
+    },
+    {
+      "id": 8,
+      "type": "multiple",
+      "question": "Wie lautet die numerische Schreibweise für rwxr-x---?",
+      "options": [
+        {
+          "text": "755",
+          "correct": false
+        },
+        {
+          "text": "750",
+          "correct": true
+        },
+        {
+          "text": "700",
+          "correct": false
+        },
+        {
+          "text": "744",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "fill",
+      "question": "Wofür steht SUID?",
+      "answer": "Set User ID"
+    },
+    {
+      "id": 10,
+      "type": "multiple",
+      "question": "Was bewirkt das SUID-Bit bei ausführbaren Dateien?",
+      "options": [
+        {
+          "text": "Programm wird immer mit Root-Rechten gestartet",
+          "correct": false
+        },
+        {
+          "text": "Programm wird mit den Rechten des Dateibesitzers ausgeführt",
+          "correct": true
+        },
+        {
+          "text": "Programm startet nur im Hintergrund",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "fill",
+      "question": "Wofür steht SGID?",
+      "answer": "Set Group ID"
+    },
+    {
+      "id": 12,
+      "type": "multiple",
+      "question": "Welche Wirkung hat SGID auf ein Verzeichnis?",
+      "options": [
+        {
+          "text": "Neue Dateien übernehmen die Gruppe des Erstellers",
+          "correct": false
+        },
+        {
+          "text": "Neue Dateien übernehmen die Gruppe des Verzeichnisses",
+          "correct": true
+        },
+        {
+          "text": "Keine Wirkung",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "multiple",
+      "question": "Wofür steht das Sticky Bit?",
+      "options": [
+        {
+          "text": "Datei kann nicht gelöscht werden",
+          "correct": false
+        },
+        {
+          "text": "Nur Eigentümer darf Datei löschen",
+          "correct": true
+        },
+        {
+          "text": "Datei bleibt im Cache",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "multiple",
+      "question": "In welchem Verzeichnis ist das Sticky Bit üblich?",
+      "options": [
+        {
+          "text": "/tmp",
+          "correct": true
+        },
+        {
+          "text": "/home",
+          "correct": false
+        },
+        {
+          "text": "/etc",
+          "correct": false
+        },
+        {
+          "text": "/root",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "fill",
+      "question": "Welche Zahl steht für das Sticky Bit?",
+      "answer": "1"
+    },
+    {
+      "id": 16,
+      "type": "fill",
+      "question": "Welche Zahl steht für das SUID-Bit?",
+      "answer": "4"
+    },
+    {
+      "id": 17,
+      "type": "fill",
+      "question": "Welche Zahl steht für das SGID-Bit?",
+      "answer": "2"
+    },
+    {
+      "id": 18,
+      "type": "multiple",
+      "question": "Wie setzt man das SUID-Bit per chmod?",
+      "options": [
+        {
+          "text": "chmod 4777 datei",
+          "correct": false
+        },
+        {
+          "text": "chmod u+s datei",
+          "correct": false
+        },
+        {
+          "text": "beide möglich",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "type": "fill",
+      "question": "Mit welchem Befehl findet man alle SUID-Dateien im System?",
+      "answer": "find / -perm -4000"
+    },
+    {
+      "id": 20,
+      "type": "fill",
+      "question": "Was ist die Standard-umask für Root-Benutzer?",
+      "answer": "022"
+    }
+  ],
+  "Paketmanagement": [
+    {
+      "id": 101,
+      "type": "multiple",
+      "question": "Was ist APT?",
+      "options": [
+        {
+          "text": "Ein Kernel-Modul",
+          "correct": false
+        },
+        {
+          "text": "Ein Paketmanagement-Frontend",
+          "correct": true
+        },
+        {
+          "text": "Ein Bootloader",
+          "correct": false
+        },
+        {
+          "text": "Ein Filesystem",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "type": "multiple",
+      "question": "Welcher Befehl installiert ein Paket mit APT?",
+      "options": [
+        {
+          "text": "apt install",
+          "correct": true
+        },
+        {
+          "text": "dpkg -i",
+          "correct": false
+        },
+        {
+          "text": "rpm -i",
+          "correct": false
+        },
+        {
+          "text": "yum remove",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "type": "multiple",
+      "question": "Was macht dpkg -i paket.deb?",
+      "options": [
+        {
+          "text": "Entfernt ein Paket",
+          "correct": false
+        },
+        {
+          "text": "Installiert ein .deb Paket",
+          "correct": true
+        },
+        {
+          "text": "Listet Pakete auf",
+          "correct": false
+        },
+        {
+          "text": "Aktualisiert das System",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "type": "fill",
+      "question": "Was macht apt update?",
+      "answer": "Aktualisiert Paketlisten"
+    },
+    {
+      "id": 105,
+      "type": "multiple",
+      "question": "Unterschied zwischen apt und dpkg?",
+      "options": [
+        {
+          "text": "apt ist langsamer",
+          "correct": false
+        },
+        {
+          "text": "apt löst Abhängigkeiten auf",
+          "correct": true
+        },
+        {
+          "text": "dpkg lädt Pakete aus Internet",
+          "correct": false
+        },
+        {
+          "text": "apt arbeitet ohne Repositories",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "type": "fill",
+      "question": "Was ist RPM?",
+      "answer": "Red Hat Package Manager"
+    },
+    {
+      "id": 107,
+      "type": "multiple",
+      "question": "Welcher Befehl installiert ein RPM-Paket?",
+      "options": [
+        {
+          "text": "apt install",
+          "correct": false
+        },
+        {
+          "text": "rpm -i",
+          "correct": true
+        },
+        {
+          "text": "dpkg -i",
+          "correct": false
+        },
+        {
+          "text": "yum clean",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "type": "multiple",
+      "question": "Was macht YUM/DNF zusätzlich zu RPM?",
+      "options": [
+        {
+          "text": "Kernel kompilieren",
+          "correct": false
+        },
+        {
+          "text": "Abhängigkeiten auflösen",
+          "correct": true
+        },
+        {
+          "text": "Dateien löschen",
+          "correct": false
+        },
+        {
+          "text": "User erstellen",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "type": "fill",
+      "question": "Welche Option zeigt installierte RPM-Pakete?",
+      "answer": "rpm -qa"
+    },
+    {
+      "id": 110,
+      "type": "multiple",
+      "question": "Was macht apt upgrade?",
+      "options": [
+        {
+          "text": "Kernel löschen",
+          "correct": false
+        },
+        {
+          "text": "Pakete aktualisieren",
+          "correct": true
+        },
+        {
+          "text": "System herunterfahren",
+          "correct": false
+        },
+        {
+          "text": "User hinzufügen",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "type": "fill",
+      "question": "Was ist ein Repository?",
+      "answer": "Speicherort für Pakete"
+    },
+    {
+      "id": 112,
+      "type": "multiple",
+      "question": "Welche Distribution nutzt APT?",
+      "options": [
+        {
+          "text": "Debian",
+          "correct": true
+        },
+        {
+          "text": "Rocky Linux",
+          "correct": false
+        },
+        {
+          "text": "RHEL",
+          "correct": false
+        },
+        {
+          "text": "Fedora",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "type": "multiple",
+      "question": "Welche Distribution nutzt RPM?",
+      "options": [
+        {
+          "text": "Debian",
+          "correct": false
+        },
+        {
+          "text": "Ubuntu",
+          "correct": false
+        },
+        {
+          "text": "Rocky Linux",
+          "correct": true
+        },
+        {
+          "text": "Kali",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "type": "fill",
+      "question": "Was macht yum update?",
+      "answer": "Pakete aktualisieren"
+    },
+    {
+      "id": 115,
+      "type": "fill",
+      "question": "Was zeigt dpkg -l?",
+      "answer": "installierte Pakete"
+    },
+    {
+      "id": 116,
+      "type": "multiple",
+      "question": "Was macht apt remove?",
+      "options": [
+        {
+          "text": "Paket inkl. Config löschen",
+          "correct": false
+        },
+        {
+          "text": "Paket entfernen",
+          "correct": true
+        },
+        {
+          "text": "Kernel entfernen",
+          "correct": false
+        },
+        {
+          "text": "Repo löschen",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 117,
+      "type": "multiple",
+      "question": "Was macht apt purge?",
+      "options": [
+        {
+          "text": "Paket entfernen inkl. Konfiguration",
+          "correct": true
+        },
+        {
+          "text": "Nur Cache löschen",
+          "correct": false
+        },
+        {
+          "text": "Kernel aktualisieren",
+          "correct": false
+        },
+        {
+          "text": "User löschen",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "type": "fill",
+      "question": "Was macht rpm -e?",
+      "answer": "Paket entfernen"
+    },
+    {
+      "id": 119,
+      "type": "fill",
+      "question": "Was ist dnf?",
+      "answer": "Ersatz für YUM"
+    },
+    {
+      "id": 120,
+      "type": "fill",
+      "question": "Was macht apt search?",
+      "answer": "Pakete suchen"
+    }
+  ],
+  "GRUB & Bootloader": [
+    {
+      "id": 201,
+      "type": "multiple",
+      "question": "Wofür steht die Abkürzung GRUB?",
+      "options": [
+        {
+          "text": "General Runtime Unix Boot",
+          "correct": false
+        },
+        {
+          "text": "Grand Unified Bootloader",
+          "correct": true
+        },
+        {
+          "text": "Global Runtime Boot",
+          "correct": false
+        },
+        {
+          "text": "GNU Runtime Boot",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 202,
+      "type": "multiple",
+      "question": "Welcher Bootloader wird standardmäßig bei den meisten Linux-Distributionen verwendet?",
+      "options": [
+        {
+          "text": "LILO",
+          "correct": false
+        },
+        {
+          "text": "GRUB",
+          "correct": true
+        },
+        {
+          "text": "SysBoot",
+          "correct": false
+        },
+        {
+          "text": "BootX",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 203,
+      "type": "fill",
+      "question": "Wo befindet sich die Hauptkonfigurationsdatei von GRUB?",
+      "answer": "/boot/grub/grub.cfg"
+    },
+    {
+      "id": 204,
+      "type": "fill",
+      "question": "Welche Datei wird unter Debian verwendet, um die GRUB-Konfiguration anzupassen?",
+      "answer": "/etc/default/grub"
+    },
+    {
+      "id": 205,
+      "type": "fill",
+      "question": "Welcher Befehl aktualisiert GRUB unter Debian?",
+      "answer": "update-grub"
+    },
+    {
+      "id": 206,
+      "type": "fill",
+      "question": "Welcher Befehl installiert GRUB auf eine Festplatte?",
+      "answer": "grub-install"
+    },
+    {
+      "id": 207,
+      "type": "fill",
+      "question": "In welchem Verzeichnis befinden sich die GRUB-Module?",
+      "answer": "/boot/grub"
+    },
+    {
+      "id": 208,
+      "type": "multiple",
+      "question": "Welche Aufgabe hat GRUB hauptsächlich?",
+      "options": [
+        {
+          "text": "Netzwerk konfigurieren",
+          "correct": false
+        },
+        {
+          "text": "Betriebssystem starten",
+          "correct": true
+        },
+        {
+          "text": "Dateisystem reparieren",
+          "correct": false
+        },
+        {
+          "text": "Benutzer verwalten",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 209,
+      "type": "multiple",
+      "question": "Welche GRUB-Version wird heute meistens verwendet?",
+      "options": [
+        {
+          "text": "GRUB Legacy",
+          "correct": false
+        },
+        {
+          "text": "GRUB2",
+          "correct": true
+        },
+        {
+          "text": "GRUB3",
+          "correct": false
+        },
+        {
+          "text": "GRUB Pro",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 210,
+      "type": "fill",
+      "question": "Mit welchem Befehl erstellt man einen GRUB-Passwort-Hash?",
+      "answer": "grub-mkpasswd-pbkdf2"
+    },
+    {
+      "id": 211,
+      "type": "fill",
+      "question": "In welcher Datei speichert man benutzerdefinierte GRUB-Einträge?",
+      "answer": "/etc/grub.d/40_custom"
+    },
+    {
+      "id": 212,
+      "type": "fill",
+      "question": "Welche Datei enthält die Variable GRUB_DEFAULT?",
+      "answer": "/etc/default/grub"
+    },
+    {
+      "id": 213,
+      "type": "fill",
+      "question": "Welche GRUB-Variable setzt die Boot-Wartezeit?",
+      "answer": "GRUB_TIMEOUT"
+    },
+    {
+      "id": 214,
+      "type": "fill",
+      "question": "Wo wird GRUB bei UEFI-Systemen normalerweise installiert?",
+      "answer": "/boot/efi"
+    },
+    {
+      "id": 215,
+      "type": "fill",
+      "question": "Mit welchem Befehl wird die GRUB-Konfiguration neu generiert?",
+      "answer": "grub-mkconfig"
+    }
+  ],
+  "Dateisystem & Storage": [
+    {
+      "id": 301,
+      "type": "fill",
+      "question": "Unter welchem Pfad werden die Man-Pages im System hinterlegt?",
+      "answer": "/usr/share/man"
+    },
+    {
+      "id": 302,
+      "type": "multiple",
+      "question": "Welches Kommando ändert ein ext2 Dateisystem zu ext3?",
+      "options": [
+        {
+          "text": "tune2fs -u",
+          "correct": false
+        },
+        {
+          "text": "tune2fs -j",
+          "correct": true
+        },
+        {
+          "text": "tune2fs -i",
+          "correct": false
+        },
+        {
+          "text": "mkfs",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 303,
+      "type": "multiple",
+      "question": "Welche drei Möglichkeiten gibt es, ein Dateisystem in die fstab einzutragen?",
+      "options": [
+        {
+          "text": "LABEL",
+          "correct": true
+        },
+        {
+          "text": "ID",
+          "correct": true
+        },
+        {
+          "text": "FIND",
+          "correct": false
+        },
+        {
+          "text": "UUID",
+          "correct": true
+        }
+      ],
+      "multiSelect": true
+    },
+    {
+      "id": 304,
+      "type": "fill",
+      "question": "Mit welchem Befehl kann man sich eine Swap-Partition anzeigen lassen?",
+      "answer": "swapon -s|free"
+    },
+    {
+      "id": 305,
+      "type": "multiple",
+      "question": "Was ist die Funktion einer Swap-Partition?",
+      "options": [
+        {
+          "text": "Dateien zwischenspeichern",
+          "correct": false
+        },
+        {
+          "text": "Virtueller RAM - Speichererweiterung",
+          "correct": true
+        },
+        {
+          "text": "Systemdateien speichern",
+          "correct": false
+        },
+        {
+          "text": "Benutzerdaten schützen",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 306,
+      "type": "fill",
+      "question": "Welcher Befehl mountet ein Dateisystem?",
+      "answer": "mount"
+    },
+    {
+      "id": 307,
+      "type": "multiple",
+      "question": "In welcher Datei sind permanente Mount-Punkte definiert?",
+      "options": [
+        {
+          "text": "/etc/mount.conf",
+          "correct": false
+        },
+        {
+          "text": "/etc/fstab",
+          "correct": true
+        },
+        {
+          "text": "/etc/mounts",
+          "correct": false
+        },
+        {
+          "text": "/etc/mount.cfg",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 308,
+      "type": "fill",
+      "question": "Welcher Befehl entmountet ein Dateisystem?",
+      "answer": "umount"
+    },
+    {
+      "id": 309,
+      "type": "fill",
+      "question": "Mit welchem Befehl mountet man alles automatisch aus /etc/fstab?",
+      "answer": "mount -a"
+    },
+    {
+      "id": 310,
+      "type": "multiple",
+      "question": "Wo liegen Blockgeräte im Dateisystem?",
+      "options": [
+        {
+          "text": "/etc/devices",
+          "correct": false
+        },
+        {
+          "text": "/dev/",
+          "correct": true
+        },
+        {
+          "text": "/sys/devices",
+          "correct": false
+        },
+        {
+          "text": "/proc/devices",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 311,
+      "type": "fill",
+      "question": "Wie spricht man die dritte Partition der zweiten SATA-Festplatte an?",
+      "answer": "/dev/sdb3"
+    },
+    {
+      "id": 312,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt den verfügbaren Speicherplatz?",
+      "answer": "df"
+    },
+    {
+      "id": 313,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt die Größe von Verzeichnissen?",
+      "answer": "du"
+    }
+  ],
+  "Hardware & Systemanalyse": [
+    {
+      "id": 401,
+      "type": "multiple",
+      "question": "Welcher Befehl zeigt Informationen über PCI-Geräte an?",
+      "options": [
+        {
+          "text": "lsusb",
+          "correct": false
+        },
+        {
+          "text": "lspci",
+          "correct": true
+        },
+        {
+          "text": "lsblk",
+          "correct": false
+        },
+        {
+          "text": "lshw",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 402,
+      "type": "multiple",
+      "question": "Mit welchem Befehl kann man USB-Geräte auf einem Linux-System anzeigen?",
+      "options": [
+        {
+          "text": "lspci",
+          "correct": false
+        },
+        {
+          "text": "lsusb",
+          "correct": true
+        },
+        {
+          "text": "usbscan",
+          "correct": false
+        },
+        {
+          "text": "usbdev",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 403,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt Kernelinformationen wie Version und Architektur an?",
+      "answer": "uname"
+    },
+    {
+      "id": 404,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt Hostname, Betriebssystem und Kernelinformationen unter systemd-Systemen an?",
+      "answer": "hostnamectl"
+    },
+    {
+      "id": 405,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt CPU-Informationen an?",
+      "answer": "lscpu"
+    },
+    {
+      "id": 406,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt die aktuelle RAM-Auslastung an?",
+      "answer": "free"
+    },
+    {
+      "id": 407,
+      "type": "multiple",
+      "question": "Welches Tool liefert eine sehr detaillierte Hardwareübersicht eines Systems?",
+      "options": [
+        {
+          "text": "lshw",
+          "correct": true
+        },
+        {
+          "text": "lsblk",
+          "correct": false
+        },
+        {
+          "text": "lspci",
+          "correct": false
+        },
+        {
+          "text": "uname",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 408,
+      "type": "fill",
+      "question": "Welches Tool liefert eine kompakte Systemübersicht über Hardware und Software?",
+      "answer": "inxi"
+    },
+    {
+      "id": 409,
+      "type": "multiple",
+      "question": "Welcher Befehl zeigt geladene Kernelmodule an?",
+      "options": [
+        {
+          "text": "modinfo",
+          "correct": false
+        },
+        {
+          "text": "lsmod",
+          "correct": true
+        },
+        {
+          "text": "insmod",
+          "correct": false
+        },
+        {
+          "text": "modprobe",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 410,
+      "type": "fill",
+      "question": "Welcher Befehl lädt ein Kernelmodul inklusive Abhängigkeiten?",
+      "answer": "modprobe"
+    },
+    {
+      "id": 411,
+      "type": "fill",
+      "question": "Welcher Befehl lädt ein Kernelmodul ohne automatische Abhängigkeitsprüfung?",
+      "answer": "insmod"
+    },
+    {
+      "id": 412,
+      "type": "fill",
+      "question": "Welcher Befehl entfernt ein Kernelmodul aus dem Kernel?",
+      "answer": "rmmod"
+    },
+    {
+      "id": 413,
+      "type": "multiple",
+      "question": "Welcher Kerneltyp wird traditionell von Linux verwendet?",
+      "options": [
+        {
+          "text": "Microkernel",
+          "correct": false
+        },
+        {
+          "text": "Hybridkernel",
+          "correct": false
+        },
+        {
+          "text": "Monolithischer Kernel mit Modulen",
+          "correct": true
+        },
+        {
+          "text": "Minimal Kernel",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "Linux Befehle": [
+    {
+      "id": 501,
+      "type": "multiple",
+      "question": "Welcher Befehl zeigt den aktuellen Ordner an?",
+      "options": [
+        {
+          "text": "pwd",
+          "correct": true
+        },
+        {
+          "text": "ls",
+          "correct": false
+        },
+        {
+          "text": "cd",
+          "correct": false
+        },
+        {
+          "text": "whoami",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 502,
+      "type": "multiple",
+      "question": "Mit welchem Befehl wechselt man in ein anderes Verzeichnis?",
+      "options": [
+        {
+          "text": "ls",
+          "correct": false
+        },
+        {
+          "text": "pwd",
+          "correct": false
+        },
+        {
+          "text": "cd",
+          "correct": true
+        },
+        {
+          "text": "cat",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 503,
+      "type": "multiple",
+      "question": "Welcher Befehl zeigt eine Liste der Dateien im aktuellen Verzeichnis an?",
+      "options": [
+        {
+          "text": "ls",
+          "correct": true
+        },
+        {
+          "text": "mv",
+          "correct": false
+        },
+        {
+          "text": "rm",
+          "correct": false
+        },
+        {
+          "text": "touch",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 504,
+      "type": "multiple",
+      "question": "Welcher Befehl erstellt eine neue leere Datei?",
+      "options": [
+        {
+          "text": "cp",
+          "correct": false
+        },
+        {
+          "text": "cat",
+          "correct": false
+        },
+        {
+          "text": "nano",
+          "correct": false
+        },
+        {
+          "text": "touch",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": 505,
+      "type": "multiple",
+      "question": "Welcher Befehl löscht eine Datei?",
+      "options": [
+        {
+          "text": "rm",
+          "correct": true
+        },
+        {
+          "text": "rmdir",
+          "correct": false
+        },
+        {
+          "text": "delete",
+          "correct": false
+        },
+        {
+          "text": "erase",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 506,
+      "type": "multiple",
+      "question": "Welcher Befehl kopiert eine Datei?",
+      "options": [
+        {
+          "text": "mv",
+          "correct": false
+        },
+        {
+          "text": "cp",
+          "correct": true
+        },
+        {
+          "text": "ls",
+          "correct": false
+        },
+        {
+          "text": "cat",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 507,
+      "type": "multiple",
+      "question": "Welcher Befehl verschiebt oder benennt eine Datei um?",
+      "options": [
+        {
+          "text": "mv",
+          "correct": true
+        },
+        {
+          "text": "rename",
+          "correct": false
+        },
+        {
+          "text": "touch",
+          "correct": false
+        },
+        {
+          "text": "movefile",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 508,
+      "type": "multiple",
+      "question": "Welcher Befehl zeigt den Inhalt einer Datei im Terminal an?",
+      "options": [
+        {
+          "text": "cat",
+          "correct": true
+        },
+        {
+          "text": "show",
+          "correct": false
+        },
+        {
+          "text": "less",
+          "correct": false
+        },
+        {
+          "text": "sowohl cat als auch less",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 509,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man die ersten Zeilen einer Datei an?",
+      "answer": "head"
+    },
+    {
+      "id": 510,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man die letzten Zeilen einer Datei an?",
+      "answer": "tail"
+    },
+    {
+      "id": 511,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt den verfügbaren Speicherplatz auf Dateisystemen?",
+      "answer": "df"
+    },
+    {
+      "id": 512,
+      "type": "fill",
+      "question": "Mit welchem Befehl erstellt man ein Verzeichnis?",
+      "answer": "mkdir"
+    },
+    {
+      "id": 513,
+      "type": "fill",
+      "question": "Mit welchem Befehl löscht man ein leeres Verzeichnis?",
+      "answer": "rmdir"
+    },
+    {
+      "id": 514,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man den aktuell eingeloggten Benutzer?",
+      "answer": "whoami"
+    },
+    {
+      "id": 515,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man die Handbuchseite zu einem Befehl an?",
+      "answer": "man"
+    }
+  ],
+  "Shared Libraries": [
+    {
+      "id": 601,
+      "type": "multiple",
+      "question": "Was ist eine Shared Library unter Linux?",
+      "options": [
+        {
+          "text": "ein Kernelmodul",
+          "correct": false
+        },
+        {
+          "text": "eine gemeinsam genutzte Programmbibliothek",
+          "correct": true
+        },
+        {
+          "text": "ein Dateisystem",
+          "correct": false
+        },
+        {
+          "text": "ein Treiber",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 602,
+      "type": "multiple",
+      "question": "Welche Dateiendung haben Shared Libraries unter Linux normalerweise?",
+      "options": [
+        {
+          "text": ".lib",
+          "correct": false
+        },
+        {
+          "text": ".dll",
+          "correct": false
+        },
+        {
+          "text": ".so",
+          "correct": true
+        },
+        {
+          "text": ".sys",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 603,
+      "type": "multiple",
+      "question": "Welche Dateiendung haben statische Libraries unter Linux?",
+      "options": [
+        {
+          "text": ".so",
+          "correct": false
+        },
+        {
+          "text": ".dll",
+          "correct": false
+        },
+        {
+          "text": ".a",
+          "correct": true
+        },
+        {
+          "text": ".lib",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 604,
+      "type": "fill",
+      "question": "Welcher Befehl zeigt an, welche Shared Libraries ein Programm verwendet?",
+      "answer": "ldd"
+    },
+    {
+      "id": 605,
+      "type": "fill",
+      "question": "Welcher Befehl aktualisiert den Cache der Shared Libraries?",
+      "answer": "ldconfig"
+    },
+    {
+      "id": 606,
+      "type": "multiple",
+      "question": "Welches Verzeichnis enthält häufig Shared Libraries?",
+      "options": [
+        {
+          "text": "/boot",
+          "correct": false
+        },
+        {
+          "text": "/etc",
+          "correct": false
+        },
+        {
+          "text": "/lib",
+          "correct": true
+        },
+        {
+          "text": "/home",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 607,
+      "type": "fill",
+      "question": "Welches weitere Verzeichnis enthält häufig Bibliotheken?",
+      "answer": "/usr/lib"
+    },
+    {
+      "id": 608,
+      "type": "multiple",
+      "question": "Welcher Mechanismus lädt Shared Libraries beim Start eines Programms?",
+      "options": [
+        {
+          "text": "Static Linking",
+          "correct": false
+        },
+        {
+          "text": "Dynamic Linking",
+          "correct": true
+        },
+        {
+          "text": "Kernel Linking",
+          "correct": false
+        },
+        {
+          "text": "Runtime Compilation",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 609,
+      "type": "fill",
+      "question": "Welche Komponente lädt die Shared Libraries zur Laufzeit?",
+      "answer": "Dynamic Linker"
+    },
+    {
+      "id": 610,
+      "type": "fill",
+      "question": "Welche Datei enthält den Cache der Bibliotheken?",
+      "answer": "/etc/ld.so.cache"
+    },
+    {
+      "id": 611,
+      "type": "multiple",
+      "question": "Welche Aussage beschreibt einen Vorteil von Shared Libraries?",
+      "options": [
+        {
+          "text": "größerer Speicherbedarf",
+          "correct": false
+        },
+        {
+          "text": "Programme müssen mehrfach kompiliert werden",
+          "correct": false
+        },
+        {
+          "text": "geringerer Speicherverbrauch",
+          "correct": true
+        },
+        {
+          "text": "längere Startzeiten",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 612,
+      "type": "multiple",
+      "question": "Welche Library enthält grundlegende C-Funktionen?",
+      "options": [
+        {
+          "text": "libssl",
+          "correct": false
+        },
+        {
+          "text": "libc",
+          "correct": true
+        },
+        {
+          "text": "libnet",
+          "correct": false
+        },
+        {
+          "text": "libsys",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 613,
+      "type": "multiple",
+      "question": "Welches Problem kann auftreten, wenn eine benötigte Shared Library fehlt?",
+      "options": [
+        {
+          "text": "Kernel Panic",
+          "correct": false
+        },
+        {
+          "text": "Programm startet nicht",
+          "correct": true
+        },
+        {
+          "text": "System fährt herunter",
+          "correct": false
+        },
+        {
+          "text": "Hardwarefehler",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 3029,
+      "type": "multiple",
+      "question": "Was sind Shared Libraries?",
+      "options": [
+        {
+          "text": "Gemeinsame Code-Bibliotheken, die mehrere Programme nutzen",
+          "correct": true
+        },
+        {
+          "text": "Dateien mit freigegebenen Berechtigungen",
+          "correct": false
+        },
+        {
+          "text": "Netzwerk-Bibliotheken",
+          "correct": false
+        },
+        {
+          "text": "Temporäre Dateien",
+          "correct": false
+        }
+      ],
+      "explanation": "Shared Libraries (.so-Dateien) werden von mehreren Programmen genutzt."
+    },
+    {
+      "id": 3030,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man abhängige Libraries eines Programms?",
+      "answer": "ldd",
+      "explanation": "ldd zeigt die Shared Libraries an, die ein Programm benötigt."
+    },
+    {
+      "id": 3031,
+      "type": "multiple",
+      "question": "Wo werden Shared Libraries üblicherweise gespeichert?",
+      "options": [
+        {
+          "text": "/lib und /usr/lib",
+          "correct": true
+        },
+        {
+          "text": "/bin",
+          "correct": false
+        },
+        {
+          "text": "/opt",
+          "correct": false
+        },
+        {
+          "text": "/home",
+          "correct": false
+        }
+      ],
+      "explanation": "/lib und /usr/lib sind die Standard-Verzeichnisse für Libraries."
+    }
+  ],
+  "LVM & Partitionierung": [
+    {
+      "id": 701,
+      "type": "fill",
+      "question": "Wofür steht LVM?",
+      "answer": "Logical Volume Manager"
+    },
+    {
+      "id": 702,
+      "type": "fill",
+      "question": "Welcher Befehl erstellt eine Physical Volume?",
+      "answer": "pvcreate"
+    },
+    {
+      "id": 703,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man alle Physical Volumes an?",
+      "answer": "pvs|pvdisplay"
+    },
+    {
+      "id": 704,
+      "type": "multiple",
+      "question": "Was ist eine Volume Group?",
+      "options": [
+        {
+          "text": "Mehrere Physical Volumes zusammengefasst",
+          "correct": true
+        },
+        {
+          "text": "Ein Logical Volume mit mehreren Partitionen",
+          "correct": false
+        },
+        {
+          "text": "Ein Mount-Punkt für mehrere Geräte",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": 705,
+      "type": "fill",
+      "question": "Mit welchem Befehl erstellt man eine Volume Group?",
+      "answer": "vgcreate"
+    },
+    {
+      "id": 706,
+      "type": "fill",
+      "question": "Mit welchem Befehl erstellt man ein Logical Volume?",
+      "answer": "lvcreate"
+    },
+    {
+      "id": 707,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man alle Volume Groups an?",
+      "answer": "vgs|vgdisplay"
+    },
+    {
+      "id": 708,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man alle Logical Volumes an?",
+      "answer": "lvs|lvdisplay"
+    }
+  ],
+  "Prozess-Management & Prioritäten": [
+    {
+      "id": 1001,
+      "type": "multiple",
+      "question": "Mit welchem Befehl kann man ein Programm mit einer vordefinierten Priorität starten?",
+      "options": [
+        {
+          "text": "nice",
+          "correct": true
+        },
+        {
+          "text": "renice",
+          "correct": false
+        },
+        {
+          "text": "priority",
+          "correct": false
+        },
+        {
+          "text": "pidof",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'nice' wird verwendet, um Programme mit einer Priorität zu starten. Syntax: nice -n <niceness> <befehl>"
+    },
+    {
+      "id": 1002,
+      "type": "multiple",
+      "question": "Welcher Befehl ändert die Priorität eines laufenden Prozesses?",
+      "options": [
+        {
+          "text": "nice",
+          "correct": false
+        },
+        {
+          "text": "renice",
+          "correct": true
+        },
+        {
+          "text": "chprio",
+          "correct": false
+        },
+        {
+          "text": "setpriority",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'renice' wird verwendet, um die Priorität eines bereits laufenden Prozesses zu ändern. Syntax: renice <niceness> -p <PID>"
+    },
+    {
+      "id": 1003,
+      "type": "multiple",
+      "question": "Welcher Bereich ist der Standard für die Priorität (niceness) unter Linux?",
+      "options": [
+        {
+          "text": "-20 bis 19",
+          "correct": true
+        },
+        {
+          "text": "0 bis 100",
+          "correct": false
+        },
+        {
+          "text": "-10 bis 10",
+          "correct": false
+        },
+        {
+          "text": "1 bis 99",
+          "correct": false
+        }
+      ],
+      "explanation": "Prioritäten (niceness) unter Linux reichen von -20 (höchste Priorität) bis 19 (niedrigste Priorität)."
+    },
+    {
+      "id": 1004,
+      "type": "fill",
+      "question": "Mit welcher Option kann man bei renice die Priorität aller Prozesse eines Benutzers ändern?",
+      "answer": "-u",
+      "explanation": "Die Option -u bei renice ändert die Priorität aller Prozesse eines bestimmten Benutzers."
+    },
+    {
+      "id": 1005,
+      "type": "multiple",
+      "question": "Was ist der Unterschied zwischen nice und renice?",
+      "options": [
+        {
+          "text": "nice für neue Programme, renice für laufende Programme",
+          "correct": true
+        },
+        {
+          "text": "nice für Linux, renice für Unix",
+          "correct": false
+        },
+        {
+          "text": "nice für Benutzer, renice für Admin",
+          "correct": false
+        },
+        {
+          "text": "Kein Unterschied",
+          "correct": false
+        }
+      ],
+      "explanation": "nice startet Programme mit Priorität, renice ändert Priorität von bereits laufenden Prozessen."
+    }
+  ],
+  "Signale & Process Management": [
+    {
+      "id": 1006,
+      "type": "multiple",
+      "question": "Mit welchem Befehl werden Signale an Prozesse gesendet?",
+      "options": [
+        {
+          "text": "kill",
+          "correct": true
+        },
+        {
+          "text": "signal",
+          "correct": false
+        },
+        {
+          "text": "send",
+          "correct": false
+        },
+        {
+          "text": "notify",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'kill' wird verwendet, um Signale an Prozesse zu senden. Syntax: kill -SIGNAL PID"
+    },
+    {
+      "id": 1007,
+      "type": "multiple",
+      "question": "Welches Signal wird mit kill -15 gesendet?",
+      "options": [
+        {
+          "text": "SIGTERM",
+          "correct": true
+        },
+        {
+          "text": "SIGKILL",
+          "correct": false
+        },
+        {
+          "text": "SIGSTOP",
+          "correct": false
+        },
+        {
+          "text": "SIGCONT",
+          "correct": false
+        }
+      ],
+      "explanation": "SIGTERM (Signal 15) ist das Standard-Signal zum Beenden von Prozessen. Der Prozess kann es abfangen."
+    },
+    {
+      "id": 1008,
+      "type": "multiple",
+      "question": "Welches Signal kann ein Prozess NICHT ignorieren?",
+      "options": [
+        {
+          "text": "SIGKILL (9)",
+          "correct": true
+        },
+        {
+          "text": "SIGTERM (15)",
+          "correct": false
+        },
+        {
+          "text": "SIGSTOP (19)",
+          "correct": false
+        },
+        {
+          "text": "SIGUSR1 (10)",
+          "correct": false
+        }
+      ],
+      "explanation": "SIGKILL (Signal 9) kann nicht ignoriert oder abgefangen werden - es beendet den Prozess sofort."
+    },
+    {
+      "id": 1009,
+      "type": "fill",
+      "question": "Mit welchem Befehl können alle verfügbaren Signale angezeigt werden?",
+      "answer": "kill -l",
+      "explanation": "Der Befehl 'kill -l' zeigt alle verfügbaren Signale an (über 60 verschiedene Signale)."
+    },
+    {
+      "id": 1010,
+      "type": "multiple",
+      "question": "Welches Signal pausiert einen Prozess temporär?",
+      "options": [
+        {
+          "text": "SIGSTOP (19)",
+          "correct": true
+        },
+        {
+          "text": "SIGTERM (15)",
+          "correct": false
+        },
+        {
+          "text": "SIGKILL (9)",
+          "correct": false
+        },
+        {
+          "text": "SIGPAUSE (1)",
+          "correct": false
+        }
+      ],
+      "explanation": "SIGSTOP (Signal 19) pausiert einen Prozess. Mit SIGCONT (18) kann er weiterlaufen."
+    },
+    {
+      "id": 1011,
+      "type": "fill",
+      "question": "Mit welchem Signal wird ein Prozess nach SIGSTOP wieder fortgesetzt?",
+      "answer": "SIGCONT",
+      "explanation": "SIGCONT (Signal 18) wird verwendet, um einen mit SIGSTOP paussierten Prozess fortzusetzen."
+    }
+  ],
+  "Benutzer & Authentifizierung (passwd)": [
+    {
+      "id": 1012,
+      "type": "multiple",
+      "question": "Was steht im Passwort-Feld der /etc/passwd Datei?",
+      "options": [
+        {
+          "text": "x (das Passwort ist in /etc/shadow)",
+          "correct": true
+        },
+        {
+          "text": "Das verschlüsselte Passwort",
+          "correct": false
+        },
+        {
+          "text": "Das Klartextpasswort",
+          "correct": false
+        },
+        {
+          "text": "Die UID",
+          "correct": false
+        }
+      ],
+      "explanation": "In modernen Linux-Systemen steht in /etc/passwd nur ein 'x', das echte Passwort ist in /etc/shadow gespeichert."
+    },
+    {
+      "id": 1013,
+      "type": "multiple",
+      "question": "An welcher Position steht die UID in /etc/passwd?",
+      "options": [
+        {
+          "text": "3. Position",
+          "correct": true
+        },
+        {
+          "text": "2. Position",
+          "correct": false
+        },
+        {
+          "text": "1. Position",
+          "correct": false
+        },
+        {
+          "text": "4. Position",
+          "correct": false
+        }
+      ],
+      "explanation": "Format: username:password:UID:GID:GECOS:home:shell - UID ist die 3. Position."
+    },
+    {
+      "id": 1014,
+      "type": "fill",
+      "question": "Welche UID hat der root-Benutzer?",
+      "answer": "0",
+      "explanation": "Der root-Benutzer hat immer die UID 0, unabhängig vom Benutzernamen."
+    },
+    {
+      "id": 1015,
+      "type": "multiple",
+      "question": "Welches Feld in /etc/passwd ist die GID?",
+      "options": [
+        {
+          "text": "4. Position",
+          "correct": true
+        },
+        {
+          "text": "3. Position",
+          "correct": false
+        },
+        {
+          "text": "5. Position",
+          "correct": false
+        },
+        {
+          "text": "2. Position",
+          "correct": false
+        }
+      ],
+      "explanation": "GID ist die 4. Position in /etc/passwd und definiert die primäre Gruppe des Benutzers."
+    },
+    {
+      "id": 1016,
+      "type": "fill",
+      "question": "Was bedeutet 'GECOS' in /etc/passwd?",
+      "answer": "General Electric Comprehensive Operating System|Benutzerdaten",
+      "explanation": "GECOS (5. Position) enthält den vollständigen Namen und weitere Informationen über den Benutzer."
+    }
+  ],
+  "Passwort-Verwaltung (Shadow & chage)": [
+    {
+      "id": 1017,
+      "type": "multiple",
+      "question": "In welcher Datei werden verschlüsselte Passwörter gespeichert?",
+      "options": [
+        {
+          "text": "/etc/shadow",
+          "correct": true
+        },
+        {
+          "text": "/etc/passwd",
+          "correct": false
+        },
+        {
+          "text": "/etc/security",
+          "correct": false
+        },
+        {
+          "text": "/etc/cryptpwd",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/shadow enthält die verschlüsselten Passwörter und kann nur von root gelesen werden."
+    },
+    {
+      "id": 1018,
+      "type": "multiple",
+      "question": "Was bedeutet ein '!' im Passwortfeld von /etc/shadow?",
+      "options": [
+        {
+          "text": "Benutzer ist gesperrt",
+          "correct": true
+        },
+        {
+          "text": "Passwort ist abgelaufen",
+          "correct": false
+        },
+        {
+          "text": "Passwort ist ungültig",
+          "correct": false
+        },
+        {
+          "text": "Keine Bedeutung",
+          "correct": false
+        }
+      ],
+      "explanation": "Ein '!' im Passwortfeld von /etc/shadow bedeutet, dass das Benutzerkonto gesperrt ist."
+    },
+    {
+      "id": 1019,
+      "type": "multiple",
+      "question": "Welche Option von chage setzt das maximale Passwortalter?",
+      "options": [
+        {
+          "text": "-M",
+          "correct": true
+        },
+        {
+          "text": "-m",
+          "correct": false
+        },
+        {
+          "text": "-E",
+          "correct": false
+        },
+        {
+          "text": "-d",
+          "correct": false
+        }
+      ],
+      "explanation": "Die Option -M setzt die maximale Anzahl von Tagen, bis ein Passwort geändert werden muss."
+    },
+    {
+      "id": 1020,
+      "type": "multiple",
+      "question": "Welche Option von chage setzt die Warnzeit vor Passwortablauf?",
+      "options": [
+        {
+          "text": "-W",
+          "correct": true
+        },
+        {
+          "text": "-w",
+          "correct": false
+        },
+        {
+          "text": "-n",
+          "correct": false
+        },
+        {
+          "text": "-i",
+          "correct": false
+        }
+      ],
+      "explanation": "Die Option -W setzt die Anzahl der Tage, vor denen eine Warnung angezeigt wird."
+    },
+    {
+      "id": 1021,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man alle Passwort-Aging-Informationen eines Benutzers an?",
+      "answer": "chage -l",
+      "explanation": "Der Befehl 'chage -l benutzername' zeigt alle Aging-Informationen des Benutzers an."
+    },
+    {
+      "id": 1022,
+      "type": "multiple",
+      "question": "Welche Option sperrt einen Benutzer mit passwd?",
+      "options": [
+        {
+          "text": "-l",
+          "correct": true
+        },
+        {
+          "text": "-L",
+          "correct": false
+        },
+        {
+          "text": "-x",
+          "correct": false
+        },
+        {
+          "text": "-d",
+          "correct": false
+        }
+      ],
+      "explanation": "Die Option -l (lock) bei passwd sperrt einen Benutzer durch Prefixing mit '!'."
+    },
+    {
+      "id": 1023,
+      "type": "fill",
+      "question": "Mit welchem Befehl entsperrt man einen mit 'passwd -l' gesperrten Benutzer?",
+      "answer": "passwd -u",
+      "explanation": "Die Option -u (unlock) bei passwd hebt die Sperrung auf."
+    }
+  ],
+  "Shell-Konfigurationen": [
+    {
+      "id": 1024,
+      "type": "multiple",
+      "question": "Welche Datei wird VOR dem Login angezeigt?",
+      "options": [
+        {
+          "text": "/etc/issue",
+          "correct": true
+        },
+        {
+          "text": "/etc/motd",
+          "correct": false
+        },
+        {
+          "text": "/etc/login.defs",
+          "correct": false
+        },
+        {
+          "text": "/etc/profile",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/issue wird auf dem Login-Prompt angezeigt, bevor der Benutzer sich anmeldet."
+    },
+    {
+      "id": 1025,
+      "type": "multiple",
+      "question": "Welche Datei wird NACH dem Login angezeigt?",
+      "options": [
+        {
+          "text": "/etc/motd",
+          "correct": true
+        },
+        {
+          "text": "/etc/issue",
+          "correct": false
+        },
+        {
+          "text": "/etc/bashrc",
+          "correct": false
+        },
+        {
+          "text": "~/.bashrc",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/motd (Message of the Day) wird nach erfolgreichem Login angezeigt."
+    },
+    {
+      "id": 1026,
+      "type": "fill",
+      "question": "Welche Datei definiert globale Umgebungsvariablen für alle Benutzer?",
+      "answer": "/etc/profile",
+      "explanation": "/etc/profile wird bei Login-Shells für alle Benutzer geladen."
+    },
+    {
+      "id": 1027,
+      "type": "multiple",
+      "question": "Welche Datei wird bei jeder neuen interaktiven Shell geladen?",
+      "options": [
+        {
+          "text": "~/.bashrc",
+          "correct": true
+        },
+        {
+          "text": "/etc/profile",
+          "correct": false
+        },
+        {
+          "text": "/etc/bash.bashrc",
+          "correct": false
+        },
+        {
+          "text": "~/.bash_profile",
+          "correct": false
+        }
+      ],
+      "explanation": "~/.bashrc wird bei jeder neuen interaktiven Shell (Non-Login Shell) geladen."
+    },
+    {
+      "id": 1028,
+      "type": "fill",
+      "question": "In welcher Datei definiert man benutzerspezifische Einstellungen?",
+      "answer": "~/.bashrc",
+      "explanation": "Die Datei ~/.bashrc enthält persönliche Shell-Einstellungen für den Benutzer."
+    }
+  ],
+  "Benutzer und Gruppenverwaltung Advanced": [
+    {
+      "id": 1029,
+      "type": "multiple",
+      "question": "Welche Datei definiert Standardwerte für neue Benutzer?",
+      "options": [
+        {
+          "text": "/etc/default/useradd",
+          "correct": true
+        },
+        {
+          "text": "/etc/useradd.conf",
+          "correct": false
+        },
+        {
+          "text": "/etc/skel",
+          "correct": false
+        },
+        {
+          "text": "/etc/login.defs",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/default/useradd enthält die Standardeinstellungen für neue Benutzer (UID, GID, Shell, etc.)."
+    },
+    {
+      "id": 1030,
+      "type": "multiple",
+      "question": "Welche Datei enthält Musterinhalte für neue Home-Verzeichnisse?",
+      "options": [
+        {
+          "text": "/etc/skel",
+          "correct": true
+        },
+        {
+          "text": "/etc/default/useradd",
+          "correct": false
+        },
+        {
+          "text": "/etc/skeleton",
+          "correct": false
+        },
+        {
+          "text": "/etc/template",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/skel enthält Dateien und Verzeichnisse, die in neue Home-Verzeichnisse kopiert werden."
+    },
+    {
+      "id": 1031,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man UID und GID eines Benutzers an?",
+      "answer": "id",
+      "explanation": "Der Befehl 'id' zeigt die UID, GID und alle Gruppen eines Benutzers an."
+    },
+    {
+      "id": 1032,
+      "type": "multiple",
+      "question": "Welcher Befehl listet alle Gruppen eines Benutzers auf?",
+      "options": [
+        {
+          "text": "groups",
+          "correct": true
+        },
+        {
+          "text": "id -G",
+          "correct": true
+        },
+        {
+          "text": "getent group",
+          "correct": false
+        },
+        {
+          "text": "grouplist",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'groups' oder 'id -G' zeigt alle Gruppen eines Benutzers an."
+    },
+    {
+      "id": 1033,
+      "type": "fill",
+      "question": "Mit welcher Option löscht man einen Benutzer INKLUSIVE Home-Verzeichnis?",
+      "answer": "-r",
+      "explanation": "Die Option -r bei userdel löscht auch das Home-Verzeichnis des Benutzers."
+    }
+  ],
+  "Benutzer & Passwort Management": [
+    {
+      "id": 2001,
+      "type": "multiple",
+      "question": "Welcher Befehl erstellt einen neuen Benutzer unter Linux?",
+      "options": [
+        {
+          "text": "useradd",
+          "correct": true
+        },
+        {
+          "text": "add",
+          "correct": false
+        },
+        {
+          "text": "adduser",
+          "correct": false
+        },
+        {
+          "text": "newuser",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'useradd' ist der Standard-Befehl zum Erstellen neuer Benutzer."
+    },
+    {
+      "id": 2002,
+      "type": "multiple",
+      "question": "Was ist der Unterschied zwischen useradd und adduser?",
+      "options": [
+        {
+          "text": "adduser ist ein User-Freundlicheres Wrapper-Script zu useradd",
+          "correct": true
+        },
+        {
+          "text": "Es gibt keinen Unterschied",
+          "correct": false
+        },
+        {
+          "text": "useradd ist interaktiv",
+          "correct": false
+        },
+        {
+          "text": "adduser ist älter",
+          "correct": false
+        }
+      ],
+      "explanation": "adduser ist ein Wrapper-Script, das useradd einfacher und benutzerfreundlicher macht."
+    },
+    {
+      "id": 2003,
+      "type": "multiple",
+      "question": "Welche Datei enthält Benutzerinformationen?",
+      "options": [
+        {
+          "text": "/etc/passwd",
+          "correct": true
+        },
+        {
+          "text": "/etc/shadow",
+          "correct": false
+        },
+        {
+          "text": "/etc/group",
+          "correct": false
+        },
+        {
+          "text": "/etc/users",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/passwd enthält Benutzernamen, UID, GID, Home-Verzeichnis und Shell."
+    },
+    {
+      "id": 2004,
+      "type": "multiple",
+      "question": "Welche Datei speichert verschlüsselte Passwörter?",
+      "options": [
+        {
+          "text": "/etc/shadow",
+          "correct": true
+        },
+        {
+          "text": "/etc/passwd",
+          "correct": false
+        },
+        {
+          "text": "/etc/crypt",
+          "correct": false
+        },
+        {
+          "text": "/etc/secret",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/shadow speichert die verschlüsselten Passwörter und ist nur für root lesbar."
+    },
+    {
+      "id": 2005,
+      "type": "fill",
+      "question": "Welches Feld in /etc/passwd enthält die UID?",
+      "answer": "3",
+      "explanation": "Die UID steht an der 3. Position in /etc/passwd."
+    },
+    {
+      "id": 2006,
+      "type": "multiple",
+      "question": "Was bedeutet UID 0?",
+      "options": [
+        {
+          "text": "root",
+          "correct": true
+        },
+        {
+          "text": "Gast",
+          "correct": false
+        },
+        {
+          "text": "Systemuser",
+          "correct": false
+        },
+        {
+          "text": "Admin",
+          "correct": false
+        }
+      ],
+      "explanation": "UID 0 ist immer der root-Benutzer, unabhängig vom Benutzernamen."
+    },
+    {
+      "id": 2007,
+      "type": "multiple",
+      "question": "Welcher Befehl ändert ein Benutzerpasswort?",
+      "options": [
+        {
+          "text": "passwd",
+          "correct": true
+        },
+        {
+          "text": "password",
+          "correct": false
+        },
+        {
+          "text": "chpasswd",
+          "correct": false
+        },
+        {
+          "text": "pwdchange",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'passwd' wird verwendet, um Passwörter zu ändern oder zu setzen."
+    },
+    {
+      "id": 2008,
+      "type": "multiple",
+      "question": "Was bewirkt passwd -l user?",
+      "options": [
+        {
+          "text": "sperrt Benutzer",
+          "correct": true
+        },
+        {
+          "text": "löscht Passwort",
+          "correct": false
+        },
+        {
+          "text": "setzt Passwort zurück",
+          "correct": false
+        },
+        {
+          "text": "zeigt Passwort",
+          "correct": false
+        }
+      ],
+      "explanation": "passwd -l sperrt einen Benutzer, indem das Passwort mit '!' prefixed wird."
+    },
+    {
+      "id": 2009,
+      "type": "multiple",
+      "question": "Was bewirkt passwd -u user?",
+      "options": [
+        {
+          "text": "entsperrt Benutzer",
+          "correct": true
+        },
+        {
+          "text": "löscht Benutzer",
+          "correct": false
+        },
+        {
+          "text": "setzt UID",
+          "correct": false
+        },
+        {
+          "text": "zeigt Passwort",
+          "correct": false
+        }
+      ],
+      "explanation": "passwd -u hebt die Sperrung eines Benutzers auf."
+    },
+    {
+      "id": 2010,
+      "type": "multiple",
+      "question": "Welche Datei enthält Passwort-Aging-Informationen?",
+      "options": [
+        {
+          "text": "/etc/shadow",
+          "correct": true
+        },
+        {
+          "text": "/etc/passwd",
+          "correct": false
+        },
+        {
+          "text": "/etc/aging",
+          "correct": false
+        },
+        {
+          "text": "/etc/age",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/shadow enthält auch Informationen über Passwort-Alter und Ablauf."
+    },
+    {
+      "id": 2011,
+      "type": "multiple",
+      "question": "Welcher Befehl wird zur Verwaltung von Passwortablauf verwendet?",
+      "options": [
+        {
+          "text": "chage",
+          "correct": true
+        },
+        {
+          "text": "passwd",
+          "correct": false
+        },
+        {
+          "text": "agepass",
+          "correct": false
+        },
+        {
+          "text": "shadow",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'chage' verwaltet Passwort-Aging und Kontoverfallsdaten."
+    },
+    {
+      "id": 2012,
+      "type": "multiple",
+      "question": "Was zeigt chage -l user?",
+      "options": [
+        {
+          "text": "Passwort-Alter und Ablaufdaten",
+          "correct": true
+        },
+        {
+          "text": "Gruppen",
+          "correct": false
+        },
+        {
+          "text": "Login-History",
+          "correct": false
+        },
+        {
+          "text": "UID",
+          "correct": false
+        }
+      ],
+      "explanation": "chage -l zeigt alle Passwort-Aging-Informationen für einen Benutzer."
+    },
+    {
+      "id": 2013,
+      "type": "multiple",
+      "question": "Welche Option setzt das Ablaufdatum eines Passworts?",
+      "options": [
+        {
+          "text": "-E",
+          "correct": true
+        },
+        {
+          "text": "-M",
+          "correct": false
+        },
+        {
+          "text": "-d",
+          "correct": false
+        },
+        {
+          "text": "-l",
+          "correct": false
+        }
+      ],
+      "explanation": "Die Option -E bei chage setzt das Ablaufdatum für einen Benutzer-Account."
+    },
+    {
+      "id": 2014,
+      "type": "multiple",
+      "question": "Was bedeutet -M bei chage?",
+      "options": [
+        {
+          "text": "Maximales Passwortalter in Tagen",
+          "correct": true
+        },
+        {
+          "text": "Mindestalter",
+          "correct": false
+        },
+        {
+          "text": "Benutzer sperren",
+          "correct": false
+        },
+        {
+          "text": "Monatlich ändern",
+          "correct": false
+        }
+      ],
+      "explanation": "-M setzt die maximale Anzahl von Tagen, bis ein Passwort geändert werden muss."
+    },
+    {
+      "id": 2015,
+      "type": "fill",
+      "question": "Welche Datei wird beim Login VOR der Authentifizierung angezeigt?",
+      "answer": "/etc/issue",
+      "explanation": "/etc/issue wird auf dem Login-Prompt vor der Anmeldung angezeigt."
+    },
+    {
+      "id": 2016,
+      "type": "multiple",
+      "question": "Wann wird /etc/issue angezeigt?",
+      "options": [
+        {
+          "text": "vor Login",
+          "correct": true
+        },
+        {
+          "text": "nach Login",
+          "correct": false
+        },
+        {
+          "text": "bei Logout",
+          "correct": false
+        },
+        {
+          "text": "beim Booten",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/issue wird auf der Login-Konsole angezeigt, bevor der Benutzer sich anmeldet."
+    },
+    {
+      "id": 2017,
+      "type": "multiple",
+      "question": "Wann wird /etc/motd angezeigt?",
+      "options": [
+        {
+          "text": "nach Login",
+          "correct": true
+        },
+        {
+          "text": "vor Login",
+          "correct": false
+        },
+        {
+          "text": "bei Shutdown",
+          "correct": false
+        },
+        {
+          "text": "beim Booten",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/motd (Message of the Day) wird nach erfolgreichem Login angezeigt."
+    },
+    {
+      "id": 2018,
+      "type": "fill",
+      "question": "Welche Datei enthält globale Umgebungsvariablen für Login-Shells?",
+      "answer": "/etc/profile",
+      "explanation": "/etc/profile wird bei Login-Shells geladen und definiert globale Variablen."
+    },
+    {
+      "id": 2019,
+      "type": "multiple",
+      "question": "Welche Datei ist benutzerspezifisch und enthält persönliche Shell-Konfiguration?",
+      "options": [
+        {
+          "text": "~/.bashrc",
+          "correct": true
+        },
+        {
+          "text": "/etc/profile",
+          "correct": false
+        },
+        {
+          "text": "/etc/bashrc",
+          "correct": false
+        },
+        {
+          "text": "~/.profile",
+          "correct": false
+        }
+      ],
+      "explanation": "~/.bashrc enthält persönliche Bash-Konfiguration für den Benutzer."
+    },
+    {
+      "id": 2020,
+      "type": "multiple",
+      "question": "Welche Datei wird bei jeder neuen Shell geladen?",
+      "options": [
+        {
+          "text": "~/.bashrc",
+          "correct": true
+        },
+        {
+          "text": "/etc/passwd",
+          "correct": false
+        },
+        {
+          "text": "/etc/profile",
+          "correct": false
+        },
+        {
+          "text": "~/.bash_profile",
+          "correct": false
+        }
+      ],
+      "explanation": "~/.bashrc wird bei jeder neuen interaktiven (Non-Login) Shell geladen."
+    },
+    {
+      "id": 2021,
+      "type": "multiple",
+      "question": "Was macht usermod?",
+      "options": [
+        {
+          "text": "ändert Benutzereinstellungen",
+          "correct": true
+        },
+        {
+          "text": "löscht Benutzer",
+          "correct": false
+        },
+        {
+          "text": "erstellt Benutzer",
+          "correct": false
+        },
+        {
+          "text": "setzt Passwort",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'usermod' modifiziert bestehende Benutzer-Einstellungen."
+    },
+    {
+      "id": 2022,
+      "type": "multiple",
+      "question": "Welcher Befehl löscht einen Benutzer?",
+      "options": [
+        {
+          "text": "userdel",
+          "correct": true
+        },
+        {
+          "text": "deluser",
+          "correct": false
+        },
+        {
+          "text": "rmuser",
+          "correct": false
+        },
+        {
+          "text": "deleteuser",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'userdel' löscht einen Benutzer und optional sein Home-Verzeichnis."
+    },
+    {
+      "id": 2023,
+      "type": "multiple",
+      "question": "Welche Option löscht Home-Verzeichnis mit?",
+      "options": [
+        {
+          "text": "-r",
+          "correct": true
+        },
+        {
+          "text": "-d",
+          "correct": false
+        },
+        {
+          "text": "-h",
+          "correct": false
+        },
+        {
+          "text": "-x",
+          "correct": false
+        }
+      ],
+      "explanation": "Die Option -r bei userdel löscht auch das Home-Verzeichnis."
+    },
+    {
+      "id": 2024,
+      "type": "multiple",
+      "question": "Was enthält /etc/shadow im zweiten Feld?",
+      "options": [
+        {
+          "text": "Passwort-Hash",
+          "correct": true
+        },
+        {
+          "text": "UID",
+          "correct": false
+        },
+        {
+          "text": "Username",
+          "correct": false
+        },
+        {
+          "text": "GID",
+          "correct": false
+        }
+      ],
+      "explanation": "Das zweite Feld in /etc/shadow enthält den verschlüsselten Passwort-Hash."
+    },
+    {
+      "id": 2025,
+      "type": "multiple",
+      "question": "Was bedeutet ein '!' im Passwortfeld?",
+      "options": [
+        {
+          "text": "Benutzer ist gesperrt",
+          "correct": true
+        },
+        {
+          "text": "Passwort ist gültig",
+          "correct": false
+        },
+        {
+          "text": "Passwort ist leer",
+          "correct": false
+        },
+        {
+          "text": "Passwort ist verschlüsselt",
+          "correct": false
+        }
+      ],
+      "explanation": "Ein '!' im Passwortfeld bedeutet, dass der Benutzer gesperrt ist."
+    },
+    {
+      "id": 2026,
+      "type": "fill",
+      "question": "Welche Datei definiert Standardwerte für neue Benutzer?",
+      "answer": "/etc/default/useradd",
+      "explanation": "/etc/default/useradd enthält die Standardeinstellungen für neue Benutzer."
+    },
+    {
+      "id": 2027,
+      "type": "multiple",
+      "question": "Welche Datei enthält Gruppeninformationen?",
+      "options": [
+        {
+          "text": "/etc/group",
+          "correct": true
+        },
+        {
+          "text": "/etc/users",
+          "correct": false
+        },
+        {
+          "text": "/etc/shadow",
+          "correct": false
+        },
+        {
+          "text": "/etc/groups",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/group enthält Gruppen, deren GID und Mitglieder."
+    },
+    {
+      "id": 2028,
+      "type": "multiple",
+      "question": "Was macht id?",
+      "options": [
+        {
+          "text": "zeigt UID/GID und Gruppen",
+          "correct": true
+        },
+        {
+          "text": "erstellt User",
+          "correct": false
+        },
+        {
+          "text": "löscht User",
+          "correct": false
+        },
+        {
+          "text": "setzt Passwort",
+          "correct": false
+        }
+      ],
+      "explanation": "Der Befehl 'id' zeigt die UID, GID und alle Gruppen eines Benutzers."
+    },
+    {
+      "id": 2029,
+      "type": "multiple",
+      "question": "Welche Datei beeinflusst Login-Shells global?",
+      "options": [
+        {
+          "text": "/etc/profile",
+          "correct": true
+        },
+        {
+          "text": "~/.bashrc",
+          "correct": false
+        },
+        {
+          "text": "/etc/bashrc",
+          "correct": false
+        },
+        {
+          "text": "~/.profile",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/profile wird global für alle Login-Shells geladen."
+    },
+    {
+      "id": 2030,
+      "type": "fill",
+      "question": "Welche Datei wird oft für systemweite Umgebungsvariablen genutzt?",
+      "answer": "/etc/profile",
+      "explanation": "/etc/profile definiert systemweite Umgebungsvariablen für Login-Shells."
+    }
+  ],
+  "Linux Systemanalyse": [
+    {
+      "id": 3001,
+      "type": "multiple",
+      "question": "Mit welchem Befehl zeigt man Informationen über PCI-Geräte an?",
+      "options": [
+        {
+          "text": "lspci",
+          "correct": true
+        },
+        {
+          "text": "lsusb",
+          "correct": false
+        },
+        {
+          "text": "lsmod",
+          "correct": false
+        },
+        {
+          "text": "uname",
+          "correct": false
+        }
+      ],
+      "explanation": "lspci zeigt alle PCI-Geräte des Systems an."
+    },
+    {
+      "id": 3002,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man USB-Geräte an?",
+      "answer": "lsusb",
+      "explanation": "lsusb listet alle USB-Geräte und deren Details auf."
+    },
+    {
+      "id": 3003,
+      "type": "multiple",
+      "question": "Welcher Befehl zeigt geladene Kernel-Module?",
+      "options": [
+        {
+          "text": "lsmod",
+          "correct": true
+        },
+        {
+          "text": "modprobe",
+          "correct": false
+        },
+        {
+          "text": "insmod",
+          "correct": false
+        },
+        {
+          "text": "rmmod",
+          "correct": false
+        }
+      ],
+      "explanation": "lsmod zeigt alle derzeit geladenen Kernel-Module."
+    },
+    {
+      "id": 3004,
+      "type": "fill",
+      "question": "Mit welchem Befehl lädt man ein Kernel-Modul mit Abhängigkeiten?",
+      "answer": "modprobe",
+      "explanation": "modprobe lädt Module intelligent mit allen Abhängigkeiten."
+    },
+    {
+      "id": 3005,
+      "type": "multiple",
+      "question": "Welche Datei zeigt CPU-Informationen?",
+      "options": [
+        {
+          "text": "/proc/cpuinfo",
+          "correct": true
+        },
+        {
+          "text": "/proc/meminfo",
+          "correct": false
+        },
+        {
+          "text": "/proc/devices",
+          "correct": false
+        },
+        {
+          "text": "/proc/interrupts",
+          "correct": false
+        }
+      ],
+      "explanation": "/proc/cpuinfo enthält detaillierte CPU-Informationen."
+    }
+  ],
+  "Prozesse & Signale": [
+    {
+      "id": 3006,
+      "type": "multiple",
+      "question": "Mit welchem Befehl zeigt man alle laufenden Prozesse?",
+      "options": [
+        {
+          "text": "ps",
+          "correct": true
+        },
+        {
+          "text": "ps aux",
+          "correct": true
+        },
+        {
+          "text": "proc",
+          "correct": false
+        },
+        {
+          "text": "processes",
+          "correct": false
+        }
+      ],
+      "explanation": "ps zeigt Prozesse an, ps aux zeigt detaillierte Liste aller Prozesse."
+    },
+    {
+      "id": 3007,
+      "type": "fill",
+      "question": "Mit welchem Befehl überwacht man Prozesse in Echtzeit?",
+      "answer": "top",
+      "explanation": "top zeigt laufende Prozesse mit CPU/Speicher-Nutzung in Echtzeit."
+    },
+    {
+      "id": 3008,
+      "type": "multiple",
+      "question": "Welches Signal wird mit 'kill PID' standardmäßig gesendet?",
+      "options": [
+        {
+          "text": "SIGTERM (15)",
+          "correct": true
+        },
+        {
+          "text": "SIGKILL (9)",
+          "correct": false
+        },
+        {
+          "text": "SIGSTOP (19)",
+          "correct": false
+        },
+        {
+          "text": "SIGHUP (1)",
+          "correct": false
+        }
+      ],
+      "explanation": "kill sendet standardmäßig SIGTERM (Signal 15)."
+    }
+  ],
+  "ACL & Berechtigungen": [
+    {
+      "id": 3009,
+      "type": "multiple",
+      "question": "Mit welchem Befehl setzt man ACLs?",
+      "options": [
+        {
+          "text": "setfacl",
+          "correct": true
+        },
+        {
+          "text": "getfacl",
+          "correct": false
+        },
+        {
+          "text": "facl",
+          "correct": false
+        },
+        {
+          "text": "acl",
+          "correct": false
+        }
+      ],
+      "explanation": "setfacl wird verwendet, um ACLs (Access Control Lists) zu setzen."
+    },
+    {
+      "id": 3010,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man ACLs an?",
+      "answer": "getfacl",
+      "explanation": "getfacl zeigt die ACLs einer Datei oder eines Verzeichnisses an."
+    },
+    {
+      "id": 3011,
+      "type": "multiple",
+      "question": "Was sind ACLs?",
+      "options": [
+        {
+          "text": "Access Control Lists - erweiterte Berechtigungen",
+          "correct": true
+        },
+        {
+          "text": "Apache Configuration Lists",
+          "correct": false
+        },
+        {
+          "text": "Automatic Configuration Libraries",
+          "correct": false
+        },
+        {
+          "text": "Advanced Kernel Lists",
+          "correct": false
+        }
+      ],
+      "explanation": "ACLs ermöglichen granularere Berechtigungen als traditionelle Unix-Rechte."
+    }
+  ],
+  "APT - Debian Paketmanagement": [
+    {
+      "id": 3012,
+      "type": "multiple",
+      "question": "Was bedeutet APT?",
+      "options": [
+        {
+          "text": "Advanced Packaging Tool",
+          "correct": true
+        },
+        {
+          "text": "Apache Package Transfer",
+          "correct": false
+        },
+        {
+          "text": "Automatic Package Tool",
+          "correct": false
+        },
+        {
+          "text": "Advanced Protocol Tool",
+          "correct": false
+        }
+      ],
+      "explanation": "APT ist ein Paketmanagement-System für Debian-basierte Systeme."
+    },
+    {
+      "id": 3013,
+      "type": "fill",
+      "question": "Mit welchem Befehl aktualisiert man die Paketliste mit APT?",
+      "answer": "apt update",
+      "explanation": "apt update aktualisiert den lokalen Paket-Cache aus den Repositories."
+    },
+    {
+      "id": 3014,
+      "type": "multiple",
+      "question": "Mit welchem Befehl installiert man ein Paket mit APT?",
+      "options": [
+        {
+          "text": "apt install paketname",
+          "correct": true
+        },
+        {
+          "text": "apt add paketname",
+          "correct": false
+        },
+        {
+          "text": "apt -i paketname",
+          "correct": false
+        },
+        {
+          "text": "apt-get add paketname",
+          "correct": false
+        }
+      ],
+      "explanation": "apt install wird verwendet, um Pakete zu installieren."
+    },
+    {
+      "id": 3015,
+      "type": "fill",
+      "question": "Mit welchem Befehl aktualisiert man alle Pakete?",
+      "answer": "apt upgrade",
+      "explanation": "apt upgrade aktualisiert alle installierten Pakete auf verfügbare Versionen."
+    }
+  ],
+  "dpkg - Debian Package": [
+    {
+      "id": 3016,
+      "type": "multiple",
+      "question": "Was ist dpkg?",
+      "options": [
+        {
+          "text": "Low-level Paketmanager für Debian",
+          "correct": true
+        },
+        {
+          "text": "High-level Paketmanager",
+          "correct": false
+        },
+        {
+          "text": "Paket-Downloader",
+          "correct": false
+        },
+        {
+          "text": "Paket-Viewer",
+          "correct": false
+        }
+      ],
+      "explanation": "dpkg ist der Low-level Paketmanager, den apt nutzt."
+    },
+    {
+      "id": 3017,
+      "type": "fill",
+      "question": "Mit welchem Befehl installiert man eine .deb Datei mit dpkg?",
+      "answer": "dpkg -i",
+      "explanation": "dpkg -i (install) installiert ein lokales .deb Paket."
+    },
+    {
+      "id": 3018,
+      "type": "multiple",
+      "question": "Mit welchem Befehl zeigt man installierte Pakete mit dpkg?",
+      "options": [
+        {
+          "text": "dpkg -l",
+          "correct": true
+        },
+        {
+          "text": "dpkg -s",
+          "correct": false
+        },
+        {
+          "text": "dpkg -i",
+          "correct": false
+        },
+        {
+          "text": "dpkg -v",
+          "correct": false
+        }
+      ],
+      "explanation": "dpkg -l listet alle installierten Pakete auf."
+    }
+  ],
+  "Bootprozess": [
+    {
+      "id": 3019,
+      "type": "multiple",
+      "question": "Was ist GRUB?",
+      "options": [
+        {
+          "text": "Bootloader für Linux",
+          "correct": true
+        },
+        {
+          "text": "Kernel-Manager",
+          "correct": false
+        },
+        {
+          "text": "Benutzer-Manager",
+          "correct": false
+        },
+        {
+          "text": "Paket-Manager",
+          "correct": false
+        }
+      ],
+      "explanation": "GRUB (GRand Unified Bootloader) lädt den Linux-Kernel."
+    },
+    {
+      "id": 3020,
+      "type": "fill",
+      "question": "In welchem Verzeichnis ist die GRUB-Konfiguration gespeichert?",
+      "answer": "/boot/grub",
+      "explanation": "/boot/grub enthält die GRUB-Konfigurationsdateien."
+    },
+    {
+      "id": 3021,
+      "type": "multiple",
+      "question": "Welcher Befehl aktualisiert die GRUB-Konfiguration auf Debian?",
+      "options": [
+        {
+          "text": "update-grub",
+          "correct": true
+        },
+        {
+          "text": "grub-update",
+          "correct": false
+        },
+        {
+          "text": "grub-install",
+          "correct": false
+        },
+        {
+          "text": "update-boot",
+          "correct": false
+        }
+      ],
+      "explanation": "update-grub regeneriert die Bootmenü-Datei grub.cfg."
+    }
+  ],
+  "Filesystem Hierarchy Standard (FHS)": [
+    {
+      "id": 3022,
+      "type": "multiple",
+      "question": "Welches Verzeichnis enthält User-Home-Verzeichnisse?",
+      "options": [
+        {
+          "text": "/home",
+          "correct": true
+        },
+        {
+          "text": "/root",
+          "correct": false
+        },
+        {
+          "text": "/user",
+          "correct": false
+        },
+        {
+          "text": "/users",
+          "correct": false
+        }
+      ],
+      "explanation": "/home enthält die Home-Verzeichnisse normaler Benutzer."
+    },
+    {
+      "id": 3023,
+      "type": "fill",
+      "question": "In welchem Verzeichnis befinden sich Konfigurationsdateien?",
+      "answer": "/etc",
+      "explanation": "/etc enthält Systemkonfigurationsdateien."
+    },
+    {
+      "id": 3024,
+      "type": "multiple",
+      "question": "Welches Verzeichnis enthält temporäre Dateien?",
+      "options": [
+        {
+          "text": "/tmp",
+          "correct": true
+        },
+        {
+          "text": "/temp",
+          "correct": false
+        },
+        {
+          "text": "/var/temp",
+          "correct": false
+        },
+        {
+          "text": "/temporary",
+          "correct": false
+        }
+      ],
+      "explanation": "/tmp ist für temporäre Dateien gedacht."
+    },
+    {
+      "id": 3025,
+      "type": "fill",
+      "question": "In welchem Verzeichnis sind System-Log-Dateien gespeichert?",
+      "answer": "/var/log",
+      "explanation": "/var/log enthält Protokoll- und Log-Dateien des Systems."
+    }
+  ],
+  "Journaling Filesystems": [
+    {
+      "id": 3026,
+      "type": "multiple",
+      "question": "Was ist ein Journaling-Dateisystem?",
+      "options": [
+        {
+          "text": "Dateisystem mit Transaktionsprotokoll für Datensicherheit",
+          "correct": true
+        },
+        {
+          "text": "Dateisystem nur für Log-Dateien",
+          "correct": false
+        },
+        {
+          "text": "Dateisystem mit Journal-Funktionen",
+          "correct": false
+        },
+        {
+          "text": "Altes Dateisystem-Format",
+          "correct": false
+        }
+      ],
+      "explanation": "Journaling-Dateisysteme wie ext4 sichern Transaktionen für Datensicherheit."
+    },
+    {
+      "id": 3027,
+      "type": "fill",
+      "question": "Welches ist das Standard-Journaling-Dateisystem auf modernen Linux-Systemen?",
+      "answer": "ext4",
+      "explanation": "ext4 ist das Standard-Dateisystem mit Journaling-Support."
+    },
+    {
+      "id": 3028,
+      "type": "multiple",
+      "question": "Was ist ein Vorteil von Journaling-Dateisystemen?",
+      "options": [
+        {
+          "text": "Schnellere Wiederherstellung nach Systemabsturz",
+          "correct": true
+        },
+        {
+          "text": "Mehr Speicherplatz",
+          "correct": false
+        },
+        {
+          "text": "Schnellere Datenzugriffe",
+          "correct": false
+        },
+        {
+          "text": "Keine Dateiverluste möglich",
+          "correct": false
+        }
+      ],
+      "explanation": "Journaling ermöglicht schnelle Konsistenzprüfung nach Fehlern."
+    }
+  ],
+  "Rechte & Sonderrechte Advanced": [
+    {
+      "id": 4001,
+      "type": "multiple",
+      "question": "Was ist das SUID-Bit (Set User ID)?",
+      "options": [
+        {
+          "text": "Programm läuft mit Rechten des Datei-Besitzers",
+          "correct": true
+        },
+        {
+          "text": "Programm läuft mit Root-Rechten",
+          "correct": false
+        },
+        {
+          "text": "Programm läuft mit Gruppen-Rechten",
+          "correct": false
+        },
+        {
+          "text": "Benutzer kann Datei nicht löschen",
+          "correct": false
+        }
+      ],
+      "explanation": "SUID ermöglicht es, dass ein Programm mit den Rechten seines Besitzers läuft."
+    },
+    {
+      "id": 4002,
+      "type": "multiple",
+      "question": "Wie wird das SUID-Bit in der Oktalnotation dargestellt?",
+      "options": [
+        {
+          "text": "4xxx (z.B. 4755)",
+          "correct": true
+        },
+        {
+          "text": "2xxx",
+          "correct": false
+        },
+        {
+          "text": "1xxx",
+          "correct": false
+        },
+        {
+          "text": "7xxx",
+          "correct": false
+        }
+      ],
+      "explanation": "Das erste Oktal-Digit 4 = SUID (z.B. chmod 4755)."
+    },
+    {
+      "id": 4003,
+      "type": "multiple",
+      "question": "Was ist das SGID-Bit (Set Group ID)?",
+      "options": [
+        {
+          "text": "Datei/Verzeichnis wird mit Gruppen-Rechten ausgeführt",
+          "correct": true
+        },
+        {
+          "text": "Datei kann nur der Gruppen-Owner löschen",
+          "correct": false
+        },
+        {
+          "text": "Neue Dateien erben automatisch die Gruppe",
+          "correct": true
+        },
+        {
+          "text": "Datei wird mit Root-Rechten ausgeführt",
+          "correct": false
+        }
+      ],
+      "explanation": "SGID bei Verzeichnissen: neue Dateien erben die Gruppe des Verzeichnisses."
+    },
+    {
+      "id": 4004,
+      "type": "fill",
+      "question": "Mit welcher Oktal-Ziffer wird das Sticky-Bit dargestellt?",
+      "answer": "1",
+      "explanation": "Das Sticky-Bit wird mit Oktal 1 dargestellt (z.B. chmod 1777)."
+    },
+    {
+      "id": 4005,
+      "type": "multiple",
+      "question": "Welche Bedeutung hat das Sticky-Bit bei /tmp?",
+      "options": [
+        {
+          "text": "Nur Besitzer kann Datei löschen",
+          "correct": true
+        },
+        {
+          "text": "Niemand kann Dateien löschen",
+          "correct": false
+        },
+        {
+          "text": "Nur Root kann Dateien löschen",
+          "correct": false
+        },
+        {
+          "text": "Dateien werden nicht gelöscht",
+          "correct": false
+        }
+      ],
+      "explanation": "Sticky-Bit auf /tmp verhindert, dass Benutzer fremde Dateien löschen."
+    }
+  ],
+  "GRUB Bootloader": [
+    {
+      "id": 4006,
+      "type": "multiple",
+      "question": "Wie setzt man ein GRUB-Passwort?",
+      "options": [
+        {
+          "text": "Mit grub-mkpasswd-pbkdf2 einen Hash erstellen",
+          "correct": true
+        },
+        {
+          "text": "Directly in grub.cfg eingeben",
+          "correct": false
+        },
+        {
+          "text": "Mit passwd grub",
+          "correct": false
+        },
+        {
+          "text": "Mit grub-passwd",
+          "correct": false
+        }
+      ],
+      "explanation": "grub-mkpasswd-pbkdf2 erzeugt einen Hash für das GRUB-Passwort."
+    },
+    {
+      "id": 4007,
+      "type": "fill",
+      "question": "In welcher Datei wird das GRUB-Passwort konfiguriert?",
+      "answer": "/etc/grub.d/40_custom",
+      "explanation": "/etc/grub.d/40_custom ist die beste Stelle für GRUB-Konfiguration."
+    },
+    {
+      "id": 4008,
+      "type": "multiple",
+      "question": "Welcher Befehl regeneriert die grub.cfg nach Änderungen?",
+      "options": [
+        {
+          "text": "update-grub",
+          "correct": true
+        },
+        {
+          "text": "grub-mkconfig",
+          "correct": false
+        },
+        {
+          "text": "grub-install",
+          "correct": false
+        },
+        {
+          "text": "grub-update",
+          "correct": false
+        }
+      ],
+      "explanation": "update-grub ist ein Wrapper für grub-mkconfig -o /boot/grub/grub.cfg."
+    },
+    {
+      "id": 4009,
+      "type": "fill",
+      "question": "Mit welchem Befehl installiert man GRUB auf einen Boot-Sektor?",
+      "answer": "grub-install",
+      "explanation": "grub-install installiert GRUB auf ein Gerät (z.B. /dev/sda)."
+    }
+  ],
+  "Kernel-Module": [
+    {
+      "id": 4010,
+      "type": "multiple",
+      "question": "Mit welchem Befehl zeigt man alle geladenen Module?",
+      "options": [
+        {
+          "text": "lsmod",
+          "correct": true
+        },
+        {
+          "text": "modprobe -l",
+          "correct": false
+        },
+        {
+          "text": "insmod -l",
+          "correct": false
+        },
+        {
+          "text": "modinfo",
+          "correct": false
+        }
+      ],
+      "explanation": "lsmod zeigt alle derzeit geladenen Kernel-Module."
+    },
+    {
+      "id": 4011,
+      "type": "fill",
+      "question": "Mit welchem Befehl wird ein Modul mit Abhängigkeiten geladen?",
+      "answer": "modprobe",
+      "explanation": "modprobe lädt Module und ihre Abhängigkeiten automatisch."
+    },
+    {
+      "id": 4012,
+      "type": "multiple",
+      "question": "Mit welchem Befehl entlädt man ein Modul?",
+      "options": [
+        {
+          "text": "rmmod",
+          "correct": true
+        },
+        {
+          "text": "modprobe -r",
+          "correct": true
+        },
+        {
+          "text": "insmod -u",
+          "correct": false
+        },
+        {
+          "text": "modunload",
+          "correct": false
+        }
+      ],
+      "explanation": "rmmod oder modprobe -r entfernen ein Modul."
+    },
+    {
+      "id": 4013,
+      "type": "fill",
+      "question": "Welche Datei zeigt Informationen über ein spezifisches Modul?",
+      "answer": "modinfo",
+      "explanation": "modinfo zeigt Parameter und Beschreibung eines Moduls."
+    }
+  ],
+  "Datenspeicherung & Automount": [
+    {
+      "id": 4014,
+      "type": "multiple",
+      "question": "Was ist udev?",
+      "options": [
+        {
+          "text": "Device Manager für automatische Geräteerkennung",
+          "correct": true
+        },
+        {
+          "text": "USB Device Extension",
+          "correct": false
+        },
+        {
+          "text": "User Device Manager",
+          "correct": false
+        },
+        {
+          "text": "Update Device",
+          "correct": false
+        }
+      ],
+      "explanation": "udev erkennt Hardware automatisch und erstellt /dev-Einträge."
+    },
+    {
+      "id": 4015,
+      "type": "fill",
+      "question": "In welcher Datei werden Dateisysteme persistent gemountet?",
+      "answer": "/etc/fstab",
+      "explanation": "/etc/fstab definiert Dateisysteme, die beim Booten gemountet werden."
+    },
+    {
+      "id": 4016,
+      "type": "multiple",
+      "question": "Mit welchem Befehl mountet man alle Dateisysteme aus fstab?",
+      "options": [
+        {
+          "text": "mount -a",
+          "correct": true
+        },
+        {
+          "text": "mount --all",
+          "correct": false
+        },
+        {
+          "text": "fstab -m",
+          "correct": false
+        },
+        {
+          "text": "systemctl mount",
+          "correct": false
+        }
+      ],
+      "explanation": "mount -a mountet alle Dateisysteme aus /etc/fstab."
+    },
+    {
+      "id": 4017,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man UUID von Dateisystemen?",
+      "answer": "blkid",
+      "explanation": "blkid zeigt UUIDs und Labels von Block-Geräten."
+    }
+  ],
+  "Prozesse anzeigen (ps/top)": [
+    {
+      "id": 4018,
+      "type": "multiple",
+      "question": "Mit welchem Befehl zeigt man alle Prozesse mit voller Info?",
+      "options": [
+        {
+          "text": "ps aux",
+          "correct": true
+        },
+        {
+          "text": "ps -a",
+          "correct": false
+        },
+        {
+          "text": "ps all",
+          "correct": false
+        },
+        {
+          "text": "ps -f",
+          "correct": false
+        }
+      ],
+      "explanation": "ps aux zeigt alle Prozesse mit Benutzer, CPU, Speicher, etc."
+    },
+    {
+      "id": 4019,
+      "type": "fill",
+      "question": "Mit welchem Befehl zeigt man Prozesse in Baumstruktur?",
+      "answer": "pstree",
+      "explanation": "pstree zeigt Prozess-Hierarchie als Baum."
+    },
+    {
+      "id": 4020,
+      "type": "multiple",
+      "question": "Welcher Befehl zeigt Prozesse mit Echtzeit-Aktualisierung?",
+      "options": [
+        {
+          "text": "top",
+          "correct": true
+        },
+        {
+          "text": "ps",
+          "correct": false
+        },
+        {
+          "text": "pstree",
+          "correct": false
+        },
+        {
+          "text": "watch",
+          "correct": false
+        }
+      ],
+      "explanation": "top zeigt laufende Prozesse mit CPU/Memory-Nutzung in Echtzeit."
+    },
+    {
+      "id": 4021,
+      "type": "fill",
+      "question": "Mit welchem Befehl filtert man Prozesse nach Namen?",
+      "answer": "ps aux | grep",
+      "explanation": "ps aux | grep NAME zeigt nur Prozesse mit bestimmtem Namen."
+    }
+  ],
+  "Symbolische Links": [
+    {
+      "id": 4022,
+      "type": "multiple",
+      "question": "Mit welchem Befehl erstellt man einen symbolischen Link?",
+      "options": [
+        {
+          "text": "ln -s",
+          "correct": true
+        },
+        {
+          "text": "ln",
+          "correct": false
+        },
+        {
+          "text": "link",
+          "correct": false
+        },
+        {
+          "text": "symlink",
+          "correct": false
+        }
+      ],
+      "explanation": "ln -s erstellt einen symbolischen (soft) Link."
+    },
+    {
+      "id": 4023,
+      "type": "multiple",
+      "question": "Was ist der Unterschied zwischen Hard- und Soft-Links?",
+      "options": [
+        {
+          "text": "Hardlink = direkte Inode, Softlink = Zeiger auf Pfad",
+          "correct": true
+        },
+        {
+          "text": "Hardlink ist schneller",
+          "correct": false
+        },
+        {
+          "text": "Softlink braucht weniger Speicher",
+          "correct": false
+        },
+        {
+          "text": "Kein Unterschied",
+          "correct": false
+        }
+      ],
+      "explanation": "Hardlinks zeigen auf die Inode, Softlinks auf den Pfad."
+    },
+    {
+      "id": 4024,
+      "type": "fill",
+      "question": "Mit welchem Befehl erstellt man einen Hard-Link?",
+      "answer": "ln",
+      "explanation": "ln (ohne -s) erstellt einen Hard-Link."
+    }
+  ],
+  "Gruppen-Verwaltung": [
+    {
+      "id": 4025,
+      "type": "multiple",
+      "question": "Was enthält die Datei /etc/group?",
+      "options": [
+        {
+          "text": "Gruppen und ihre Mitglieder",
+          "correct": true
+        },
+        {
+          "text": "Benutzerpasswörter",
+          "correct": false
+        },
+        {
+          "text": "Gruppenpasswörter",
+          "correct": false
+        },
+        {
+          "text": "Gruppen-Berechtigungen",
+          "correct": false
+        }
+      ],
+      "explanation": "/etc/group enthält Gruppe:x:GID:Mitglieder Format."
+    },
+    {
+      "id": 4026,
+      "type": "fill",
+      "question": "Mit welchem Befehl setzt man ein Passwort für eine Gruppe?",
+      "answer": "gpasswd",
+      "explanation": "gpasswd setzt Passwörter und Administratoren für Gruppen."
+    },
+    {
+      "id": 4027,
+      "type": "multiple",
+      "question": "Mit welchem gpasswd Befehl macht man jemanden Gruppen-Admin?",
+      "options": [
+        {
+          "text": "gpasswd -A username groupname",
+          "correct": true
+        },
+        {
+          "text": "gpasswd -a username groupname",
+          "correct": false
+        },
+        {
+          "text": "gpasswd -admin",
+          "correct": false
+        },
+        {
+          "text": "gpasswd -o",
+          "correct": false
+        }
+      ],
+      "explanation": "gpasswd -A macht den Benutzer zum Gruppen-Administrator."
+    },
+    {
+      "id": 4028,
+      "type": "fill",
+      "question": "Mit welcher gpasswd Option fügt man Benutzer zu Gruppe hinzu?",
+      "answer": "-a",
+      "explanation": "gpasswd -a user group fügt Benutzer zu Gruppe hinzu."
+    }
+  ],
+  "Passwort ändern (GRUB)": [
+    {
+      "id": 4029,
+      "type": "multiple",
+      "question": "Wie bearbeitet man GRUB-Einträge zur Boot-Zeit?",
+      "options": [
+        {
+          "text": "Mit [e] auf Bootmenü-Eintrag drücken",
+          "correct": true
+        },
+        {
+          "text": "Mit [c] für Kommandozeile",
+          "correct": false
+        },
+        {
+          "text": "Mit [d] für Debug",
+          "correct": false
+        },
+        {
+          "text": "Mit [ESC] für Rescue",
+          "correct": false
+        }
+      ],
+      "explanation": "[e] öffnet den Editor im GRUB-Bootmenü."
+    },
+    {
+      "id": 4030,
+      "type": "multiple",
+      "question": "Wie startet man in Single-User-Modus bei GRUB?",
+      "options": [
+        {
+          "text": "Am Kernel-Parameter 'single' oder 's' anhängen",
+          "correct": true
+        },
+        {
+          "text": "Mit 'rescue' Parameter",
+          "correct": false
+        },
+        {
+          "text": "Mit 'emergency' Parameter",
+          "correct": false
+        },
+        {
+          "text": "Bootmenü mit [r] öffnen",
+          "correct": false
+        }
+      ],
+      "explanation": "Kernel-Parameter 'single' oder 's' starten Single-User-Mode."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+# Cloudflare Tunnel Konfiguration fuer renlern.org
+# =================================================
+#
+# ANLEITUNG (auf dem Server als Benutzer "lernapp" ausfuehren):
+#
+#   1. Einloggen:
+#      cloudflared tunnel login
+#      -> Browser oeffnet sich, Cloudflare-Konto auswaehlen
+#      -> Erstellt ~/.cloudflared/cert.pem
+#
+#   2. Tunnel erstellen:
+#      cloudflared tunnel create lernapp
+#      -> Gibt dir eine TUNNEL-ID (z.B. abc12345-...)
+#      -> Erstellt ~/.cloudflared/TUNNEL-ID.json
+#
+#   3. Diese Datei bearbeiten:
+#      nano ~/.cloudflared/config.yml
+#      -> "DEINE-TUNNEL-ID-HIER" durch echte ID ersetzen
+#
+#   4. DNS einrichten:
+#      cloudflared tunnel route dns lernapp renlern.org
+#      cloudflared tunnel route dns lernapp www.renlern.org
+#
+#   5. Tunnel starten (wird durch systemd automatisch gemacht):
+#      sudo systemctl restart cloudflared-tunnel
+#      sudo journalctl -u cloudflared-tunnel -f
+#
+
+tunnel: DEINE-TUNNEL-ID-HIER
+credentials-file: /home/lernapp/.cloudflared/DEINE-TUNNEL-ID-HIER.json
+
+ingress:
+  - hostname: renlern.org
+    service: http://localhost:5000
+  - hostname: www.renlern.org
+    service: http://localhost:5000
+  - service: http_status:404
