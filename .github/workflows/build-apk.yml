@@ -18,6 +18,12 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -54,6 +60,9 @@ jobs:
 
       - name: Build APK
         run: |
+          echo "=== Java Version ==="
+          java -version
+          javac -version
           echo "=== Files in workspace ==="
           ls -la
           echo "=== Files in app/ ==="
