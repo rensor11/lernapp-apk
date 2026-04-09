@@ -16,7 +16,7 @@ version = 1.0.0
 # -------------------------------------------
 # Abhängigkeiten (werden automatisch geladen)
 # -------------------------------------------
-requirements = python3,kivy,flask,werkzeug,jinja2,click,itsdangerous,requests
+requirements = python3,kivy,flask,werkzeug,jinja2,markupsafe,click,itsdangerous,requests,android
 
 # -------------------------------------------
 # Android Einstellungen
@@ -26,7 +26,7 @@ android.accept_sdk_license = True
 
 # Minimale Android Version (5.0+)
 android.minapi = 21
-android.api = 33
+android.api = 34
 android.ndk = 25b
 
 # Architektur - arm64-v8a für moderne Geräte, armeabi-v7a für ältere

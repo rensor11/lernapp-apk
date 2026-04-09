@@ -6,7 +6,11 @@ from flask import Flask, request, jsonify, redirect, send_from_directory, g
 from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE = os.path.join(BASE_DIR, 'lernapp.db')
+
+# On Android, BASE_DIR is read-only. Use a writable data directory for DB.
+DATA_DIR = os.environ.get('LERNAPP_DATA_DIR', BASE_DIR)
+
+DATABASE = os.path.join(DATA_DIR, 'lernapp.db')
 QUESTIONPOOL_FILE = os.path.join(BASE_DIR, 'fragenpool.json')
 CANONICAL_HOST = 'renlern.org'
 CANONICAL_URL = f'https://{CANONICAL_HOST}'

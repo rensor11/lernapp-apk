@@ -1,6 +1,26 @@
 import os
+import sys
 import socket
 import threading
+import traceback
+
+# --- Android data directory setup (must happen before server_neu import) ---
+def _get_android_data_dir():
+    """Return a writable directory on Android, or None on desktop."""
+    try:
+        from android.storage import app_storage_path
+        return app_storage_path()
+    except ImportError:
+        pass
+    arg = os.environ.get('ANDROID_ARGUMENT')
+    if arg:
+        return os.path.dirname(os.path.abspath(arg))
+    return None
+
+_data_dir = _get_android_data_dir()
+if _data_dir:
+    os.makedirs(_data_dir, exist_ok=True)
+    os.environ['LERNAPP_DATA_DIR'] = _data_dir
 
 os.environ["KIVY_NO_ENV_CONFIG"] = "1"
 
@@ -10,9 +30,15 @@ from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
 
-from server_neu import app as flask_app
-from server_neu import init_db, load_questions_from_json
+_import_error = None
+try:
+    from server_neu import app as flask_app
+    from server_neu import init_db, load_questions_from_json
+except Exception as exc:
+    _import_error = f"Import-Fehler: {exc}\n{traceback.format_exc()}"
+    flask_app = None
 
 PORT = 5000
 PUBLIC_URL = "https://renlern.org"
@@ -33,6 +59,8 @@ def get_local_ip():
 
 def start_server_thread():
     global server_running
+    if flask_app is None:
+        return
     try:
         with flask_app.app_context():
             init_db()
@@ -40,7 +68,7 @@ def start_server_thread():
         server_running = True
         flask_app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False, threaded=True)
     except Exception as exc:
-        print(f"[SERVER ERROR] {exc}")
+        print(f"[SERVER ERROR] {exc}\n{traceback.format_exc()}")
         server_running = False
 
 
@@ -64,11 +92,29 @@ class ServerUI(BoxLayout):
         self.hint = Label(text="Diese feste URL im Browser aufrufen", size_hint_y=None, height=30)
         self.add_widget(self.hint)
 
+        # Scrollable log area to show errors on screen
+        scroll = ScrollView(size_hint=(1, 1))
+        self.log_label = Label(
+            text="",
+            font_size="12sp",
+            size_hint_y=None,
+            text_size=(Window.width - 40, None),
+            valign="top",
+            halign="left",
+        )
+        self.log_label.bind(texture_size=self.log_label.setter("size"))
+        scroll.add_widget(self.log_label)
+        self.add_widget(scroll)
+
         refresh_btn = Button(text="IP aktualisieren", size_hint_y=None, height=45)
         refresh_btn.bind(on_press=self.refresh_ip)
         self.add_widget(refresh_btn)
 
-        Clock.schedule_once(self.start_server, 1)
+        if _import_error:
+            self.status.text = "FEHLER beim Import"
+            self.log_label.text = _import_error
+        else:
+            Clock.schedule_once(self.start_server, 1)
 
     def refresh_ip(self, _instance):
         ip = get_local_ip()
@@ -76,9 +122,26 @@ class ServerUI(BoxLayout):
 
     def start_server(self, _dt):
         global server_thread
-        server_thread = threading.Thread(target=start_server_thread, daemon=True)
+        server_thread = threading.Thread(target=self._run_server, daemon=True)
         server_thread.start()
-        Clock.schedule_once(self.update_status, 2)
+        Clock.schedule_once(self.update_status, 3)
+
+    def _run_server(self):
+        global server_running
+        try:
+            with flask_app.app_context():
+                init_db()
+                load_questions_from_json()
+            server_running = True
+            Clock.schedule_once(lambda dt: self._set_log(f"Data: {os.environ.get('LERNAPP_DATA_DIR', 'default')}"), 0)
+            flask_app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False, threaded=True)
+        except Exception as exc:
+            server_running = False
+            err = f"{exc}\n{traceback.format_exc()}"
+            Clock.schedule_once(lambda dt: self._set_log(err), 0)
+
+    def _set_log(self, text):
+        self.log_label.text = str(text)
 
     def update_status(self, _dt):
         if server_running:
