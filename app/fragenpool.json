@@ -1,5 +1,5 @@
 {
-  "Rechte & Berechtigungen": [
+  "Linux/LPI > LPIC-1 > Rechte & Berechtigungen": [
     {
       "id": 1,
       "type": "multiple",
@@ -241,7 +241,7 @@
       "answer": "022"
     }
   ],
-  "Paketmanagement": [
+  "Linux/LPI > LPIC-1 > Paketmanagement": [
     {
       "id": 101,
       "type": "multiple",
@@ -550,7 +550,7 @@
       "answer": "Pakete suchen"
     }
   ],
-  "GRUB & Bootloader": [
+  "Linux/LPI > LPIC-1 > GRUB & Bootloader": [
     {
       "id": 201,
       "type": "multiple",
@@ -710,7 +710,7 @@
       "answer": "grub-mkconfig"
     }
   ],
-  "Dateisystem & Storage": [
+  "Linux/LPI > LPIC-1 > Dateisystem & Storage": [
     {
       "id": 301,
       "type": "fill",
@@ -876,7 +876,7 @@
       "answer": "du"
     }
   ],
-  "Hardware & Systemanalyse": [
+  "Linux/LPI > LPIC-1 > Hardware & Systemanalyse": [
     {
       "id": 401,
       "type": "multiple",
@@ -1041,7 +1041,7 @@
       ]
     }
   ],
-  "Linux Befehle": [
+  "Linux/LPI > LPIC-1 > Linux Befehle": [
     {
       "id": 501,
       "type": "multiple",
@@ -1269,7 +1269,7 @@
       "answer": "man"
     }
   ],
-  "Shared Libraries": [
+  "Linux/LPI > LPIC-1 > Shared Libraries": [
     {
       "id": 601,
       "type": "multiple",
@@ -1540,7 +1540,7 @@
       "explanation": "/lib und /usr/lib sind die Standard-Verzeichnisse für Libraries."
     }
   ],
-  "LVM & Partitionierung": [
+  "Linux/LPI > LPIC-1 > LVM & Partitionierung": [
     {
       "id": 701,
       "type": "fill",
@@ -1603,7 +1603,7 @@
       "answer": "lvs|lvdisplay"
     }
   ],
-  "Prozess-Management & Prioritäten": [
+  "Linux/LPI > LPIC-1 > Prozess-Management & Prioritäten": [
     {
       "id": 1001,
       "type": "multiple",
@@ -1708,7 +1708,7 @@
       "explanation": "nice startet Programme mit Priorität, renice ändert Priorität von bereits laufenden Prozessen."
     }
   ],
-  "Signale & Process Management": [
+  "Linux/LPI > LPIC-1 > Signale & Process Management": [
     {
       "id": 1006,
       "type": "multiple",
@@ -1820,7 +1820,7 @@
       "explanation": "SIGCONT (Signal 18) wird verwendet, um einen mit SIGSTOP paussierten Prozess fortzusetzen."
     }
   ],
-  "Benutzer & Authentifizierung (passwd)": [
+  "Linux/LPI > LPIC-1 > Benutzer & Authentifizierung (passwd)": [
     {
       "id": 1012,
       "type": "multiple",
@@ -1908,7 +1908,7 @@
       "explanation": "GECOS (5. Position) enthält den vollständigen Namen und weitere Informationen über den Benutzer."
     }
   ],
-  "Passwort-Verwaltung (Shadow & chage)": [
+  "Linux/LPI > LPIC-1 > Passwort-Verwaltung (Shadow & chage)": [
     {
       "id": 1017,
       "type": "multiple",
@@ -2044,7 +2044,7 @@
       "explanation": "Die Option -u (unlock) bei passwd hebt die Sperrung auf."
     }
   ],
-  "Shell-Konfigurationen": [
+  "Linux/LPI > LPIC-1 > Shell-Konfigurationen": [
     {
       "id": 1024,
       "type": "multiple",
@@ -2132,7 +2132,7 @@
       "explanation": "Die Datei ~/.bashrc enthält persönliche Shell-Einstellungen für den Benutzer."
     }
   ],
-  "Benutzer und Gruppenverwaltung Advanced": [
+  "Linux/LPI > LPIC-1 > Benutzer und Gruppenverwaltung Advanced": [
     {
       "id": 1029,
       "type": "multiple",
@@ -2220,7 +2220,7 @@
       "explanation": "Die Option -r bei userdel löscht auch das Home-Verzeichnis des Benutzers."
     }
   ],
-  "Benutzer & Passwort Management": [
+  "Linux/LPI > LPIC-1 > Benutzer & Passwort Management": [
     {
       "id": 2001,
       "type": "multiple",
@@ -2857,7 +2857,7 @@
       "explanation": "/etc/profile definiert systemweite Umgebungsvariablen für Login-Shells."
     }
   ],
-  "Linux Systemanalyse": [
+  "Linux/LPI > LPIC-1 > Linux Systemanalyse": [
     {
       "id": 3001,
       "type": "multiple",
@@ -2945,7 +2945,7 @@
       "explanation": "/proc/cpuinfo enthält detaillierte CPU-Informationen."
     }
   ],
-  "Prozesse & Signale": [
+  "Linux/LPI > LPIC-1 > Prozesse & Signale": [
     {
       "id": 3006,
       "type": "multiple",
@@ -3002,7 +3002,7 @@
       "explanation": "kill sendet standardmäßig SIGTERM (Signal 15)."
     }
   ],
-  "ACL & Berechtigungen": [
+  "Linux/LPI > LPIC-1 > ACL & Berechtigungen": [
     {
       "id": 3009,
       "type": "multiple",
@@ -3059,7 +3059,7 @@
       "explanation": "ACLs ermöglichen granularere Berechtigungen als traditionelle Unix-Rechte."
     }
   ],
-  "APT - Debian Paketmanagement": [
+  "Linux/LPI > LPIC-1 > APT - Debian Paketmanagement": [
     {
       "id": 3012,
       "type": "multiple",
@@ -3123,7 +3123,7 @@
       "explanation": "apt upgrade aktualisiert alle installierten Pakete auf verfügbare Versionen."
     }
   ],
-  "dpkg - Debian Package": [
+  "Linux/LPI > LPIC-1 > dpkg - Debian Package": [
     {
       "id": 3016,
       "type": "multiple",
@@ -3180,7 +3180,7 @@
       "explanation": "dpkg -l listet alle installierten Pakete auf."
     }
   ],
-  "Bootprozess": [
+  "Linux/LPI > LPIC-1 > Bootprozess": [
     {
       "id": 3019,
       "type": "multiple",
@@ -3237,7 +3237,7 @@
       "explanation": "update-grub regeneriert die Bootmenü-Datei grub.cfg."
     }
   ],
-  "Filesystem Hierarchy Standard (FHS)": [
+  "Linux/LPI > LPIC-1 > Filesystem Hierarchy Standard (FHS)": [
     {
       "id": 3022,
       "type": "multiple",
@@ -3301,7 +3301,7 @@
       "explanation": "/var/log enthält Protokoll- und Log-Dateien des Systems."
     }
   ],
-  "Journaling Filesystems": [
+  "Linux/LPI > LPIC-1 > Journaling Filesystems": [
     {
       "id": 3026,
       "type": "multiple",
@@ -3358,7 +3358,7 @@
       "explanation": "Journaling ermöglicht schnelle Konsistenzprüfung nach Fehlern."
     }
   ],
-  "Rechte & Sonderrechte Advanced": [
+  "Linux/LPI > LPIC-1 > Rechte & Sonderrechte Advanced": [
     {
       "id": 4001,
       "type": "multiple",
@@ -3463,7 +3463,7 @@
       "explanation": "Sticky-Bit auf /tmp verhindert, dass Benutzer fremde Dateien löschen."
     }
   ],
-  "GRUB Bootloader": [
+  "Linux/LPI > LPIC-1 > GRUB Bootloader": [
     {
       "id": 4006,
       "type": "multiple",
@@ -3527,7 +3527,7 @@
       "explanation": "grub-install installiert GRUB auf ein Gerät (z.B. /dev/sda)."
     }
   ],
-  "Kernel-Module": [
+  "Linux/LPI > LPIC-1 > Kernel-Module": [
     {
       "id": 4010,
       "type": "multiple",
@@ -3591,7 +3591,7 @@
       "explanation": "modinfo zeigt Parameter und Beschreibung eines Moduls."
     }
   ],
-  "Datenspeicherung & Automount": [
+  "Linux/LPI > LPIC-1 > Datenspeicherung & Automount": [
     {
       "id": 4014,
       "type": "multiple",
@@ -3655,7 +3655,7 @@
       "explanation": "blkid zeigt UUIDs und Labels von Block-Geräten."
     }
   ],
-  "Prozesse anzeigen (ps/top)": [
+  "Linux/LPI > LPIC-1 > Prozesse anzeigen (ps/top)": [
     {
       "id": 4018,
       "type": "multiple",
@@ -3719,7 +3719,7 @@
       "explanation": "ps aux | grep NAME zeigt nur Prozesse mit bestimmtem Namen."
     }
   ],
-  "Symbolische Links": [
+  "Linux/LPI > LPIC-1 > Symbolische Links": [
     {
       "id": 4022,
       "type": "multiple",
@@ -3776,7 +3776,7 @@
       "explanation": "ln (ohne -s) erstellt einen Hard-Link."
     }
   ],
-  "Gruppen-Verwaltung": [
+  "Linux/LPI > LPIC-1 > Gruppen-Verwaltung": [
     {
       "id": 4025,
       "type": "multiple",
@@ -3840,7 +3840,7 @@
       "explanation": "gpasswd -a user group fügt Benutzer zu Gruppe hinzu."
     }
   ],
-  "Passwort ändern (GRUB)": [
+  "Linux/LPI > LPIC-1 > Passwort ändern (GRUB)": [
     {
       "id": 4029,
       "type": "multiple",

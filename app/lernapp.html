@@ -645,15 +645,42 @@
             </div>
         </div>
 
+        <!-- VENDOR VIEW (new: choose cloud provider) -->
+        <div id="vendor-view" class="hidden">
+            <div class="header">
+                <h1>📚 Quiz Lernapp</h1>
+                <p>Wähle einen Anbieter</p>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span id="vendor-user-status" style="font-size:13px;color:var(--text-secondary);"></span>
+                <div style="display:flex;gap:8px;">
+                    <button id="vendor-admin-btn" class="btn" style="display:none;padding:6px 12px;background:#7C3AED;color:white;font-size:12px;" onclick="showView('admin-view')">⚙️ Admin</button>
+                    <button class="btn" style="padding:6px 12px;background:var(--danger);color:white;font-size:12px;" onclick="logoutUser()">Abmelden</button>
+                </div>
+            </div>
+            <div class="category-grid" id="vendor-grid"></div>
+        </div>
+
+        <!-- CERT VIEW (new: choose certification) -->
+        <div id="cert-view" class="hidden">
+            <div class="header">
+                <h1 id="cert-view-title">📜 Zertifikate</h1>
+                <p id="cert-view-subtitle">Wähle ein Zertifikat</p>
+            </div>
+            <button class="btn" style="margin:10px 0;padding:8px 16px;" onclick="goToVendors()">← Zurück</button>
+            <div class="category-grid" id="cert-grid"></div>
+        </div>
+
         <div id="menu-view" class="hidden">
             <div class="header">
                 <h1>📚 Quiz Lernapp</h1>
-                <p>Verbessere dein Linux-Wissen!</p>
+                <p id="menu-subtitle">Wähle eine Kategorie</p>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <span id="menu-user-status" style="font-size:13px;color:var(--text-secondary);"></span>
                 <div style="display:flex;gap:8px;">
                     <button id="admin-panel-btn" class="btn" style="display:none;padding:6px 12px;background:#7C3AED;color:white;font-size:12px;" onclick="showView('admin-view')">⚙️ Admin</button>
+                    <button class="btn" style="padding:8px 16px;" onclick="goToCurrentCert()">← Zurück</button>
                     <button class="btn" style="padding:6px 12px;background:var(--danger);color:white;font-size:12px;" onclick="logoutUser()">Abmelden</button>
                 </div>
             </div>
@@ -856,6 +883,40 @@
         let isFillOnlyMode = false;
         let repeatFillOnWrong = false;
         let fillRetryState = {};
+
+        // Vendor/Cert navigation state
+        let vendorData = [];
+        let selectedVendor = null;
+        let selectedCert = null;
+
+        // Vendor icons mapping
+        const vendorIcons = {
+            'Microsoft': '🪟',
+            'AWS': '☁️',
+            'Google Cloud': '🌐',
+            'Oracle Cloud': '🔶',
+            'CompTIA': '🏅',
+            'Cisco': '🌉',
+            'Linux/LPI': '🐧',
+            'VMware': '💻',
+            'Sonstige': '📂'
+        };
+
+        const certLevels = {
+            'LPIC-1': '🟢 Anfänger',
+            'LPIC-2': '🟡 Fortgeschritten',
+            'LPIC-3': '🔴 Experte',
+            'Linux Essentials': '🟢 Anfänger',
+            'AZ-900': '🟢 Anfänger', 'AZ-104': '🟡 Mittel', 'AZ-500': '🟡 Mittel', 'AZ-700': '🟡 Mittel', 'AZ-305': '🔴 Experte',
+            'MS-900': '🟢 Anfänger', 'MS-102': '🟡 Mittel', 'MD-102': '🟡 Mittel',
+            'SC-900': '🟢 Anfänger', 'SC-200': '🟡 Mittel', 'SC-300': '🟡 Mittel', 'SC-400': '🟡 Mittel',
+            'CLF-C02': '🟢 Anfänger', 'SAA-C03': '🟡 Mittel', 'SOA-C02': '🟡 Mittel', 'SAP-C02': '🔴 Experte', 'DOP-C02': '🔴 Experte', 'SCS-C02': '🔴 Spezial',
+            'Cloud Digital Leader': '🟢 Anfänger', 'Associate Cloud Engineer': '🟡 Mittel', 'Professional Cloud Architect': '🔴 Experte',
+            '1Z0-1085': '🟢 Anfänger', '1Z0-1072': '🟡 Mittel',
+            'ITF+': '🟢 Anfänger', 'A+': '🟢 Anfänger', 'Network+': '🟡 Mittel', 'Security+': '🟡 Mittel', 'CASP+': '🔴 Experte',
+            'CCNA': '🟢 Anfänger', 'CCNP Enterprise': '🟡 Mittel', 'CCNP Security': '🟡 Mittel',
+            'VCTA': '🟢 Anfänger', 'VCP-DCV': '🟡 Mittel', 'VCAP-DCV': '🔴 Experte',
+        };
 
 
         function loadFromFile() {
@@ -1287,16 +1348,26 @@
         }
 
         function loadAndGoToMenu() {
+            // Load fragenpool (needed for quiz logic)
             fetch('/api/load-fragenpool')
                 .then(r => r.ok ? r.json() : Promise.reject())
                 .then(data => {
                     fragenpool = data;
-                    renderCategories();
-                    setupRangeInputSync();
-                    showView('menu-view');
-                    updateMenuUser();
+                })
+                .catch(() => {});
+            // Load vendor hierarchy and show vendor selection
+            fetch('/api/vendors')
+                .then(r => r.ok ? r.json() : Promise.reject())
+                .then(data => {
+                    vendorData = data;
+                    renderVendors();
+                    showView('vendor-view');
+                    updateVendorUser();
                 })
                 .catch(() => {
+                    // Fallback: go directly to old menu
+                    renderCategories();
+                    setupRangeInputSync();
                     showView('menu-view');
                     updateMenuUser();
                 });
@@ -1488,6 +1559,81 @@
             updateOverallStatsUI();
         }
 
+        function updateVendorUser() {
+            const el = document.getElementById('vendor-user-status');
+            if (el && currentUser) el.textContent = `👤 ${currentUser.username}`;
+            const adminBtn = document.getElementById('vendor-admin-btn');
+            if (adminBtn) adminBtn.style.display = (currentUser && currentUser.username === 'admin') ? 'block' : 'none';
+        }
+
+        function renderVendors() {
+            const grid = document.getElementById('vendor-grid');
+            grid.innerHTML = '';
+            if (vendorData.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1;">Keine Zertifikate vorhanden. Lade Fragen im Admin-Panel hoch.</p>';
+                return;
+            }
+            vendorData.forEach(vendor => {
+                const btn = document.createElement('button');
+                const icon = vendorIcons[vendor.name] || '📂';
+                btn.className = 'category-btn';
+                btn.innerHTML = `<span class="cat-icon">${icon}</span><span class="cat-name">${vendor.name}</span><span class="cat-count">${vendor.certs.length} Zertifikat${vendor.certs.length !== 1 ? 'e' : ''} · ${vendor.total} Fragen</span>`;
+                btn.onclick = () => goToCerts(vendor.name);
+                grid.appendChild(btn);
+            });
+        }
+
+        function goToCerts(vendorName) {
+            selectedVendor = vendorData.find(v => v.name === vendorName);
+            if (!selectedVendor) return;
+            const icon = vendorIcons[vendorName] || '📂';
+            document.getElementById('cert-view-title').textContent = `${icon} ${vendorName}`;
+            document.getElementById('cert-view-subtitle').textContent = `${selectedVendor.certs.length} Zertifikat${selectedVendor.certs.length !== 1 ? 'e' : ''} verfügbar`;
+            renderCerts();
+            showView('cert-view');
+        }
+
+        function renderCerts() {
+            const grid = document.getElementById('cert-grid');
+            grid.innerHTML = '';
+            if (!selectedVendor) return;
+            selectedVendor.certs.forEach(cert => {
+                const btn = document.createElement('button');
+                const level = certLevels[cert.name] || '';
+                btn.className = 'category-btn';
+                btn.innerHTML = `<span class="cat-icon">📜</span><span class="cat-name">${cert.name}</span><span class="cat-count">${level ? level + ' · ' : ''}${cert.total} Fragen · ${cert.topics.length} Themen</span>`;
+                btn.onclick = () => goToTopics(cert.name);
+                grid.appendChild(btn);
+            });
+        }
+
+        function goToTopics(certName) {
+            if (!selectedVendor) return;
+            selectedCert = selectedVendor.certs.find(c => c.name === certName);
+            if (!selectedCert) return;
+            document.getElementById('menu-subtitle').textContent = `${selectedVendor.name} > ${certName}`;
+            renderCategories();
+            setupRangeInputSync();
+            showView('menu-view');
+            updateMenuUser();
+        }
+
+        function goToVendors() {
+            selectedVendor = null;
+            selectedCert = null;
+            renderVendors();
+            showView('vendor-view');
+            updateVendorUser();
+        }
+
+        function goToCurrentCert() {
+            if (selectedVendor) {
+                goToCerts(selectedVendor.name);
+            } else {
+                goToVendors();
+            }
+        }
+
         function renderCategories() {
             const grid = document.getElementById('category-grid');
             const addSec = document.getElementById('add-section');
@@ -1498,18 +1644,35 @@
                 return;
             }
             addSec.style.display = 'none';
+
+            // Filter categories by selected cert (if any)
+            let filteredCats;
+            if (selectedCert && selectedCert.topics) {
+                filteredCats = selectedCert.topics.map(t => t.full_category).filter(c => fragenpool[c]);
+            } else {
+                filteredCats = Object.keys(fragenpool);
+            }
+
+            if (filteredCats.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1;">Keine Fragen in diesem Zertifikat. Fragen werden bald hinzugefügt!</p>';
+                return;
+            }
+
             const scoreRatio = overallStats.questions > 0 ? overallStats.correct / overallStats.questions : 0;
             const moodClass = scoreRatio >= 0.6 ? 'angel' : 'demon';
 
+            // "All topics" test button
             const testBtn = document.createElement('button');
             testBtn.className = `category-btn ${moodClass}`;
-            testBtn.innerHTML = '<span class="cat-icon">📋</span><span class="cat-name">Übungstest</span><span class="cat-count">(Alle)</span><div class="hover-effect">' + (moodClass === 'angel' ? '😇' : '👿') + '</div>';
+            const totalQ = filteredCats.reduce((s, c) => s + (fragenpool[c] ? fragenpool[c].length : 0), 0);
+            testBtn.innerHTML = `<span class="cat-icon">📋</span><span class="cat-name">Übungstest</span><span class="cat-count">(${totalQ} Fragen)</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
             testBtn.onclick = () => goToTestSetup();
             testBtn.addEventListener('mouseenter', () => document.body.classList.add('body-dark-shake'));
             testBtn.addEventListener('mouseleave', () => document.body.classList.remove('body-dark-shake'));
             grid.appendChild(testBtn);
+
             let fillCount = 0;
-            Object.keys(fragenpool).forEach(cat => { fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
+            filteredCats.forEach(cat => { if (fragenpool[cat]) fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
             if (fillCount > 0) {
                 const fillBtn = document.createElement('button');
                 fillBtn.className = `category-btn ${moodClass}`;
@@ -1517,10 +1680,13 @@
                 fillBtn.onclick = () => goToFillInSetup();
                 grid.appendChild(fillBtn);
             }
-            Object.keys(fragenpool).forEach(cat => {
+            filteredCats.forEach(cat => {
+                // Extract short topic name (after last ">")
+                const parts = cat.split('>').map(p => p.trim());
+                const displayName = parts.length > 1 ? parts[parts.length - 1] : cat;
                 const btn = document.createElement('button');
                 btn.className = `category-btn ${moodClass}`;
-                btn.innerHTML = `<span class="cat-icon">📖</span><span class="cat-name">${cat}</span><span class="cat-count">(${fragenpool[cat].length})</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
+                btn.innerHTML = `<span class="cat-icon">📖</span><span class="cat-name">${displayName}</span><span class="cat-count">(${fragenpool[cat].length})</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
                 btn.onclick = () => goToSetup(cat);
                 grid.appendChild(btn);
             });
@@ -1553,7 +1719,19 @@
             document.getElementById('question-range').max = max;
             document.getElementById('question-number').max = max;
             document.getElementById('max-questions').textContent = max;
+            // Show short topic name in setup
+            const parts = cat.split('>').map(p => p.trim());
+            const displayName = parts.length > 1 ? parts[parts.length - 1] : cat;
+            document.getElementById('setup-category').textContent = displayName;
             showView('setup-view');
+        }
+
+        // Helper: get categories filtered by selected cert
+        function getFilteredCats() {
+            if (selectedCert && selectedCert.topics) {
+                return selectedCert.topics.map(t => t.full_category).filter(c => fragenpool[c]);
+            }
+            return Object.keys(fragenpool);
         }
 
         function goToTestSetup() {
@@ -1563,12 +1741,14 @@
             }
             isFillOnlyMode = false;
             isTestMode = true;
+            const cats = getFilteredCats();
             let total = 0;
-            Object.keys(fragenpool).forEach(cat => total += fragenpool[cat].length);
+            cats.forEach(cat => total += (fragenpool[cat] ? fragenpool[cat].length : 0));
             document.getElementById('test-range').max = total;
             document.getElementById('test-number').max = total;
             document.getElementById('max-test-questions').textContent = total;
-            document.getElementById('test-setup-title').textContent = '📋 Übungstest - Alle Kategorien';
+            const title = selectedCert ? `📋 Übungstest - ${selectedCert.name}` : '📋 Übungstest - Alle Kategorien';
+            document.getElementById('test-setup-title').textContent = title;
             showView('test-setup-view');
         }
 
@@ -1579,8 +1759,9 @@
             }
             isFillOnlyMode = true;
             isTestMode = true;
+            const cats = getFilteredCats();
             let fillCount = 0;
-            Object.keys(fragenpool).forEach(cat => { fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
+            cats.forEach(cat => { if (fragenpool[cat]) fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
             document.getElementById('test-range').max = fillCount;
             document.getElementById('test-number').max = fillCount;
             document.getElementById('max-test-questions').textContent = fillCount;
@@ -1604,13 +1785,14 @@
             repeatFillOnWrong = document.getElementById('repeat-fill-checkbox')?.checked || false;
             const num = parseInt(document.getElementById('test-number').value);
             let all = [];
+            const cats = getFilteredCats();
             if (isFillOnlyMode) {
-                Object.keys(fragenpool).forEach(cat => {
-                    fragenpool[cat].forEach(q => { if (q.type === 'fill') all.push({...q, category: cat}); });
+                cats.forEach(cat => {
+                    if (fragenpool[cat]) fragenpool[cat].forEach(q => { if (q.type === 'fill') all.push({...q, category: cat}); });
                 });
             } else {
-                Object.keys(fragenpool).forEach(cat => {
-                    fragenpool[cat].forEach(q => all.push({...q, category: cat}));
+                cats.forEach(cat => {
+                    if (fragenpool[cat]) fragenpool[cat].forEach(q => all.push({...q, category: cat}));
                 });
             }
             const scope = isFillOnlyMode ? 'fill-only' : 'all-categories';
@@ -1984,7 +2166,15 @@
         }
 
         function goToMenu() {
-            showView('menu-view');
+            if (selectedCert) {
+                // Go back to topics list for this cert
+                renderCategories();
+                setupRangeInputSync();
+                showView('menu-view');
+                updateMenuUser();
+            } else {
+                goToVendors();
+            }
             selectedCategory = null;
             currentQuizMode = null;
             isTestMode = false;
@@ -2027,7 +2217,7 @@
         }
 
         function showView(id) {
-            ['login-view','menu-view','setup-view','test-setup-view','quiz-view','admin-view'].forEach(v => {
+            ['login-view','vendor-view','cert-view','menu-view','setup-view','test-setup-view','quiz-view','admin-view'].forEach(v => {
                 const el = document.getElementById(v);
                 if (el) el.classList.add('hidden');
             });
@@ -2158,17 +2348,8 @@
                 try { currentUser = JSON.parse(savedUser); } catch (e) { currentUser = null; }
             }
             if (currentUser) {
-                // Bereits eingeloggt - direkt zu Kategorien
-                fetch('/api/load-fragenpool')
-                    .then(r => r.ok ? r.json() : Promise.reject())
-                    .then(data => {
-                        fragenpool = data;
-                        renderCategories();
-                        setupRangeInputSync();
-                        showView('menu-view');
-                        updateMenuUser();
-                    })
-                    .catch(() => showView('login-view'));
+                // Bereits eingeloggt - direkt zu Vendor-Auswahl
+                loadAndGoToMenu();
             } else {
                 showView('login-view');
             }

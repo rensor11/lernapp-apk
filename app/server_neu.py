@@ -299,6 +299,38 @@ def get_categories():
     ).fetchall()
     return jsonify([{'name': r['category'], 'count': r['count']} for r in rows])
 
+@app.route('/api/vendors', methods=['GET'])
+def get_vendors():
+    """Return vendor > cert > topic hierarchy with question counts."""
+    db = get_db()
+    rows = db.execute(
+        'SELECT category, COUNT(*) as count FROM questions GROUP BY category ORDER BY category'
+    ).fetchall()
+    vendors = {}
+    for r in rows:
+        parts = [p.strip() for p in r['category'].split('>')]
+        if len(parts) >= 3:
+            vendor, cert, topic = parts[0], parts[1], ' > '.join(parts[2:])
+        elif len(parts) == 2:
+            vendor, cert, topic = parts[0], parts[1], 'Allgemein'
+        else:
+            vendor, cert, topic = 'Sonstige', 'Allgemein', parts[0]
+        if vendor not in vendors:
+            vendors[vendor] = {'name': vendor, 'certs': {}, 'total': 0}
+        if cert not in vendors[vendor]['certs']:
+            vendors[vendor]['certs'][cert] = {'name': cert, 'topics': [], 'total': 0}
+        vendors[vendor]['certs'][cert]['topics'].append({'name': topic, 'full_category': r['category'], 'count': r['count']})
+        vendors[vendor]['certs'][cert]['total'] += r['count']
+        vendors[vendor]['total'] += r['count']
+    # Convert to list
+    result = []
+    for v in vendors.values():
+        certs = []
+        for c in v['certs'].values():
+            certs.append({'name': c['name'], 'topics': c['topics'], 'total': c['total']})
+        result.append({'name': v['name'], 'certs': certs, 'total': v['total']})
+    return jsonify(result)
+
 @app.route('/api/health', methods=['GET'])
 def health():
     db = get_db()
