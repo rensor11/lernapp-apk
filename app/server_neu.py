@@ -335,7 +335,7 @@ def get_vendors():
         elif len(parts) == 2:
             vendor, cert, topic = parts[0], parts[1], 'Allgemein'
         else:
-            vendor, cert, topic = 'Sonstige', 'Allgemein', parts[0]
+            continue  # Skip uncategorized entries
         if vendor not in vendors:
             vendors[vendor] = {'name': vendor, 'certs': {}, 'total': 0}
         if cert not in vendors[vendor]['certs']:
