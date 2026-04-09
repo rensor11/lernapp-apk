@@ -744,8 +744,13 @@
 
             <div class="setup-card">
                 <h3>👥 Alle Benutzer & Statistiken</h3>
-                <button class="btn" style="margin:10px 0;" onclick="adminLoadUsers()">🔄 Laden</button>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0;">
+                    <input id="admin-user-search" type="text" placeholder="Benutzername suchen..." style="flex:1;min-width:200px;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg-window);color:var(--text-primary);">
+                    <button class="btn" style="padding:10px 14px;" onclick="adminLoadUsers()">🔎 Suchen</button>
+                    <button class="btn" style="padding:10px 14px;" onclick="adminLoadUsers(true)">↻ Alle laden</button>
+                </div>
                 <div id="admin-users-table"></div>
+                <div id="admin-user-detail" style="margin-top:15px;"></div>
                 <p style="margin-top:10px;font-size:12px;color:var(--text-secondary);">Es wird der Passwort-Hash angezeigt. Klartext-Passwörter sind technisch nicht auslesbar.</p>
             </div>
         </div>
@@ -1347,15 +1352,16 @@
         }
 
         function loadAndGoToMenu() {
+            const userQuery = currentUser && currentUser.username !== 'admin' ? `?user_id=${currentUser.id}` : '';
             // Load fragenpool (needed for quiz logic)
-            fetch('/api/load-fragenpool')
+            fetch(`/api/load-fragenpool${userQuery}`)
                 .then(r => r.ok ? r.json() : Promise.reject())
                 .then(data => {
                     fragenpool = data;
                 })
                 .catch(() => {});
             // Load vendor hierarchy and show vendor selection
-            fetch('/api/vendors')
+            fetch(`/api/vendors${userQuery}`)
                 .then(r => r.ok ? r.json() : Promise.reject())
                 .then(data => {
                     vendorData = data;
@@ -2302,11 +2308,18 @@
                 statusEl.textContent = saved ? '✅ Frage gelöscht!' : '✅ Lokal gelöscht (Server nicht erreichbar)';
             }
 
-            async function adminLoadUsers() {
+            async function adminLoadUsers(loadAll = false) {
                 const container = document.getElementById('admin-users-table');
+                const detail = document.getElementById('admin-user-detail');
                 container.innerHTML = '⏳ Lade...';
+                if (detail) detail.innerHTML = '';
                 try {
-                    const resp = await fetch('/api/admin/users', {
+                    let url = '/api/admin/users';
+                    const search = document.getElementById('admin-user-search').value.trim();
+                    if (search && !loadAll) {
+                        url += '?q=' + encodeURIComponent(search);
+                    }
+                    const resp = await fetch(url, {
                         headers: { 'X-Admin-User': currentUser ? currentUser.username : '' }
                     });
                     const data = await resp.json();
@@ -2314,16 +2327,92 @@
                     const users = data.users;
                     if (!users.length) { container.innerHTML = 'Keine Benutzer gefunden.'; return; }
                     let html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
-                    html += '<tr style="background:var(--bg-window);"><th style="padding:6px;text-align:left;">ID</th><th style="padding:6px;text-align:left;">Benutzername</th><th style="padding:6px;text-align:left;">Registriert</th><th style="padding:6px;text-align:left;">Passwort-Hash</th><th style="padding:6px;text-align:left;">Neues Passwort</th><th style="padding:6px;text-align:left;">Letzte IP</th><th style="padding:6px;text-align:left;">Bekannte IPs</th><th style="padding:6px;text-align:left;">Gerät</th><th style="padding:6px;text-align:left;">Prüfungen</th><th style="padding:6px;text-align:left;">Bestes Fach</th><th style="padding:6px;text-align:left;">Schwächstes Fach</th><th style="padding:6px;text-align:left;">R/F</th></tr>';
+                    html += '<tr style="background:var(--bg-window);"><th style="padding:6px;text-align:left;">ID</th><th style="padding:6px;text-align:left;">Benutzername</th><th style="padding:6px;text-align:left;">Registriert</th><th style="padding:6px;text-align:left;">Passwort-Hash</th><th style="padding:6px;text-align:left;">Neues Passwort</th><th style="padding:6px;text-align:left;">Letzte IP</th><th style="padding:6px;text-align:left;">Bekannte IPs</th><th style="padding:6px;text-align:left;">Gerät</th><th style="padding:6px;text-align:left;">Prüfungen</th><th style="padding:6px;text-align:left;">Bestes Fach</th><th style="padding:6px;text-align:left;">Schwächstes Fach</th><th style="padding:6px;text-align:left;">R/F</th><th style="padding:6px;text-align:left;">Aktion</th></tr>';
                     users.forEach((u, i) => {
                         const bg = i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-window)';
                         const device = (u.last_user_agent || '').split(')')[0] ? (u.last_user_agent || '').split(')')[0] + ')' : '–';
-                        html += `<tr style="background:${bg};"><td style="padding:6px;">${u.id}</td><td style="padding:6px;font-weight:bold;">${u.username}</td><td style="padding:6px;">${(u.created_at||'').split('T')[0]}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.password_hash||''}">${u.password_hash||'–'}</td><td style="padding:6px;"><div style="display:flex;gap:6px;"><input id="admin-new-pass-${u.id}" type="text" placeholder="neues Passwort" style="width:130px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg-window);color:var(--text-primary);"><button class="btn" style="padding:4px 8px;font-size:11px;" onclick="adminSetPassword(${u.id})">Setzen</button></div></td><td style="padding:6px;">${u.last_ip||'–'}</td><td style="padding:6px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.known_ips||''}">${u.known_ips||'–'}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.last_user_agent||''}">${device}</td><td style="padding:6px;">${u.exams_taken||0}</td><td style="padding:6px;">${u.best_category||'–'}</td><td style="padding:6px;">${u.worst_category||'–'}</td><td style="padding:6px;"><span style="color:#48bb78;">${u.correct||0}</span>/<span style="color:#EF5350;">${u.wrong||0}</span></td></tr>`;
+                        html += `<tr style="background:${bg};"><td style="padding:6px;">${u.id}</td><td style="padding:6px;font-weight:bold;">${u.username}</td><td style="padding:6px;">${(u.created_at||'').split('T')[0]}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.password_hash||''}">${u.password_hash||'–'}</td><td style="padding:6px;"><div style="display:flex;gap:6px;"><input id="admin-new-pass-${u.id}" type="text" placeholder="neues Passwort" style="width:130px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg-window);color:var(--text-primary);"><button class="btn" style="padding:4px 8px;font-size:11px;" onclick="adminSetPassword(${u.id})">Setzen</button></div></td><td style="padding:6px;">${u.last_ip||'–'}</td><td style="padding:6px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.known_ips||''}">${u.known_ips||'–'}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.last_user_agent||''}">${device}</td><td style="padding:6px;">${u.exams_taken||0}</td><td style="padding:6px;">${u.best_category||'–'}</td><td style="padding:6px;">${u.worst_category||'–'}</td><td style="padding:6px;"><span style="color:#48bb78;">${u.correct||0}</span>/<span style="color:#EF5350;">${u.wrong||0}</span></td><td style="padding:6px;"><button class="btn" style="padding:6px 10px;font-size:11px;" onclick="adminShowUserDetails(${u.id}, '${u.username}')">Details</button></td></tr>`;
                     });
                     html += '</table>';
                     container.innerHTML = html;
                 } catch(e) {
                     container.innerHTML = '❌ Server nicht erreichbar: ' + e.message;
+                }
+            }
+
+            async function adminShowUserDetails(userId, username) {
+                const detail = document.getElementById('admin-user-detail');
+                if (!detail) return;
+                detail.innerHTML = '<div style="padding:15px;background:var(--bg-window);border:1px solid var(--border);border-radius:12px;">⏳ Lade Benutzerdetails...</div>';
+                try {
+                    const [accessResp, statsResp] = await Promise.all([
+                        fetch(`/api/admin/user-access?user_id=${encodeURIComponent(userId)}`, { headers: { 'X-Admin-User': currentUser ? currentUser.username : '' }}),
+                        fetch(`/api/admin/user-category-stats?user_id=${encodeURIComponent(userId)}`, { headers: { 'X-Admin-User': currentUser ? currentUser.username : '' }})
+                    ]);
+                    const accessData = await accessResp.json();
+                    const statsData = await statsResp.json();
+                    if (!accessData.success) { detail.innerHTML = '❌ ' + (accessData.message || 'Fehler beim Laden der Zugriffsrechte'); return; }
+                    if (!statsData.success) { detail.innerHTML = '❌ ' + (statsData.message || 'Fehler beim Laden der Statistik'); return; }
+
+                    let html = `<div data-current-username="${username}" style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="font-size:1.05em;">Benutzer: ${username}</strong><div style="font-size:12px;color:var(--text-secondary);">ID: ${userId}</div></div></div>`;
+                    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+                    html += `<div style="background:var(--bg-card);padding:12px;border-radius:10px;border:1px solid var(--border);"><h4 style="margin:0 0 10px 0;">🔐 Kategorienzugriff</h4><div style="max-height:320px;overflow:auto;">`;
+                    accessData.access.forEach(item => {
+                        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:13px;">${item.category}</span><button class="btn" style="padding:4px 10px;font-size:11px;" onclick="adminSetCategoryAccess(${userId}, '${item.category.replace(/'/g, "\\'")}', ${item.allowed ? 0 : 1})">${item.allowed ? '� Sperren' : '🔓 Freigeben'}</button></div>`;
+                    });
+                    html += '</div></div>';
+                    html += '<div style="background:var(--bg-card);padding:12px;border-radius:10px;border:1px solid var(--border);"><h4 style="margin:0 0 10px 0;">📊 Kategorie-Statistik</h4>';
+                    html += `<div style="font-size:13px;color:var(--text-primary);margin-bottom:10px;">Gesamt: ${statsData.summary.correct}/${statsData.summary.total} (${statsData.summary.percent}%)</div>`;
+                    html += '<div style="max-height:320px;overflow:auto;">';
+                    statsData.categories.slice(0, 30).forEach(item => {
+                        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:12px;">${item.category}</span><span style="font-size:12px;color:var(--text-secondary);">${item.correct}/${item.total} (${item.percent}%)</span></div>`;
+                    });
+                    if (statsData.categories.length > 30) {
+                        html += `<div style="padding:8px 0;color:var(--text-secondary);font-size:12px;">Es gibt ${statsData.categories.length} Kategorien mit Antworten; zeige nur die ersten 30.</div>`;
+                    }
+                    html += '</div></div></div>';
+                    html += '</div>';
+                    detail.innerHTML = html;
+                } catch (e) {
+                    detail.innerHTML = '❌ Serverfehler: ' + e.message;
+                }
+            }
+
+            async function adminSetCategoryAccess(userId, category, allowed) {
+                try {
+                    const resp = await fetch('/api/admin/set-category-access', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Admin-User': currentUser ? currentUser.username : ''
+                        },
+                        body: JSON.stringify({ user_id: userId, category, allowed })
+                    });
+                    const data = await resp.json();
+                    if (!data.success) { alert('Fehler: ' + (data.message || 'Zugriff konnte nicht geändert werden.')); return; }
+                    adminShowUserDetails(userId, document.getElementById('admin-user-search')?.value || '');
+                } catch (e) {
+                    alert('Serverfehler: ' + e.message);
+                }
+            }
+
+            async function adminSetCategoryAccess(userId, category, allowed) {
+                try {
+                    const resp = await fetch('/api/admin/set-category-access', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Admin-User': currentUser ? currentUser.username : ''
+                        },
+                        body: JSON.stringify({ user_id: userId, category, allowed })
+                    });
+                    const data = await resp.json();
+                    if (!data.success) { alert('Fehler: ' + (data.message || 'Zugriff konnte nicht geändert werden.')); return; }
+                    const detail = document.getElementById('admin-user-detail');
+                    const username = detail?.querySelector('[data-current-username]')?.getAttribute('data-current-username') || '';
+                    adminShowUserDetails(userId, username);
+                } catch (e) {
+                    alert('Serverfehler: ' + e.message);
                 }
             }
 

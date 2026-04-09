@@ -45,6 +45,27 @@ def get_db():
 def get_user_columns(db):
     return [row[1] for row in db.execute('PRAGMA table_info(users)').fetchall()]
 
+def get_all_categories(db):
+    categories = set()
+    rows = db.execute('SELECT DISTINCT category FROM questions').fetchall()
+    for r in rows:
+        if r['category']:
+            categories.add(r['category'])
+    try:
+        with open(QUESTIONPOOL_FILE, 'r', encoding='utf-8') as f:
+            pool = json.load(f)
+            if isinstance(pool, dict):
+                for cat in pool.keys():
+                    categories.add(cat)
+    except Exception:
+        pass
+    return sorted(categories)
+
+
+def get_allowed_categories(db, user_id):
+    rows = db.execute('SELECT category, allowed FROM user_category_access WHERE user_id = ?', (user_id,)).fetchall()
+    return [r['category'] for r in rows if r['allowed'] == 1]
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -115,6 +136,16 @@ def init_db():
             created_at TEXT NOT NULL,
             ip TEXT,
             user_agent TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    """)
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS user_category_access (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            category TEXT NOT NULL,
+            allowed INTEGER NOT NULL DEFAULT 0,
+            UNIQUE(user_id, category),
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
     """)
@@ -225,6 +256,7 @@ def login():
 @app.route('/api/load-fragenpool', methods=['GET'])
 def load_fragenpool():
     db = get_db()
+    user_id = request.args.get('user_id')
     rows = db.execute('SELECT * FROM questions').fetchall()
     pool = {}
     # Include empty categories from fragenpool.json
@@ -248,6 +280,11 @@ def load_fragenpool():
             'created_at': row['created_at']
         }
         pool.setdefault(category, []).append(q)
+
+    if user_id:
+        allowed_categories = set(get_allowed_categories(db, user_id))
+        filtered = {cat: pool[cat] for cat in pool if cat in allowed_categories}
+        return jsonify(filtered)
 
     return jsonify(pool)
 
@@ -311,6 +348,7 @@ def get_categories():
 def get_vendors():
     """Return vendor > cert > topic hierarchy with question counts."""
     db = get_db()
+    user_id = request.args.get('user_id')
     rows = db.execute(
         'SELECT category, COUNT(*) as count FROM questions GROUP BY category ORDER BY category'
     ).fetchall()
@@ -326,6 +364,9 @@ def get_vendors():
         all_categories.update(pool.keys())
     except Exception:
         pass
+    if user_id:
+        allowed = set(get_allowed_categories(db, user_id))
+        all_categories = {cat for cat in all_categories if cat in allowed}
     vendors = {}
     for cat in sorted(all_categories):
         count = db_counts.get(cat, 0)
@@ -512,7 +553,14 @@ def admin_users():
         select_cols.append('last_user_agent')
     if 'last_seen_at' in user_cols:
         select_cols.append('last_seen_at')
-    users = db.execute(f"SELECT {', '.join(select_cols)} FROM users").fetchall()
+    search = (request.args.get('q') or '').strip()
+    if search:
+        users = db.execute(
+            f"SELECT {', '.join(select_cols)} FROM users WHERE username LIKE ? ORDER BY username",
+            (f'%{search}%',)
+        ).fetchall()
+    else:
+        users = db.execute(f"SELECT {', '.join(select_cols)} FROM users ORDER BY username").fetchall()
     result = []
     db.execute(
         '''
@@ -589,6 +637,135 @@ def admin_users():
         })
 
     return jsonify({'success': True, 'users': result})
+
+@app.route('/api/admin/user-access', methods=['GET'])
+def admin_user_access():
+    requesting_user = request.headers.get('X-Admin-User', '')
+    if requesting_user.lower() != 'admin':
+        return jsonify({'success': False, 'message': 'Kein Zugriff.'}), 403
+
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'user_id erforderlich.'}), 400
+
+    db = get_db()
+    categories = get_all_categories(db)
+    rows = db.execute('SELECT category, allowed FROM user_category_access WHERE user_id = ?', (user_id,)).fetchall()
+    access_map = {r['category']: r['allowed'] for r in rows}
+    result = [{'category': cat, 'allowed': int(access_map.get(cat, 0))} for cat in categories]
+    return jsonify({'success': True, 'access': result})
+
+@app.route('/api/admin/set-category-access', methods=['POST'])
+def admin_set_category_access():
+    requesting_user = request.headers.get('X-Admin-User', '')
+    if requesting_user.lower() != 'admin':
+        return jsonify({'success': False, 'message': 'Kein Zugriff.'}), 403
+
+    data = request.json or {}
+    user_id = data.get('user_id')
+    category = (data.get('category') or '').strip()
+    allowed = 1 if data.get('allowed') else 0
+    if not user_id or not category:
+        return jsonify({'success': False, 'message': 'user_id und category erforderlich.'}), 400
+
+    db = get_db()
+    if category not in get_all_categories(db):
+        return jsonify({'success': False, 'message': 'Unbekannte Kategorie.'}), 400
+
+    db.execute(
+        'INSERT INTO user_category_access (user_id, category, allowed) VALUES (?, ?, ?) ON CONFLICT(user_id, category) DO UPDATE SET allowed = excluded.allowed',
+        (user_id, category, allowed)
+    )
+    db.commit()
+    return jsonify({'success': True, 'message': 'Zugriff aktualisiert.'})
+
+@app.route('/api/admin/user-category-stats', methods=['GET'])
+def admin_user_category_stats():
+    requesting_user = request.headers.get('X-Admin-User', '')
+    if requesting_user.lower() != 'admin':
+        return jsonify({'success': False, 'message': 'Kein Zugriff.'}), 403
+
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'user_id erforderlich.'}), 400
+
+    db = get_db()
+    rows = db.execute(
+        '''
+        SELECT q.category as category,
+               COUNT(*) as total,
+               SUM(CASE WHEN up.correct = 1 THEN 1 ELSE 0 END) as correct
+        FROM user_progress up
+        JOIN questions q ON q.id = up.question_id
+        WHERE up.user_id = ?
+        GROUP BY q.category
+        ''',
+        (user_id,)
+    ).fetchall()
+
+    categories = []
+    main_stats = {}
+    cert_stats = {}
+    total_correct = 0
+    total_wrong = 0
+
+    for r in rows:
+        category = r['category']
+        total = r['total'] or 0
+        correct = r['correct'] or 0
+        wrong = total - correct
+        percent = round((correct / total) * 100, 1) if total > 0 else 0.0
+        total_correct += correct
+        total_wrong += wrong
+
+        parts = [p.strip() for p in category.split('>')]
+        main = parts[0] if parts else category
+        cert = parts[1] if len(parts) > 1 else category
+
+        categories.append({
+            'category': category,
+            'main_category': main,
+            'cert_category': cert,
+            'total': total,
+            'correct': correct,
+            'wrong': wrong,
+            'percent': percent
+        })
+
+        main_stats.setdefault(main, {'correct': 0, 'wrong': 0, 'total': 0})
+        main_stats[main]['correct'] += correct
+        main_stats[main]['wrong'] += wrong
+        main_stats[main]['total'] += total
+
+        cert_stats.setdefault(cert, {'correct': 0, 'wrong': 0, 'total': 0})
+        cert_stats[cert]['correct'] += correct
+        cert_stats[cert]['wrong'] += wrong
+        cert_stats[cert]['total'] += total
+
+    def build_group_stats(group):
+        return [
+            {
+                'name': name,
+                'correct': stats['correct'],
+                'wrong': stats['wrong'],
+                'total': stats['total'],
+                'percent': round((stats['correct'] / stats['total']) * 100, 1) if stats['total'] > 0 else 0.0
+            }
+            for name, stats in sorted(group.items(), key=lambda x: x[0])
+        ]
+
+    return jsonify({
+        'success': True,
+        'categories': categories,
+        'main_stats': build_group_stats(main_stats),
+        'cert_stats': build_group_stats(cert_stats),
+        'summary': {
+            'correct': total_correct,
+            'wrong': total_wrong,
+            'total': total_correct + total_wrong,
+            'percent': round((total_correct / (total_correct + total_wrong)) * 100, 1) if total_correct + total_wrong > 0 else 0.0
+        }
+    })
 
 @app.route('/api/admin/set-password', methods=['POST'])
 def admin_set_password():
