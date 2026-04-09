@@ -45,6 +45,15 @@ def get_db():
 def get_user_columns(db):
     return [row[1] for row in db.execute('PRAGMA table_info(users)').fetchall()]
 
+
+def get_category_prefixes(category):
+    parts = [p.strip() for p in category.split('>') if p.strip()]
+    prefixes = []
+    for i in range(1, len(parts) + 1):
+        prefixes.append(' > '.join(parts[:i]))
+    return prefixes
+
+
 def get_all_categories(db):
     categories = set()
     rows = db.execute('SELECT DISTINCT category FROM questions').fetchall()
@@ -59,12 +68,22 @@ def get_all_categories(db):
                     categories.add(cat)
     except Exception:
         pass
-    return sorted(categories)
+
+    expanded = set()
+    for cat in categories:
+        for prefix in get_category_prefixes(cat):
+            expanded.add(prefix)
+    return sorted(expanded)
 
 
 def get_allowed_categories(db, user_id):
     rows = db.execute('SELECT category, allowed FROM user_category_access WHERE user_id = ?', (user_id,)).fetchall()
     return [r['category'] for r in rows if r['allowed'] == 1]
+
+
+def is_category_allowed(category, allowed_categories):
+    prefixes = get_category_prefixes(category)
+    return any(prefix in allowed_categories for prefix in prefixes)
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -283,7 +302,7 @@ def load_fragenpool():
 
     if user_id:
         allowed_categories = set(get_allowed_categories(db, user_id))
-        filtered = {cat: pool[cat] for cat in pool if cat in allowed_categories}
+        filtered = {cat: pool[cat] for cat in pool if is_category_allowed(cat, allowed_categories)}
         return jsonify(filtered)
 
     return jsonify(pool)
@@ -366,7 +385,7 @@ def get_vendors():
         pass
     if user_id:
         allowed = set(get_allowed_categories(db, user_id))
-        all_categories = {cat for cat in all_categories if cat in allowed}
+        all_categories = {cat for cat in all_categories if is_category_allowed(cat, allowed)}
     vendors = {}
     for cat in sorted(all_categories):
         count = db_counts.get(cat, 0)
