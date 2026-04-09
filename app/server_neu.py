@@ -227,6 +227,14 @@ def load_fragenpool():
     db = get_db()
     rows = db.execute('SELECT * FROM questions').fetchall()
     pool = {}
+    # Include empty categories from fragenpool.json
+    try:
+        with open(QUESTIONPOOL_FILE, 'r', encoding='utf-8') as f:
+            file_pool = json.load(f)
+        for cat in file_pool:
+            pool.setdefault(cat, [])
+    except Exception:
+        pass
     for row in rows:
         category = row['category'] or 'Unbekannt'
         answer_value = row['answer'] if 'answer' in row.keys() else None
@@ -306,9 +314,22 @@ def get_vendors():
     rows = db.execute(
         'SELECT category, COUNT(*) as count FROM questions GROUP BY category ORDER BY category'
     ).fetchall()
-    vendors = {}
+    # Build counts from DB
+    db_counts = {}
     for r in rows:
-        parts = [p.strip() for p in r['category'].split('>')]
+        db_counts[r['category']] = r['count']
+    # Merge with fragenpool.json to include empty categories
+    all_categories = set(db_counts.keys())
+    try:
+        with open(QUESTIONPOOL_FILE, 'r', encoding='utf-8') as f:
+            pool = json.load(f)
+        all_categories.update(pool.keys())
+    except Exception:
+        pass
+    vendors = {}
+    for cat in sorted(all_categories):
+        count = db_counts.get(cat, 0)
+        parts = [p.strip() for p in cat.split('>')]
         if len(parts) >= 3:
             vendor, cert, topic = parts[0], parts[1], ' > '.join(parts[2:])
         elif len(parts) == 2:
@@ -319,9 +340,9 @@ def get_vendors():
             vendors[vendor] = {'name': vendor, 'certs': {}, 'total': 0}
         if cert not in vendors[vendor]['certs']:
             vendors[vendor]['certs'][cert] = {'name': cert, 'topics': [], 'total': 0}
-        vendors[vendor]['certs'][cert]['topics'].append({'name': topic, 'full_category': r['category'], 'count': r['count']})
-        vendors[vendor]['certs'][cert]['total'] += r['count']
-        vendors[vendor]['total'] += r['count']
+        vendors[vendor]['certs'][cert]['topics'].append({'name': topic, 'full_category': cat, 'count': count})
+        vendors[vendor]['certs'][cert]['total'] += count
+        vendors[vendor]['total'] += count
     # Convert to list
     result = []
     for v in vendors.values():

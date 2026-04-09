@@ -1648,28 +1648,33 @@
             // Filter categories by selected cert (if any)
             let filteredCats;
             if (selectedCert && selectedCert.topics) {
-                filteredCats = selectedCert.topics.map(t => t.full_category).filter(c => fragenpool[c]);
+                filteredCats = selectedCert.topics.map(t => t.full_category);
             } else {
                 filteredCats = Object.keys(fragenpool);
             }
 
             if (filteredCats.length === 0) {
-                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1;">Keine Fragen in diesem Zertifikat. Fragen werden bald hinzugefügt!</p>';
+                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1;">Keine Themen in diesem Zertifikat.</p>';
                 return;
             }
 
             const scoreRatio = overallStats.questions > 0 ? overallStats.correct / overallStats.questions : 0;
             const moodClass = scoreRatio >= 0.6 ? 'angel' : 'demon';
 
-            // "All topics" test button
-            const testBtn = document.createElement('button');
-            testBtn.className = `category-btn ${moodClass}`;
-            const totalQ = filteredCats.reduce((s, c) => s + (fragenpool[c] ? fragenpool[c].length : 0), 0);
-            testBtn.innerHTML = `<span class="cat-icon">📋</span><span class="cat-name">Übungstest</span><span class="cat-count">(${totalQ} Fragen)</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
-            testBtn.onclick = () => goToTestSetup();
-            testBtn.addEventListener('mouseenter', () => document.body.classList.add('body-dark-shake'));
-            testBtn.addEventListener('mouseleave', () => document.body.classList.remove('body-dark-shake'));
-            grid.appendChild(testBtn);
+            // Count only categories with actual questions
+            const catsWithQuestions = filteredCats.filter(c => fragenpool[c] && fragenpool[c].length > 0);
+            const totalQ = catsWithQuestions.reduce((s, c) => s + fragenpool[c].length, 0);
+
+            // "All topics" test button (only if there are questions)
+            if (totalQ > 0) {
+                const testBtn = document.createElement('button');
+                testBtn.className = `category-btn ${moodClass}`;
+                testBtn.innerHTML = `<span class="cat-icon">📋</span><span class="cat-name">Übungstest</span><span class="cat-count">(${totalQ} Fragen)</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
+                testBtn.onclick = () => goToTestSetup();
+                testBtn.addEventListener('mouseenter', () => document.body.classList.add('body-dark-shake'));
+                testBtn.addEventListener('mouseleave', () => document.body.classList.remove('body-dark-shake'));
+                grid.appendChild(testBtn);
+            }
 
             let fillCount = 0;
             filteredCats.forEach(cat => { if (fragenpool[cat]) fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
@@ -1684,10 +1689,18 @@
                 // Extract short topic name (after last ">")
                 const parts = cat.split('>').map(p => p.trim());
                 const displayName = parts.length > 1 ? parts[parts.length - 1] : cat;
+                const qCount = fragenpool[cat] ? fragenpool[cat].length : 0;
                 const btn = document.createElement('button');
                 btn.className = `category-btn ${moodClass}`;
-                btn.innerHTML = `<span class="cat-icon">📖</span><span class="cat-name">${displayName}</span><span class="cat-count">(${fragenpool[cat].length})</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
-                btn.onclick = () => goToSetup(cat);
+                if (qCount === 0) {
+                    btn.innerHTML = `<span class="cat-icon">🔒</span><span class="cat-name">${displayName}</span><span class="cat-count" style="color: #FFB74D;">(bald verfügbar)</span>`;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'default';
+                    btn.title = 'Fragen werden bald hinzugefügt';
+                } else {
+                    btn.innerHTML = `<span class="cat-icon">📖</span><span class="cat-name">${displayName}</span><span class="cat-count">(${qCount})</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
+                    btn.onclick = () => goToSetup(cat);
+                }
                 grid.appendChild(btn);
             });
         }
@@ -1729,9 +1742,9 @@
         // Helper: get categories filtered by selected cert
         function getFilteredCats() {
             if (selectedCert && selectedCert.topics) {
-                return selectedCert.topics.map(t => t.full_category).filter(c => fragenpool[c]);
+                return selectedCert.topics.map(t => t.full_category).filter(c => fragenpool[c] && fragenpool[c].length > 0);
             }
-            return Object.keys(fragenpool);
+            return Object.keys(fragenpool).filter(c => fragenpool[c] && fragenpool[c].length > 0);
         }
 
         function goToTestSetup() {
