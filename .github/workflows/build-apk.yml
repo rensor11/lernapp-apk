@@ -43,20 +43,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}-${{ hashFiles('app/**') }}
           restore-keys: |
+            buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}-
             buildozer-${{ runner.os }}-
-
-      - name: Sync app files
-        run: |
-          mkdir -p app
-          cp flask_server.py app/flask_server.py || true
-          cp "fragenpool (2).json" app/fragenpool2.json || true
-          cp lernapp.html app/lernapp.html || true
-          cp server_neu.py app/server_neu.py || true
-          cp server.py app/server.py || true
-          echo "=== Files in app/ ==="
-          ls -la app/
 
       - name: Build APK
         env:
@@ -71,10 +61,15 @@ jobs:
           echo "$JAVA_HOME"
           echo "=== Files in app/ ==="
           ls -la app/
+          echo "=== Cleaning old build ==="
+          rm -rf bin/
           echo "=== Starting Buildozer ==="
+          set -o pipefail
           yes | buildozer android debug 2>&1 | tee build.log
+          echo "=== Build Exit Code: $? ==="
           echo "=== APK Suche ==="
-          find . -name "*.apk" -type f || echo "Kein APK gefunden"
+          find . -name "*.apk" -type f
+          ls -la bin/ || echo "bin/ Verzeichnis nicht gefunden"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
