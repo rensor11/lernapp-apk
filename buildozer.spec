@@ -16,7 +16,7 @@ version = 1.0.0
 # -------------------------------------------
 # Abhängigkeiten (werden automatisch geladen)
 # -------------------------------------------
-requirements = python3,kivy,flask,werkzeug,jinja2,markupsafe,click,itsdangerous,requests,android
+requirements = python3,kivy,flask==2.3.3,werkzeug==2.3.8,jinja2==3.1.3,markupsafe==2.1.5,click==8.1.7,itsdangerous==2.1.2,blinker==1.7.0,requests,android
 
 # -------------------------------------------
 # Android Einstellungen
