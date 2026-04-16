@@ -15,11 +15,21 @@ import mimetypes
 import re
 import hashlib
 import requests
+import socket
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from flask import Flask, request, jsonify, redirect, send_from_directory, g, send_file, abort, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+
+# Import Fritz!Box Proxy
+try:
+    from fritzbox_proxy import FritzBoxProxy
+    FRITZBOX_PROXY = FritzBoxProxy(router_url="http://192.168.178.1")
+    print("[SETUP] Fritz!Box Proxy initialized")
+except Exception as e:
+    print(f"[WARN] Fritz!Box Proxy error: {e}")
+    FRITZBOX_PROXY = None
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.path.join(BASE_DIR, 'lernapp.db')
@@ -371,6 +381,26 @@ def lernapp_page():
 def smarthome_page():
     """Smart Home"""
     return send_from_directory(BASE_DIR, 'smarthome.html')
+
+@app.route('/account')
+def account_page():
+    """Kontoeinstellungen"""
+    return send_from_directory(os.path.join(BASE_DIR, 'pages'), 'account_settings.html')
+
+@app.route('/smarthome-settings')
+def smarthome_settings_page():
+    """Smart Home Einstellungen und Geräte-Verwaltung"""
+    return send_from_directory(os.path.join(BASE_DIR, 'pages'), 'smarthome_settings.html')
+
+@app.route('/user-management')
+def user_management_page():
+    """Benutzerverwaltung (Admin only)"""
+    return send_from_directory(os.path.join(BASE_DIR, 'pages'), 'user_management.html')
+
+@app.route('/file-management')
+def file_management_page():
+    """Dateiverwaltung für Home Cloud"""
+    return send_from_directory(os.path.join(BASE_DIR, 'pages'), 'file_management.html')
 
 @app.route('/admin')
 def admin_page():
@@ -782,6 +812,60 @@ def admin_list_users():
     
     return jsonify({'success': True, 'users': users})
 
+@app.route('/api/admin/users', methods=['POST'])
+def admin_create_user():
+    """Create a new user (admin only)."""
+    if not verify_admin(request):
+        return jsonify({'success': False, 'message': 'Admin-Passwort erforderlich'}), 401
+    
+    data = request.json or {}
+    username = data.get('username', '').strip()
+    password = data.get('password', '').strip()
+    home_access = data.get('home_access_allowed', True)
+    smarthome_access = data.get('smarthome_access_allowed', False)
+    lernapp_access = data.get('lernapp_access_allowed', False)
+    
+    # Validierung
+    if not username:
+        return jsonify({'success': False, 'message': 'Benutzername erforderlich'}), 400
+    
+    if not password:
+        return jsonify({'success': False, 'message': 'Passwort erforderlich'}), 400
+    
+    # Passwort-Validierung
+    valid, msg = validate_password_strength(password)
+    if not valid:
+        return jsonify({'success': False, 'message': msg}), 400
+    
+    # Überprüfe ob Benutzer bereits existiert
+    db = get_db()
+    existing = db.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
+    if existing:
+        return jsonify({'success': False, 'message': 'Benutzername existiert bereits'}), 400
+    
+    # Erstelle neuen Benutzer
+    try:
+        password_hash = generate_password_hash(password)
+        db.execute(
+            'INSERT INTO users (username, password, password_hash, home_access_allowed, smarthome_access_allowed, lernapp_access_allowed, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            (username, password_hash, password_hash, 1 if home_access else 0, 1 if smarthome_access else 0, 1 if lernapp_access else 0, datetime.now().isoformat())
+        )
+        db.commit()
+        
+        # Erstelle user_storage Verzeichnis
+        user_id = db.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()['id']
+        for category in CATEGORIES:
+            cat_dir = os.path.join(STORAGE_ROOT, str(user_id), category)
+            os.makedirs(cat_dir, exist_ok=True)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Benutzer "{username}" erstellt',
+            'user_id': user_id
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Fehler beim Erstellen: {str(e)}'}), 500
+
 @app.route('/api/admin/user/permission', methods=['POST'])
 def admin_set_permission():
     """Set user permission for a feature (home, smarthome, lernapp)."""
@@ -955,7 +1039,7 @@ def admin_change_password(user_id):
     # Passwort hashen
     password_hash = generate_password_hash(new_password)
     
-    db.execute('UPDATE users SET password = ? WHERE id = ?', (password_hash, user_id))
+    db.execute('UPDATE users SET password_hash = ? WHERE id = ?', (password_hash, user_id))
     db.commit()
     
     return jsonify({
@@ -1059,6 +1143,128 @@ def admin_get_user_stats(user_id):
             'SELECT home_access_allowed FROM users WHERE id = ?', (user_id,)
         ).fetchone()[0])
     })
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# USER SELF-SERVICE (Password Change, Profile Edit, Delete Account)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.route('/api/user/profile', methods=['GET'])
+def user_get_profile():
+    """Get current user profile"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
+    
+    db = get_db()
+    user = db.execute('SELECT id, username, created_at FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if not user:
+        return jsonify({'success': False, 'message': 'Benutzer nicht gefunden'}), 404
+    
+    return jsonify({
+        'success': True,
+        'user': {
+            'id': user['id'],
+            'username': user['username'],
+            'created_at': user['created_at']
+        }
+    })
+
+@app.route('/api/user/password/change', methods=['POST'])
+def user_change_password():
+    """Change password for logged-in user"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
+    
+    data = request.json or {}
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    confirm_password = data.get('confirm_password')
+    
+    # Validierung
+    if not all([current_password, new_password, confirm_password]):
+        return jsonify({'success': False, 'message': 'Alle Felder sind erforderlich'}), 400
+    
+    if new_password != confirm_password:
+        return jsonify({'success': False, 'message': 'Neue Passwörter stimmen nicht überein'}), 400
+    
+    valid, msg = validate_password_strength(new_password)
+    if not valid:
+        return jsonify({'success': False, 'message': msg}), 400
+    
+    # Überprüfe aktuelles Passwort
+    db = get_db()
+    user = db.execute('SELECT password_hash FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if not user or not check_password_hash(user['password_hash'], current_password):
+        return jsonify({'success': False, 'message': 'Aktuelles Passwort ist falsch'}), 401
+    
+    # Update password
+    new_hash = generate_password_hash(new_password)
+    db.execute('UPDATE users SET password_hash = ? WHERE id = ?', (new_hash, g.user['id']))
+    db.commit()
+    
+    return jsonify({'success': True, 'message': 'Passwort erfolgreich geändert'})
+
+@app.route('/api/user/profile/edit', methods=['POST'])
+def user_edit_profile():
+    """Edit user profile details"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
+    
+    data = request.json or {}
+    # Für jetzt nur Username update - kann erweitert werden
+    
+    return jsonify({
+        'success': True,
+        'message': 'Profil konnte aktualisiert werden (in Planung)'
+    })
+
+@app.route('/api/user/delete', methods=['DELETE', 'POST'])
+def user_delete_account():
+    """Delete user account"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
+    
+    data = request.json or {}
+    password = data.get('password')
+    
+    if not password:
+        return jsonify({'success': False, 'message': 'Passwort ist erforderlich'}), 400
+    
+    # Verify password
+    db = get_db()
+    user = db.execute('SELECT password_hash FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if not user or not check_password_hash(user['password_hash'], password):
+        return jsonify({'success': False, 'message': 'Passwort ist falsch'}), 401
+    
+    # Don't allow admin to delete themselves
+    if user_is_admin(g.user['id']):
+        return jsonify({'success': False, 'message': 'Admin-Konten können nicht gelöscht werden'}), 403
+    
+    # Delete user and all associated data
+    try:
+        user_id = g.user['id']
+        db.execute('DELETE FROM quiz_results WHERE user_id = ? OR username = ?', (user_id, g.user['username']))
+        db.execute('DELETE FROM smarthome_devices WHERE user_id = ?', (user_id,))
+        db.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        db.commit()
+        
+        # Clean up user storage
+        import shutil
+        user_storage = os.path.join(STORAGE_ROOT, str(user_id))
+        if os.path.exists(user_storage):
+            shutil.rmtree(user_storage)
+        
+        return jsonify({'success': True, 'message': 'Konto erfolgreich gelöscht'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Fehler beim Löschen: {str(e)}'}), 500
+
+def user_is_admin(user_id):
+    """Check if user is admin"""
+    db = get_db()
+    user = db.execute('SELECT username FROM users WHERE id = ?', (user_id,)).fetchone()
+    return user and user['username'] == 'admin'
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SMART HOME DEVICE MANAGEMENT
@@ -1166,6 +1372,44 @@ def smarthome_add_device():
             'success': False,
             'message': f'Fehler beim Hinzufügen: {str(e)}',
             'error_type': type(e).__name__
+        }), 500
+
+@app.route('/api/smarthome/device/<int:device_id>/edit', methods=['POST'])
+def smarthome_edit_device(device_id):
+    """Edit smart home device details."""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
+    
+    db = get_db()
+    device = db.execute('SELECT * FROM smarthome_devices WHERE id = ? AND user_id = ?', 
+                       (device_id, g.user['id'])).fetchone()
+    
+    if not device:
+        return jsonify({'success': False, 'message': 'Gerät nicht gefunden oder kein Zugriff'}), 404
+    
+    data = request.json or {}
+    
+    # Update editable fields
+    device_name = data.get('device_name', device['device_name'])
+    device_type = data.get('device_type', device['device_type'])
+    auth_token = data.get('auth_token', device['auth_token'])
+    
+    try:
+        db.execute(
+            'UPDATE smarthome_devices SET device_name = ?, device_type = ?, auth_token = ? WHERE id = ?',
+            (device_name, device_type, auth_token, device_id)
+        )
+        db.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Gerät aktualisiert',
+            'device_id': device_id
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Fehler beim Aktualisieren: {str(e)}'
         }), 500
 
 @app.route('/api/smarthome/device/<int:device_id>/status', methods=['GET'])
@@ -1680,6 +1924,133 @@ def smarthome_connect_fritzbox():
             'success': False,
             'message': f'Fehler beim Speichern der Fritz!Box-Verbindung: {str(e)}'
         }), 500
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FRITZ!BOX ROUTER CONTROL (Direct Proxy Integration)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.route('/api/smarthome/router/status', methods=['GET'])
+def router_get_status():
+    """Get router and network status"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentication required'}), 401
+    
+    # Check admin access
+    db = get_db()
+    user = db.execute('SELECT smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if not user or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Smart Home access denied'}), 403
+    
+    if not FRITZBOX_PROXY:
+        return jsonify({'success': False, 'message': 'Fritz!Box Proxy not available'}), 503
+    
+    try:
+        status = FRITZBOX_PROXY.get_network_status()
+        return jsonify({
+            'success': True,
+            'router': status,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/smarthome/router/devices', methods=['GET'])
+def router_get_devices():
+    """Get all devices connected to router"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentication required'}), 401
+    
+    # Check admin access
+    db = get_db()
+    user = db.execute('SELECT smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if not user or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Smart Home access denied'}), 403
+    
+    if not FRITZBOX_PROXY:
+        return jsonify({'success': False, 'message': 'Fritz!Box Proxy not available'}), 503
+    
+    try:
+        devices = FRITZBOX_PROXY.get_connected_devices()
+        return jsonify({
+            'success': True,
+            'devices': devices,
+            'count': len(devices),
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/smarthome/router/control', methods=['POST'])
+def router_control():
+    """Control router functions"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentication required'}), 401
+    
+    # Check admin access only
+    db = get_db()
+    user = db.execute('SELECT username, smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if user['username'] != 'admin' or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Admin access required for router control'}), 403
+    
+    if not FRITZBOX_PROXY:
+        return jsonify({'success': False, 'message': 'Fritz!Box Proxy not available'}), 503
+    
+    try:
+        data = request.get_json() or {}
+        action = (data.get('action') or '').strip().lower()
+        
+        if action == 'reboot':
+            result = FRITZBOX_PROXY.reboot_router()
+            return jsonify({'success': result.get('success', False), 'result': result})
+        
+        elif action == 'block_device':
+            mac = data.get('mac', '').strip()
+            result = FRITZBOX_PROXY.control_device_by_mac(mac, 'block')
+            return jsonify({'success': result.get('success', False), 'result': result})
+        
+        elif action == 'unblock_device':
+            mac = data.get('mac', '').strip()
+            result = FRITZBOX_PROXY.control_device_by_mac(mac, 'allow')
+            return jsonify({'success': result.get('success', False), 'result': result})
+        
+        else:
+            return jsonify({'success': False, 'message': f'Unknown action: {action}'}), 400
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/smarthome/router/wifi', methods=['POST'])
+def router_wifi():
+    """Control WiFi (requires authentication)"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentication required'}), 401
+    
+    # Check admin access
+    db = get_db()
+    user = db.execute('SELECT username, smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if user['username'] != 'admin' or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Admin access required'}), 403
+    
+    if not FRITZBOX_PROXY:
+        return jsonify({'success': False, 'message': 'Fritz!Box Proxy not available'}), 503
+    
+    try:
+        data = request.get_json() or {}
+        state = (data.get('state') or 'toggle').strip().lower()
+        
+        # TODO: Implement WiFi toggle when authentication available
+        return jsonify({
+            'success': False,
+            'message': 'WiFi control requires router authentication',
+            'note': 'Set router password in fritzbox_proxy.py to enable'
+        }), 501
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN

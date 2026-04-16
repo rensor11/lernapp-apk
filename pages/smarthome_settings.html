@@ -372,6 +372,8 @@
             <button onclick="openScanModal()" class="btn-scan">🔍 Netzwerk scannen</button>
             <button onclick="openAddDeviceModal()">➕ Gerät hinzufügen</button>
             <button onclick="loadDevices()">🔄 Aktualisieren</button>
+            <button onclick="loadRouterStatus()" style="background: linear-gradient(135deg, #ff9a56 0%, #ff574a 100%);">🌐 Router-Status</button>
+            <button onclick="loadConnectedDevices()" style="background: linear-gradient(135deg, #56ccff 0%, #4ab0ff 100%);">📊 Verbundene Geräte</button>
         </div>
 
         <div id="devicesContainer" class="devices-grid">
@@ -655,6 +657,75 @@
             setTimeout(() => {
                 msg.className = 'message';
             }, 5000);
+        }
+
+        // Fritz!Box Router Control Functions
+        function loadRouterStatus() {
+            showMessage('Lade Router-Status...', 'info');
+            
+            fetch('/api/smarthome/router/status')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const router = data.router;
+                        const msg = `
+🌐 Router Status:
+✓ Internet: ${router.internet.internet}
+✓ Router: ${router.internet.router}
+✓ Zugangsbereich: ${router.router_url}
+✓ Authentifiziert: ${router.authenticated ? 'Ja' : 'Nein'}
+                        `.trim();
+                        showMessage(msg, 'success');
+                    } else {
+                        showMessage('Fehler: ' + data.message, 'error');
+                    }
+                })
+                .catch(e => showMessage('Fehler beim Abrufen des Router-Status: ' + e, 'error'));
+        }
+
+        function loadConnectedDevices() {
+            showMessage('Lade verbundene Geräte...', 'info');
+            
+            fetch('/api/smarthome/router/devices')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const devices = data.devices;
+                        let html = `<div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">`;
+                        html += `<h3>Verbundene Geräte (${devices.length})</h3>`;
+                        html += `<hr style="margin: 10px 0;">`;
+                        
+                        if (devices.length > 0) {
+                            html += `<table style="width: 100%; border-collapse: collapse;">`;
+                            html += `<tr style="background: #f9f9ff;">
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Hostname</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">IP-Adresse</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th>
+                            </tr>`;
+                            
+                            devices.forEach(device => {
+                                html += `<tr>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${device.hostname}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${device.ip}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;"><span style="color: green; font-weight: 600;">● ${device.status}</span></td>
+                                </tr>`;
+                            });
+                            
+                            html += `</table>`;
+                        } else {
+                            html += `<p style="color: #999;">Keine Geräte gefunden</p>`;
+                        }
+                        
+                        html += `</div>`;
+                        
+                        // Replace devicesContainer
+                        document.getElementById('devicesContainer').innerHTML = html;
+                        showMessage(`${devices.length} Geräte im Netzwerk gefunden`, 'success');
+                    } else {
+                        showMessage('Fehler: ' + data.message, 'error');
+                    }
+                })
+                .catch(e => showMessage('Fehler beim Abrufen der Geräte: ' + e, 'error'));
         }
     </script>
 </body>
