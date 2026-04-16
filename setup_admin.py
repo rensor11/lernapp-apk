@@ -42,9 +42,9 @@ admin_user = cur.fetchone()
 
 if admin_user:
     print(f"✅ Admin-Benutzer existiert bereits (ID: {admin_user[0]})")
-    # Update password
+    # Update password and ensure all permissions are enabled
     cur.execute(
-        'UPDATE users SET password_hash = ? WHERE username = ?',
+        'UPDATE users SET password_hash = ?, home_access_allowed = 1, smarthome_access_allowed = 1, lernapp_access_allowed = 1 WHERE username = ?',
         (password_hash, 'admin')
     )
     admin_id = admin_user[0]

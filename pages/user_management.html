@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benutzerverwaltung - RenLern Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f9f9ff;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9ff;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .actions button {
+            padding: 8px 16px;
+            font-size: 0.85em;
+            flex: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f9f9ff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+        }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👥 Benutzerverwaltung</h1>
+            <p style="color: white; opacity: 0.9;">Admin-Panel für Benutzerkonten</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Nach Benutzern suchen..." onkeyup="filterUsers()">
+                <button onclick="promptAdminPassword('add')" class="btn-success">+ Neuer Benutzer</button>
+            </div>
+            <div id="message" class="message"></div>
+        </div>
+
+        <div class="table-container">
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Benutzername</th>
+                        <th>Erstellt</th>
+                        <th>Home</th>
+                        <th>Quiz</th>
+                        <th>Smart Home</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody">
+                    <tr><td colspan="7" class="loading"><div class="spinner"></div>Lädt...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="nav-links">
+            <a href="/admin">← Zurück zum Admin Panel</a>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">Neuer Benutzer</div>
+            <form id="userForm" onsubmit="saveUser(event)">
+                <div class="form-group">
+                    <label for="username">Benutzername:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Passwort:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="home_access"> Home Cloud Zugriff</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="lernapp_access"> Quiz Zugriff</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="smarthome_access"> Smart Home Zugriff</label>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit">Speichern</button>
+                    <button type="button" onclick="closeUserModal()" class="btn-danger">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div id="adminPassModal" class="modal">
+        <div class="modal-content">
+            <div class=\"modal-header\">🔐 Admin-Passwort erforderlich</div>
+            <form onsubmit=\"submitAdminPassword(event)\">
+                <div class=\"form-group\">
+                    <label for=\"adminPass\">Admin-Passwort:</label>
+                    <input type=\"password\" id=\"adminPass\" required autofocus>
+                </div>
+                <div class=\"modal-buttons\">
+                    <button type=\"submit\">Bestätigen</button>
+                    <button type=\"button\" onclick=\"closeAdminPassModal()\" class=\"btn-danger\">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id=\"resetPassModal\" class=\"modal\">
+        <div class=\"modal-content\">
+            <div class=\"modal-header\">🔑 Passwort zurücksetzen</div>
+            <form onsubmit=\"e => { e.preventDefault(); promptAdminPassword('reset'); }\">
+                <div class=\"form-group\">
+                    <label>Benutzer: <strong id=\"resetUsername\"></strong></label>
+                </div>
+                <div class=\"form-group\">
+                    <label for=\"newPassword\">Neues Passwort:</label>
+                    <input type=\"password\" id=\"newPassword\" required>
+                    <small style=\"color: #999;\">Mind. 6 Zeichen</small>
+                </div>
+                <div class=\"modal-buttons\">
+                    <button type=\"submit\">Bestätigen</button>
+                    <button type=\"button\" onclick=\"closeResetPassModal()\" class=\"btn-danger\">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let users = [];
+        let currentUserId = null;
+        let currentAction = null;
+        let adminPassword = null;
+
+        window.addEventListener('load', loadUsers);
+
+        function loadUsers() {
+            fetch('/api/admin/users')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        users = data.users;
+                        renderUsers(users);
+                        showMessage('Benutzer geladen', 'success');
+                    } else {
+                        showMessage('Fehler beim Laden', 'error');
+                    }
+                })
+                .catch(e => showMessage('Fehler: ' + e.message, 'error'));
+        }
+
+        function renderUsers(userList) {
+            const tbody = document.getElementById('usersBody');
+            
+            if (userList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Keine Benutzer gefunden</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = userList.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td><strong>${user.username}</strong></td>
+                    <td>${new Date(user.created_at).toLocaleDateString('de-DE')}</td>
+                    <td>${user.home_access_allowed ? '✅' : '❌'}</td>
+                    <td>${user.lernapp_access_allowed ? '✅' : '❌'}</td>
+                    <td>${user.smarthome_access_allowed ? '✅' : '❌'}</td>
+                    <td>
+                        <div class="actions">
+                            <button onclick="promptResetPassword(${user.id}, '${user.username}')" class="btn-danger">🔑</button>
+                            <button onclick="promptDeleteUser(${user.id}, '${user.username}')" class="btn-danger">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = users.filter(u => u.username.toLowerCase().includes(search));
+            renderUsers(filtered);
+        }
+
+        function promptAdminPassword(action) {
+            currentAction = action;
+            document.getElementById('adminPassModal').classList.add('active');
+            document.getElementById('adminPass').value = '';
+            document.getElementById('adminPass').focus();
+        }
+
+        function submitAdminPassword(e) {
+            e.preventDefault();
+            adminPassword = document.getElementById('adminPass').value;
+            closeAdminPassModal();
+            
+            if (currentAction === 'add') {
+                openAddUserModal();
+            } else if (currentAction === 'reset') {
+                submitResetPassword();
+            } else if (currentAction === 'delete') {
+                deleteUserConfirmed();
+            }
+        }
+
+        function closeAdminPassModal() {
+            document.getElementById('adminPassModal').classList.remove('active');
+        }
+
+        function openAddUserModal() {
+            currentUserId = null;
+            document.getElementById('modalTitle').textContent = 'Neuer Benutzer';
+            document.getElementById('userForm').reset();
+            document.getElementById('password').required = true;
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+            adminPassword = null;
+        }
+
+        function saveUser(e) {
+            e.preventDefault();
+
+            if (!adminPassword) {
+                showMessage('Admin-Passwort erforderlich', 'error');
+                return;
+            }
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const home_access = document.getElementById('home_access').checked;
+            const lernapp_access = document.getElementById('lernapp_access').checked;
+            const smarthome_access = document.getElementById('smarthome_access').checked;
+
+            if (!username) {
+                showMessage('Benutzername erforderlich', 'error');
+                return;
+            }
+
+            if (!password || password.length < 6) {
+                showMessage('Passwort muss mind. 6 Zeichen lang sein', 'error');
+                return;
+            }
+
+            fetch('/api/admin/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': adminPassword
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                    home_access_allowed: home_access,
+                    lernapp_access_allowed: lernapp_access,
+                    smarthome_access_allowed: smarthome_access
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('✅ ' + data.message, 'success');
+                    closeUserModal();
+                    loadUsers();
+                } else {
+                    showMessage('❌ ' + data.message, 'error');
+                }
+            })
+            .catch(e => showMessage('Fehler: ' + e.message, 'error'));
+        }
+
+        function promptResetPassword(userId, username) {
+            currentUserId = userId;
+            document.getElementById('resetUsername').textContent = username;
+            document.getElementById('resetPassModal').classList.add('active');
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newPassword').focus();
+        }
+
+        function closeResetPassModal() {
+            document.getElementById('resetPassModal').classList.remove('active');
+        }
+
+        function submitResetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            
+            if (!newPassword || newPassword.length < 6) {
+                showMessage('Passwort muss mind. 6 Zeichen lang sein', 'error');
+                return;
+            }
+
+            if (!adminPassword || !currentUserId) {
+                showMessage('Admin-Authentifizierung erforderlich', 'error');
+                return;
+            }
+
+            fetch(`/api/admin/user/${currentUserId}/password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': adminPassword
+                },
+                body: JSON.stringify({ password: newPassword })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('✅ Passwort zurückgesetzt', 'success');
+                    closeResetPassModal();
+                } else {
+                    showMessage('❌ ' + data.message, 'error');
+                }
+            })
+            .catch(e => showMessage('Fehler: ' + e.message, 'error'));
+        }
+
+        function promptDeleteUser(userId, username) {
+            if (confirm(`🗑️ Benutzer "${username}" wirklich löschen?\nDies kann nicht rückgängig gemacht werden!`)) {
+                currentUserId = userId;
+                currentAction = 'delete';
+                promptAdminPassword('delete');
+            }
+        }
+
+        function deleteUserConfirmed() {
+            if (!adminPassword || !currentUserId) {
+                showMessage('Admin-Authentifizierung erforderlich', 'error');
+                return;
+            }
+
+            fetch(`/api/admin/user/${currentUserId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': adminPassword
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('✅ Benutzer gelöscht', 'success');
+                    loadUsers();
+                } else {
+                    showMessage('❌ ' + data.message, 'error');
+                }
+            })
+            .catch(e => showMessage('Fehler: ' + e.message, 'error'));
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            setTimeout(() => {
+                msg.className = 'message';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

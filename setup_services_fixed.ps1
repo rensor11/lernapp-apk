@@ -10,16 +10,16 @@ param(
     [string]$SSHKeyPath = "$env:USERPROFILE\.ssh\id_rsa_renlern"
 )
 
-$serverScriptName = "server_neu.py"
+$serverScriptName = "server_v2.py"
 $serverScriptPath = "C:\Users\Administrator\Desktop\Repo clone\lernapp-apk\$serverScriptName"
 $serverWorkingDirectory = "C:\Users\Administrator\Desktop\Repo clone\lernapp-apk\"
 $debianSetupScript = "C:\Users\Administrator\Desktop\Repo clone\lernapp-apk\setup_debian_vm.ps1"
 
 Write-Host "╔════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║        Flask Server (server_neu.py) starten        ║" -ForegroundColor Cyan
+Write-Host "║        Flask Server (server_v2.py) starten        ║" -ForegroundColor Cyan
 Write-Host "╚════════════════════════════════════════════════════╝" -ForegroundColor Cyan
 
-$proc = Get-Process -Name "python" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*server_neu.py*" }
+$proc = Get-Process -Name "python" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*server_v2.py*" }
 if ($proc) {
     Write-Host "✅ Flask Server laeuft bereits." -ForegroundColor Green
 } else {

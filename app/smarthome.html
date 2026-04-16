@@ -342,12 +342,24 @@
         
         // Beim Laden prüfen ob benutzer angemeldet ist
         window.addEventListener('load', () => {
-            userId = localStorage.getItem('userId');
-            if (!userId) {
+            const portalUserStr = localStorage.getItem('portalUser');
+            if (!portalUserStr) {
                 window.location.href = '/portal.html';
                 return;
             }
-            checkSmartHomeAccess();
+            
+            try {
+                const portalUser = JSON.parse(portalUserStr);
+                userId = portalUser.id;
+                if (!userId) {
+                    window.location.href = '/portal.html';
+                    return;
+                }
+                checkSmartHomeAccess();
+            } catch (e) {
+                console.error('Fehler beim Parsen des Benutzer-Objekts:', e);
+                window.location.href = '/portal.html';
+            }
         });
         
         async function checkSmartHomeAccess() {

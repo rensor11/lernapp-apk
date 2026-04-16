@@ -319,8 +319,11 @@
             </div>
             
             <div class="input-group">
-                <label>Fritz!Box Adresse (Auto):</label>
-                <input type="text" id="fritzboxIP" value="192.168.1.1" readonly style="background: #f5f5f5;">
+                <label>Fritz!Box IP-Adresse:</label>
+                <input type="text" id="fritzboxIP" placeholder="z.B. 192.168.178.1" value="">
+                <small style="color: #666; margin-top: 5px; display: block;">
+                    Lassen Sie das Feld leer für automatische Erkennung (versucht: 192.168.178.1, 192.168.1.1, 192.168.0.1, fritz.box)
+                </small>
             </div>
             
             <button class="btn-success" onclick="connectToFritzBox()">🚀 Verbindung testen</button>
@@ -342,12 +345,24 @@
         
         // Beim Laden prüfen ob benutzer angemeldet ist
         window.addEventListener('load', () => {
-            userId = localStorage.getItem('userId');
-            if (!userId) {
+            const portalUserStr = localStorage.getItem('portalUser');
+            if (!portalUserStr) {
                 window.location.href = '/portal.html';
                 return;
             }
-            checkSmartHomeAccess();
+            
+            try {
+                const portalUser = JSON.parse(portalUserStr);
+                userId = portalUser.id;
+                if (!userId) {
+                    window.location.href = '/portal.html';
+                    return;
+                }
+                checkSmartHomeAccess();
+            } catch (e) {
+                console.error('Fehler beim Parsen des Benutzer-Objekts:', e);
+                window.location.href = '/portal.html';
+            }
         });
         
         async function checkSmartHomeAccess() {
@@ -402,19 +417,47 @@
         
         async function scanNetwork() {
             const container = document.getElementById('devicesContainer');
-            container.innerHTML = '<div class="loading"><div class="spinner"></div>Scanne Netzwerk...</div>';
+            container.innerHTML = '<div class="loading"><div class="spinner"></div>Scanne Netzwerk...<br><small>Das kann bis zu 2 Minuten dauern</small></div>';
             
             try {
-                const response = await fetch('/api/smarthome/scan?user_id=' + userId);
+                // Increase timeout for network scanning
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+                
+                const response = await fetch('/api/smarthome/scan?user_id=' + userId, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    // Handle HTTP errors
+                    if (response.status === 401) {
+                        container.innerHTML = '<div class="empty-state">Nicht autorisiert. Bitte melde dich erneut an.</div>';
+                        setTimeout(() => window.location.href = '/portal.html', 2000);
+                        return;
+                    } else if (response.status === 403) {
+                        container.innerHTML = '<div class="empty-state">Smart Home Zugriff nicht erlaubt.</div>';
+                        return;
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                }
+                
                 const data = await response.json();
                 
-                if (data.success && data.devices.length > 0) {
+                if (data.success && data.devices && data.devices.length > 0) {
                     displayDevices(data.devices);
                 } else {
-                    container.innerHTML = '<div class="empty-state">Keine Geräte gefunden im Netzwerk.</div>';
+                    container.innerHTML = '<div class="empty-state">Keine Geräte gefunden im Netzwerk.<br><small>Stelle sicher, dass dein Netzwerk aktiv ist.</small></div>';
                 }
             } catch (e) {
-                container.innerHTML = '<div class="empty-state">Fehler beim Scan: ' + e.message + '</div>';
+                if (e.name === 'AbortError') {
+                    container.innerHTML = '<div class="empty-state">Scan-Timeout erreicht.<br><small>Der Netzwerk-Scan dauert zu lange. Versuche es später erneut.</small></div>';
+                } else {
+                    console.error('Scan error:', e);
+                    container.innerHTML = '<div class="empty-state">Fehler beim Scan: ' + e.message + '</div>';
+                }
             }
         }
         
@@ -435,7 +478,11 @@
                     <div class="device-info">
                         <p><strong>Typ:</strong> ${escapeHtml(device.device_type)}</p>
                         <p><strong>IP:</strong> ${escapeHtml(device.ip_address)}</p>
-                        <p><strong>MAC:</strong> ${escapeHtml(device.mac_address)}</p>
+                        <p><strong>Hersteller:</strong> ${escapeHtml(device.manufacturer || 'Unbekannt')}</p>
+                        ${device.open_ports && device.open_ports.length > 0 ? 
+                            `<p><strong>Offene Ports:</strong> ${device.open_ports.join(', ')}</p>` : ''}
+                        ${device.mac_address !== 'Unknown' ? 
+                            `<p><strong>MAC:</strong> ${escapeHtml(device.mac_address)}</p>` : ''}
                         ${device.power ? `<p><strong>Leistung:</strong> ${device.power}W</p>` : ''}
                         ${device.temperature ? `<p><strong>Temperatur:</strong> ${device.temperature}°C</p>` : ''}
                     </div>

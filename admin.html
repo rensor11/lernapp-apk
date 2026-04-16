@@ -367,11 +367,32 @@
         
         // Check login on load
         window.addEventListener('load', () => {
-            const stored = sessionStorage.getItem('adminAuth');
-            if (stored) {
-                adminPassword = stored;
-                showAdminPanel();
-                refreshData();
+            // Prüfe zuerst ob Benutzer eingeloggt ist und Admin ist
+            const portalUserStr = localStorage.getItem('portalUser');
+            if (!portalUserStr) {
+                alert('Du musst dich zuerst im Portal anmelden.');
+                window.location.href = '/portal.html';
+                return;
+            }
+            
+            try {
+                const portalUser = JSON.parse(portalUserStr);
+                if (!portalUser || portalUser.username !== 'admin') {
+                    alert('Nur der Admin-Benutzer hat Zugriff auf dieses Panel.');
+                    window.location.href = '/portal.html';
+                    return;
+                }
+                
+                // Benutzer ist Admin - prüfe gespeicherte Auth
+                const stored = sessionStorage.getItem('adminAuth');
+                if (stored) {
+                    adminPassword = stored;
+                    showAdminPanel();
+                    refreshData();
+                }
+            } catch (e) {
+                console.error('Fehler beim Überprüfen der Admin-Berechtigung:', e);
+                window.location.href = '/portal.html';
             }
         });
         

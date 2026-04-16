@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=C:/Users/Administrator/Desktop/Repo clone/lernapp-apk/app
-ExecStart=python C:/Users/Administrator/Desktop/Repo clone/lernapp-apk/app/server_neu.py
+WorkingDirectory=C:/Users/Administrator/Desktop/Repo clone/lernapp-apk
+ExecStart=python C:/Users/Administrator/Desktop/Repo clone/lernapp-apk/server_v2.py
 Restart=always
 
 [Install]

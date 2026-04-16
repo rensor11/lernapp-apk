@@ -299,6 +299,11 @@
                     <h3>Lernapp</h3>
                     <p>Quiz &amp; Lernmodus &ndash; verbessere dein Wissen</p>
                 </a>
+                <a class="app-card" href="/admin" id="card-admin" style="display: none;">
+                    <div class="icon">&#x1F511;</div>
+                    <h3>Admin Panel</h3>
+                    <p>Benutzer verwalten &amp; Zugriffe kontrollieren</p>
+                </a>
             </div>
 
             <!-- Admin Panel Button -->
@@ -708,12 +713,15 @@
         $('admin-panel-view').classList.remove('active');
         $('dash-username').textContent = portalUser.username;
         
-        // Show admin button for admin users
+        // Show admin button and admin card for admin users
         const adminBtn = $('admin-button-container');
+        const adminCard = $('card-admin');
         if (isAdmin()) {
             adminBtn.style.display = 'block';
+            adminCard.style.display = 'block';
         } else {
             adminBtn.style.display = 'none';
+            adminCard.style.display = 'none';
         }
     }
 

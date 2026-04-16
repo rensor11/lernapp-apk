@@ -13,7 +13,7 @@ param(
 )
 
 # --- Konfiguration --- 
-$serverScriptName = "server_neu.py"
+$serverScriptName = "server_v2.py"
 $serverScriptPath = "C:\Users\Administrator\Desktop\Repo clone\lernapp-apk\$serverScriptName"
 $serverWorkingDirectory = "C:\Users\Administrator\Desktop\Repo clone\lernapp-apk\"
 $debianSetupScript = "C:\Users\Administrator\Desktop\Repo clone\lernapp-apk\setup_debian_vm.ps1"

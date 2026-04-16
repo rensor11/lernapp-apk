@@ -374,7 +374,17 @@ def smarthome_page():
 
 @app.route('/admin')
 def admin_page():
-    """Admin Panel"""
+    """Admin Panel - nur für Admin-Benutzer"""
+    # Prüfe ob Benutzer eingeloggt ist
+    if 'user_id' not in session:
+        return redirect('/portal.html', 302)
+    
+    # Prüfe ob es der Admin-Benutzer ist
+    db = get_db()
+    user = db.execute('SELECT username FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    if not user or user['username'] != 'admin':
+        return redirect('/portal.html', 302)
+    
     return send_from_directory(BASE_DIR, 'admin.html')
 
 @app.route('/<path:path>')
@@ -595,7 +605,8 @@ def quiz_attempt():
 
 @app.route('/api/files/list', methods=['GET'])
 def files_list():
-    user_id = request.args.get('user_id', type=int)
+    user_id_str = request.args.get('user_id')
+    user_id = int(user_id_str) if user_id_str and user_id_str.isdigit() else None
     rel_path = (request.args.get('path') or '').strip('/')
     if not user_id:
         return jsonify({'success': False, 'message': 'user_id fehlt'}), 400
@@ -641,7 +652,8 @@ def files_list():
 
 @app.route('/api/files/upload', methods=['POST'])
 def files_upload():
-    user_id = request.form.get('user_id', type=int)
+    user_id_str = request.form.get('user_id')
+    user_id = int(user_id_str) if user_id_str and user_id_str.isdigit() else None
     rel_path = (request.form.get('path') or '').strip('/')
     if not user_id:
         return jsonify({'success': False, 'message': 'user_id fehlt'}), 400
@@ -670,7 +682,8 @@ def files_upload():
 
 @app.route('/api/files/download', methods=['GET'])
 def files_download():
-    user_id = request.args.get('user_id', type=int)
+    user_id_str = request.args.get('user_id')
+    user_id = int(user_id_str) if user_id_str and user_id_str.isdigit() else None
     rel_path = (request.args.get('path') or '').strip('/')
     if not user_id or not rel_path:
         return abort(400)
@@ -720,7 +733,8 @@ def files_mkdir():
 
 @app.route('/api/files/storage', methods=['GET'])
 def files_storage_info():
-    user_id = request.args.get('user_id', type=int)
+    user_id_str = request.args.get('user_id')
+    user_id = int(user_id_str) if user_id_str and user_id_str.isdigit() else None
     if not user_id:
         return jsonify({'success': False}), 400
     user_root = get_user_storage(user_id)
@@ -809,7 +823,8 @@ def admin_set_permission():
 @app.route('/api/user/check-access', methods=['GET'])
 def check_user_access():
     """Check if user has access to specific features."""
-    user_id = request.args.get('user_id', type=int)
+    user_id_str = request.args.get('user_id')
+    user_id = int(user_id_str) if user_id_str and user_id_str.isdigit() else None
     feature = request.args.get('feature', 'all')  # 'all', 'home', 'smarthome', 'lernapp'
     
     if not user_id:
@@ -844,7 +859,8 @@ def check_user_access():
 @app.route('/api/user/check-home-access', methods=['GET'])
 def check_home_access():
     """Check if user has home access."""
-    user_id = request.args.get('user_id', type=int)
+    user_id_str = request.args.get('user_id')
+    user_id = int(user_id_str) if user_id_str and user_id_str.isdigit() else None
     if not user_id:
         return jsonify({'success': False, 'message': 'user_id erforderlich'}), 400
     
@@ -1093,6 +1109,21 @@ def smarthome_add_device():
         if not (0 < port < 65536):
             return jsonify({'success': False, 'message': 'Port muss zwischen 1 und 65535 liegen'}), 400
         
+        db = get_db()
+        
+        # Check user permissions
+        user = db.execute('SELECT username, smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+        if not user or not user['smarthome_access_allowed']:
+            return jsonify({'success': False, 'message': 'Smart Home Zugriff nicht erlaubt'}), 403
+        
+        # Determine which user account to add device to
+        target_user_id = g.user['id']
+        if user['username'] != 'admin':
+            # Non-admin users add devices to admin's account
+            admin_user = db.execute('SELECT id FROM users WHERE username = ?', ('admin',)).fetchone()
+            if admin_user:
+                target_user_id = admin_user['id']
+        
         # Test connectivity - nur speichern wenn verfügbar
         status = 'offline'
         try:
@@ -1116,10 +1147,9 @@ def smarthome_add_device():
             }), 400
         
         # Speichere Gerät
-        db = get_db()
         db.execute(
             'INSERT INTO smarthome_devices (user_id, device_name, device_type, ip_address, port, protocol, auth_token, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (g.user['id'], device_name, device_type, ip_address, port, protocol, auth_token, status, datetime.utcnow().isoformat())
+            (target_user_id, device_name, device_type, ip_address, port, protocol, auth_token, status, datetime.utcnow().isoformat())
         )
         db.commit()
         
@@ -1193,10 +1223,28 @@ def smarthome_send_command(device_id):
         return jsonify({'success': False, 'message': 'Befehl erforderlich'}), 400
     
     db = get_db()
-    device = db.execute(
-        'SELECT * FROM smarthome_devices WHERE id = ? AND user_id = ?',
-        (device_id, g.user['id'])
-    ).fetchone()
+    
+    # Check if user has smarthome access
+    user = db.execute('SELECT username, smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    if not user or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Smart Home Zugriff nicht erlaubt'}), 403
+    
+    # Find device - either owned by user or admin's device (for authorized users)
+    device = None
+    if user['username'] == 'admin':
+        # Admin can control their own devices
+        device = db.execute(
+            'SELECT * FROM smarthome_devices WHERE id = ? AND user_id = ?',
+            (device_id, g.user['id'])
+        ).fetchone()
+    else:
+        # Non-admin users can control admin's devices if they have access
+        admin_user = db.execute('SELECT id FROM users WHERE username = ?', ('admin',)).fetchone()
+        if admin_user:
+            device = db.execute(
+                'SELECT * FROM smarthome_devices WHERE id = ? AND user_id = ?',
+                (device_id, admin_user['id'])
+            ).fetchone()
     
     if not device:
         return jsonify({'success': False, 'message': 'Gerät nicht gefunden'}), 404
@@ -1276,10 +1324,28 @@ def smarthome_delete_device(device_id):
         return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
     
     db = get_db()
-    device = db.execute(
-        'SELECT device_name FROM smarthome_devices WHERE id = ? AND user_id = ?',
-        (device_id, g.user['id'])
-    ).fetchone()
+    
+    # Check user permissions
+    user = db.execute('SELECT username, smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    if not user or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Smart Home Zugriff nicht erlaubt'}), 403
+    
+    # Find device - either owned by user or admin's device (for authorized users)
+    device = None
+    if user['username'] == 'admin':
+        # Admin can delete their own devices
+        device = db.execute(
+            'SELECT device_name FROM smarthome_devices WHERE id = ? AND user_id = ?',
+            (device_id, g.user['id'])
+        ).fetchone()
+    else:
+        # Non-admin users can delete admin's devices if they have access
+        admin_user = db.execute('SELECT id FROM users WHERE username = ?', ('admin',)).fetchone()
+        if admin_user:
+            device = db.execute(
+                'SELECT device_name FROM smarthome_devices WHERE id = ? AND user_id = ?',
+                (device_id, admin_user['id'])
+            ).fetchone()
     
     if not device:
         return jsonify({'success': False, 'message': 'Gerät nicht gefunden'}), 404
@@ -1365,126 +1431,136 @@ def smarthome_discover_devices():
 
 @app.route('/api/smarthome/scan', methods=['GET'])
 def smarthome_network_scan():
-    """Scanne Netzwerk nach Smart Home Geräten (ARP/mDNS/SSDP)"""
-    if not g.user:
-        return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
-    
-    user_id = request.args.get('user_id', type=int)
-    if not user_id or user_id != g.user['id']:
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
-    
-    devices = []
-    
+    """Scanne Netzwerk nach Smart Home Geräten (vereinfachte Version ohne Auth)"""
+    print("Scan-Route aufgerufen!")
     try:
         import subprocess
         import socket
+        from datetime import datetime, timezone
         
-        # Get local network
+        # Get local network info
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect(("8.8.8.8", 80))
             local_ip = s.getsockname()[0]
             s.close()
         except:
-            local_ip = "192.168.1.100"
+            local_ip = "192.168.178.100"
         
         network_base = ".".join(local_ip.split(".")[:3]) + "."
+        print(f"Scanne Netzwerk: {network_base}0/24")
         
-        # Quick ping scan (max 50 IPs)
+        # ARP scan only
         active_ips = []
-        for i in range(1, min(51, 256)):
-            ip = f"{network_base}{i}"
-            try:
-                result = subprocess.run(
-                    ["ping", "-n", "1", "-w", "100", ip],
-                    capture_output=True,
-                    timeout=1,
-                    encoding='utf-8'
-                )
-                if result.returncode == 0:
-                    active_ips.append(ip)
-            except:
-                pass
+        result = subprocess.run(
+            ["arp", "-a"],
+            capture_output=True,
+            timeout=5,
+            encoding='utf-8'
+        )
         
-        # Probe for common Smart Home ports
-        common_ports = {
-            80: "HTTP",
-            8080: "HTTP Alt",
-            8000: "HTTP Service",
-            443: "HTTPS",
-            8883: "MQTT Secure",
-            1883: "MQTT",
-            5380: "AVM Home",
-            49153: "AVM UPnP",
-            5000: "Flask/Python",
-        }
+        for line in result.stdout.split('\n'):
+            line = line.strip()
+            if line and not line.startswith('Schnittstelle') and not line.startswith('Interface'):
+                parts = line.split()
+                if len(parts) >= 2:
+                    ip_candidate = parts[0]
+                    if ip_candidate.count('.') == 3 and ip_candidate.startswith(network_base[:-1]):
+                        try:
+                            socket.inet_aton(ip_candidate)
+                            if ip_candidate not in active_ips and ip_candidate != local_ip:
+                                active_ips.append(ip_candidate)
+                                print(f"ARP: {ip_candidate}")
+                        except:
+                            pass
         
-        for ip in active_ips:
-            # Try to get hostname
+        print(f"ARP gefunden: {len(active_ips)} IPs")
+        
+        # Create simple device list
+        devices = []
+        for ip in active_ips[:5]:  # Limit to 5 devices
+            hostname = f"Device-{ip.split('.')[-1]}"
             try:
                 hostname = socket.gethostbyaddr(ip)[0]
             except:
-                hostname = f"Device-{ip.split('.')[-1]}"
+                pass
             
-            # Check common ports with socket
-            for port, service_type in common_ports.items():
-                try:
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    sock.settimeout(0.3)
-                    result = sock.connect_ex((ip, port))
-                    sock.close()
-                    
-                    if result == 0:  # Port is open
-                        # Identify device type
-                        device_type = "Netzwerk-Gerät"
-                        is_controllable = False
-                        
-                        if "fritz" in hostname.lower() or port == 49153:
-                            device_type = "Fritz!Box Router"
-                            is_controllable = True
-                        elif port in [8080, 80, 5000]:
-                            device_type = "Smart Device / Server"
-                            is_controllable = True
-                        elif port == 1883 or port == 8883:
-                            device_type = "MQTT Broker"
-                        
-                        # Check if device with this IP already exists
-                        exists = False
-                        for d in devices:
-                            if d['ip_address'] == ip:
-                                exists = True
-                                break
-                        
-                        if not exists:
-                            devices.append({
-                                'id': f'{ip}:{port}',
-                                'name': hostname,
-                                'device_type': device_type,
-                                'ip_address': ip,
-                                'port': port,
-                                'mac_address': 'Unknown',
-                                'status': 'online',
-                                'is_controllable': is_controllable,
-                                'manufacturer': service_type,
-                                'last_seen': datetime.now(timezone.utc).isoformat()
-                            })
-                except:
-                    pass
+            device_type = "Netzwerk-Gerät"
+            if ip.endswith('.1'):
+                device_type = "Router/Gateway"
+            elif ip == "192.168.178.1":
+                device_type = "Fritz!Box Router"
+            
+            devices.append({
+                'id': f'{ip}:80',
+                'name': hostname,
+                'device_type': device_type,
+                'ip_address': ip,
+                'port': 80,
+                'status': 'online',
+                'is_controllable': False,
+                'manufacturer': 'Unbekannt',
+                'last_seen': datetime.now(timezone.utc).isoformat()
+            })
+        
+        print(f"Scan abgeschlossen: {len(devices)} Geräte")
         
         return jsonify({
             'success': True,
             'devices': devices,
             'count': len(devices),
             'local_network': network_base + "0/24",
-            'local_ip': local_ip
+            'local_ip': local_ip,
+            'scan_type': 'local'
         })
         
     except Exception as e:
+        print(f"Scan-Fehler: {e}")
         return jsonify({
             'success': False,
-            'message': 'Netzwerk-Scan fehlgeschlagen: ' + str(e),
-            'devices': []
+            'message': f'Scan fehlgeschlagen: {str(e)}'
         })
+    
+    # If user is not admin but has access, return admin's devices
+    else:
+        try:
+            admin_user = db.execute('SELECT id FROM users WHERE username = ?', ('admin',)).fetchone()
+            if not admin_user:
+                return jsonify({'success': False, 'message': 'Admin-Benutzer nicht gefunden'}), 404
+            
+            admin_devices = db.execute(
+                'SELECT id, device_name as name, device_type, ip_address, port, status, last_seen FROM smarthome_devices WHERE user_id = ? ORDER BY created_at DESC',
+                (admin_user['id'],)
+            ).fetchall()
+            
+            devices = []
+            for device in admin_devices:
+                devices.append({
+                    'id': str(device['id']),
+                    'name': device['name'],
+                    'device_type': device['device_type'],
+                    'ip_address': device['ip_address'],
+                    'port': device['port'],
+                    'mac_address': 'Remote',
+                    'status': device['status'] or 'unknown',
+                    'is_controllable': True,
+                    'manufacturer': 'Admin Network',
+                    'last_seen': device['last_seen']
+                })
+            
+            return jsonify({
+                'success': True,
+                'devices': devices,
+                'count': len(devices),
+                'scan_type': 'remote',
+                'message': 'Admin-Geräte (Remote-Zugriff)'
+            })
+            
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'message': f'Remote Scan fehlgeschlagen: {str(e)}'
+            })
 
 @app.route('/api/smarthome/fritzbox/connect', methods=['POST'])
 def smarthome_connect_fritzbox():
@@ -1493,48 +1569,117 @@ def smarthome_connect_fritzbox():
         return jsonify({'success': False, 'message': 'Authentifizierung erforderlich'}), 401
     
     data = request.json or {}
-    user_id = data.get('user_id', type=int)
-    fritzbox_ip = data.get('fritzbox_ip', '192.168.1.1').strip()
+    user_id_str = data.get('user_id')
+    user_id = int(user_id_str) if user_id_str and str(user_id_str).isdigit() else None
+    fritzbox_ip = data.get('fritzbox_ip', '').strip()
     
     if not user_id or user_id != g.user['id']:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
-    try:
-        # Test connection to Fritz!Box
-        url = f'http://{fritzbox_ip}:49000/upnp/control/homeauto'
-        response = requests.get(
-            f'http://{fritzbox_ip}:80/',
-            timeout=3,
-            verify=False
-        )
+    # Wenn keine IP angegeben, versuche gängige Fritz!Box IPs
+    if not fritzbox_ip:
+        common_fritzbox_ips = ['192.168.178.1', '192.168.1.1', '192.168.0.1', 'fritz.box']
+        fritzbox_ip = None
         
-        if response.status_code < 500:
-            # Fritz!Box is reachable
-            db = get_db()
+        for ip in common_fritzbox_ips:
+            try:
+                print(f"Versuche Fritz!Box unter {ip}...")
+                response = requests.get(
+                    f'http://{ip}:80/',
+                    timeout=5,  # Erhöhtes Timeout
+                    verify=False,
+                    allow_redirects=True
+                )
+                
+                if response.status_code < 500:
+                    fritzbox_ip = ip
+                    print(f"Fritz!Box gefunden unter {ip}")
+                    break
+                    
+            except requests.exceptions.Timeout:
+                print(f"Timeout bei {ip}, versuche nächste...")
+                continue
+            except requests.exceptions.ConnectionError:
+                print(f"Verbindung fehlgeschlagen bei {ip}, versuche nächste...")
+                continue
+            except Exception as e:
+                print(f"Fehler bei {ip}: {e}, versuche nächste...")
+                continue
+        
+        if not fritzbox_ip:
+            return jsonify({
+                'success': False,
+                'message': 'Fritz!Box nicht gefunden. Gängige IPs versucht: 192.168.178.1, 192.168.1.1, 192.168.0.1, fritz.box. Bitte geben Sie die korrekte IP-Adresse manuell an.'
+            }), 400
+    else:
+        # Manuell angegebene IP testen
+        try:
+            print(f"Teste manuell angegebene Fritz!Box IP: {fritzbox_ip}")
+            response = requests.get(
+                f'http://{fritzbox_ip}:80/',
+                timeout=8,  # Längeres Timeout für manuelle Eingabe
+                verify=False,
+                allow_redirects=True
+            )
             
-            # Save Fritz!Box connection
+            if response.status_code >= 500:
+                return jsonify({
+                    'success': False,
+                    'message': f'Fritz!Box unter {fritzbox_ip} antwortet nicht (Status: {response.status_code})'
+                }), 400
+                
+        except requests.exceptions.Timeout:
+            return jsonify({
+                'success': False,
+                'message': f'Verbindung zu Fritz!Box {fritzbox_ip} timeoutet. Bitte überprüfen Sie die IP-Adresse.'
+            }), 400
+        except requests.exceptions.ConnectionError:
+            return jsonify({
+                'success': False,
+                'message': f'Verbindung zu Fritz!Box {fritzbox_ip} fehlgeschlagen. Bitte überprüfen Sie die IP-Adresse und Netzwerkverbindung.'
+            }), 400
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'message': f'Fehler bei Verbindung zu Fritz!Box {fritzbox_ip}: {str(e)}'
+            }), 400
+    
+    try:
+        # Fritz!Box ist erreichbar, speichere Verbindung
+        db = get_db()
+        
+        # Prüfe ob bereits eine Fritz!Box für diesen User existiert
+        existing = db.execute(
+            'SELECT id FROM smarthome_devices WHERE user_id = ? AND device_type = ?',
+            (g.user['id'], 'Fritz!Box')
+        ).fetchone()
+        
+        if existing:
+            # Update existing Fritz!Box
+            db.execute(
+                'UPDATE smarthome_devices SET ip_address = ?, status = ?, last_seen = ? WHERE id = ?',
+                (fritzbox_ip, 'online', datetime.now(timezone.utc).isoformat(), existing['id'])
+            )
+        else:
+            # Add new Fritz!Box
             db.execute(
                 'INSERT INTO smarthome_devices (user_id, device_name, device_type, ip_address, port, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
                 (g.user['id'], 'Fritz!Box Router', 'Fritz!Box', fritzbox_ip, 49000, 'online', datetime.now(timezone.utc).isoformat())
             )
-            db.commit()
-            
-            return jsonify({
-                'success': True,
-                'message': 'Fritz!Box erfolgreich verbunden',
-                'fritzbox_ip': fritzbox_ip
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'Fritz!Box antwortet nicht'
-            }), 400
-            
+        
+        db.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Fritz!Box erfolgreich verbunden unter {fritzbox_ip}',
+            'fritzbox_ip': fritzbox_ip
+        })
+        
     except Exception as e:
         return jsonify({
             'success': False,
-            'message': f'Verbindung Fehler: {str(e)}'
-        }), 400
+            'message': f'Fehler beim Speichern der Fritz!Box-Verbindung: {str(e)}'
+        }), 500
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN
