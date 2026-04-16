@@ -2149,7 +2149,25 @@
             }
             // ===== ENDE ADMIN =====
 
-        window.onload = function() {
+        async function checkLernappAccess() {
+            if (!currentUser) return true; // Noch nicht angemeldet, wird später geprüft
+            try {
+                const resp = await fetch(`/api/user/check-access?user_id=${currentUser.id}&feature=lernapp`);
+                const data = await resp.json();
+                if (!data.allowed) {
+                    alert('Du hast keinen Zugriff auf die Lernapp. Kontaktiere einen Administrator.');
+                    localStorage.removeItem('lernappUser');
+                    window.location.href = '/portal.html';
+                    return false;
+                }
+                return true;
+            } catch(e) {
+                console.error('Lernapp access check failed:', e);
+                return true; // Wenn der Check fehlschlägt, erlaube trotzdem
+            }
+        }
+
+        window.onload = async function() {
             loadOverallStats();
             loadQuestionHistory();
             loadWrongAttempts();
@@ -2157,6 +2175,12 @@
             if (savedUser) {
                 try { currentUser = JSON.parse(savedUser); } catch (e) { currentUser = null; }
             }
+            
+            // Prüfe Zugriff auf Lernapp
+            if (currentUser && !await checkLernappAccess()) {
+                return; // Zugriff verweigert, Redirect erfolgt in checkLernappAccess
+            }
+            
             if (currentUser) {
                 // Bereits eingeloggt - direkt zu Kategorien
                 fetch('/api/load-fragenpool')

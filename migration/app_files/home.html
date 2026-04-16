@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - RenLern Cloud</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --primary:#1A73E8;--success:#26A69A;--danger:#EF5350;--warning:#FFB74D;
+            --text-primary:#E8EAED;--text-secondary:#B0BEC5;
+            --bg-main:#1F1F2A;--bg-window:#292B3D;--bg-sidebar:#232536;
+            --border:#3F4259;--border-dark:#121428;--border-light:#4D516A;
+        }
+        body{font-family:'Segoe UI',sans-serif;background:var(--bg-main);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column}
+
+        /* ── TOP BAR ── */
+        .topbar{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to right,#2560B8,#1C3D7A);padding:10px 20px;border-bottom:1px solid #0F2244;flex-shrink:0}
+        .topbar h1{font-size:18px;color:#F2F5FB}
+        .topbar-right{display:flex;align-items:center;gap:14px}
+        .topbar-right span{font-size:13px;color:var(--text-secondary)}
+        .topbar .btn-sm{padding:6px 14px;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:12px;cursor:pointer;font-weight:600}
+        .topbar .btn-sm:hover{background:rgba(255,255,255,.22)}
+        .topbar .btn-back{background:rgba(255,255,255,.08)}
+        .topbar .btn-logout{background:var(--danger)}
+
+        /* ── LAYOUT ── */
+        .layout{display:flex;flex:1;overflow:hidden}
+        .sidebar{width:220px;background:var(--bg-sidebar);border-right:1px solid var(--border-dark);overflow-y:auto;flex-shrink:0;padding:12px 0}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+        /* ── SIDEBAR NAV ── */
+        .nav-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);padding:10px 16px 6px;font-weight:700}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text-primary);transition:background .12s}
+        .nav-item:hover{background:rgba(255,255,255,.06)}
+        .nav-item.active{background:rgba(26,115,232,.22);color:#8ab4f8;font-weight:600}
+        .nav-item .icon{width:22px;text-align:center;font-size:16px}
+        .nav-item .badge{margin-left:auto;font-size:11px;background:var(--border);padding:2px 7px;border-radius:10px;color:var(--text-secondary)}
+        .nav-divider{border-top:1px solid var(--border-dark);margin:8px 14px}
+
+        /* ── BREADCRUMB & TOOLBAR ── */
+        .toolbar{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--bg-window);border-bottom:1px solid var(--border-dark);flex-wrap:wrap}
+        .breadcrumb{display:flex;align-items:center;gap:4px;font-size:13px;flex:1;flex-wrap:wrap}
+        .breadcrumb a{color:var(--primary);text-decoration:none;cursor:pointer}
+        .breadcrumb a:hover{text-decoration:underline}
+        .breadcrumb .sep{color:var(--text-secondary)}
+        .breadcrumb .current{color:var(--text-primary);font-weight:600}
+        .tool-btn{padding:7px 14px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);font-size:12px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px}
+        .tool-btn:hover{background:var(--border)}
+        .tool-btn.primary{background:var(--primary);border-color:#1565C0;color:#fff}
+        .tool-btn.primary:hover{background:#1565C0}
+        .tool-btn.danger{background:var(--danger);border-color:#c62828;color:#fff}
+
+        /* ── FILE GRID ── */
+        .file-area{flex:1;overflow-y:auto;padding:20px}
+        .file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+        .file-card{background:var(--bg-window);border:1px solid var(--border-dark);padding:14px 10px;text-align:center;cursor:pointer;transition:border-color .15s,transform .1s;position:relative}
+        .file-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+        .file-card.selected{border-color:#8ab4f8;background:#292b4a}
+        .file-card .thumb{width:64px;height:64px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:42px;line-height:1}
+        .file-card .thumb img{max-width:64px;max-height:64px;object-fit:cover;border-radius:3px}
+        .file-card .fname{font-size:12px;word-break:break-all;line-height:1.3;max-height:2.6em;overflow:hidden}
+        .file-card .fmeta{font-size:10px;color:var(--text-secondary);margin-top:4px}
+        .file-card .check{position:absolute;top:6px;left:6px;width:18px;height:18px;border:2px solid var(--border);background:var(--bg-main);display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent}
+        .file-card.selected .check{background:var(--primary);border-color:var(--primary);color:#fff}
+
+        /* ── EMPTY STATE ── */
+        .empty-state{text-align:center;padding:60px 20px;color:var(--text-secondary)}
+        .empty-state .big-icon{font-size:64px;margin-bottom:16px;opacity:.5}
+        .empty-state p{font-size:14px}
+
+        /* ── UPLOAD ZONE ── */
+        .upload-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+        .upload-overlay.active{display:flex}
+        .upload-box{background:var(--bg-window);border:2px solid var(--border);padding:40px;text-align:center;width:90%;max-width:500px}
+        .upload-box h3{margin-bottom:14px;font-size:18px}
+        .upload-box .drop-area{border:2px dashed var(--border-light);padding:40px 20px;margin-bottom:16px;cursor:pointer;transition:border-color .2s}
+        .upload-box .drop-area.over{border-color:var(--primary);background:rgba(26,115,232,.08)}
+        .upload-box .drop-area p{font-size:13px;color:var(--text-secondary)}
+        .upload-box .progress-bar{height:8px;background:var(--bg-main);margin-top:10px;border-radius:4px;overflow:hidden;display:none}
+
+        /* ── SMART HOME DEVICES ── */
+        .device-card{background:var(--bg-window);border:1px solid var(--border-dark);padding:16px;border-radius:6px;min-height:200px;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s}
+        .device-card:hover{border-color:var(--primary);box-shadow:0 4px 12px rgba(26,115,232,.15)}
+        .device-card.online{border-left:4px solid var(--success)}
+        .device-card.offline{border-left:4px solid#999}
+        .device-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:12px}
+        .device-name{font-size:14px;font-weight:600;color:var(--text-primary)}
+        .device-type{font-size:11px;color:var(--text-secondary);background:var(--bg-main);padding:3px 8px;border-radius:3px}
+        .device-status{display:flex;align-items:center;gap:6px;font-size:12px;margin:8px 0}
+        .status-dot{width:10px;height:10px;border-radius:50%;background:var(--success)}
+        .device-status.offline .status-dot{background:#999}
+        .device-info{font-size:12px;color:var(--text-secondary);margin:8px 0;word-break:break-all}
+        .device-controls{margin-top:auto;display:flex;gap:8px}
+        .device-controls button{flex:1;padding:8px;font-size:12px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);cursor:pointer;border-radius:4px;transition:background .2s}
+        .device-controls button:hover{background:var(--border)}
+        .device-controls button.delete{background:#c62828;color:#fff;border-color:#c62828}
+        .device-controls button.delete:hover{background:#b71c1c}
+        .upload-box .progress-bar .fill{height:100%;background:var(--primary);width:0%;transition:width .3s}
+
+        /* ── PREVIEW MODAL ── */
+        .preview-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;flex-direction:column}
+        .preview-overlay.active{display:flex}
+        .preview-close{position:absolute;top:16px;right:20px;font-size:28px;color:#fff;cursor:pointer;z-index:201}
+        .preview-content{max-width:90vw;max-height:80vh;display:flex;align-items:center;justify-content:center}
+        .preview-content img{max-width:90vw;max-height:80vh;object-fit:contain}
+        .preview-content video{max-width:90vw;max-height:80vh}
+        .preview-content audio{width:360px}
+        .preview-fname{color:var(--text-secondary);margin-top:12px;font-size:13px}
+
+        /* ── NEW FOLDER DIALOG ── */
+        .dialog-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;align-items:center;justify-content:center}
+        .dialog-overlay.active{display:flex}
+        .dialog-box{background:var(--bg-window);border:2px solid var(--border);padding:24px;width:90%;max-width:380px}
+        .dialog-box h3{margin-bottom:14px}
+        .dialog-box input{width:100%;padding:10px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);font-size:14px;margin-bottom:14px}
+        .dialog-box .btn-row{display:flex;gap:8px}
+        .dialog-box .btn-row .tool-btn{flex:1}
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:768px){
+            .sidebar{display:none}
+            .sidebar.mobile-open{display:block;position:fixed;top:0;left:0;bottom:0;z-index:50;width:260px;box-shadow:4px 0 20px rgba(0,0,0,.5)}
+            .mobile-menu-btn{display:flex!important}
+            .file-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+        }
+        @media(min-width:769px){
+            .mobile-menu-btn{display:none!important}
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn-sm mobile-menu-btn" onclick="toggleMobileSidebar()">&#9776;</button>
+            <h1>&#x1F3E0; Home Cloud</h1>
+        </div>
+        <div class="topbar-right">
+            <span id="top-user"></span>
+            <a href="/" class="btn-sm btn-back">&#x2190; Portal</a>
+            <button class="btn-sm btn-logout" onclick="doLogout()">Abmelden</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="nav-title">Kategorien</div>
+            <div class="nav-item active" data-cat="" onclick="navigate('')">
+                <span class="icon">&#x1F4C1;</span> Alle Dateien
+            </div>
+            <div class="nav-item" data-cat="bilder" onclick="navigate('bilder')">
+                <span class="icon">&#x1F5BC;</span> Bilder <span class="badge" id="badge-bilder">0</span>
+            </div>
+            <div class="nav-item" data-cat="musik" onclick="navigate('musik')">
+                <span class="icon">&#x1F3B5;</span> Musik <span class="badge" id="badge-musik">0</span>
+            </div>
+            <div class="nav-item" data-cat="videos" onclick="navigate('videos')">
+                <span class="icon">&#x1F3AC;</span> Videos <span class="badge" id="badge-videos">0</span>
+            </div>
+            <div class="nav-item" data-cat="dokumente" onclick="navigate('dokumente')">
+                <span class="icon">&#x1F4C4;</span> Dokumente <span class="badge" id="badge-dokumente">0</span>
+            </div>
+            <div class="nav-item" data-cat="sonstiges" onclick="navigate('sonstiges')">
+                <span class="icon">&#x1F4E6;</span> Sonstiges <span class="badge" id="badge-sonstiges">0</span>
+            </div>
+            <div class="nav-divider"></div>
+            <div class="nav-title">Smart Home</div>
+            <div class="nav-item" onclick="showSmartHome()">
+                <span class="icon">&#x1F3E1;</span> Geräte <span class="badge" id="badge-devices">0</span>
+            </div>
+            <div class="nav-divider"></div>
+            <div class="nav-title">Speicher</div>
+            <div class="nav-item" style="cursor:default">
+                <span class="icon">&#x1F4BE;</span>
+                <span id="storage-info">Berechne...</span>
+            </div>
+        </div>
+
+        <!-- MAIN AREA -->
+        <div class="main">
+            <!-- FILE SECTION -->
+            <div id="file-section">
+                <div class="toolbar">
+                    <div class="breadcrumb" id="breadcrumb"></div>
+                    <button class="tool-btn" onclick="openNewFolderDialog()">&#x1F4C1; Neuer Ordner</button>
+                    <button class="tool-btn primary" onclick="openUpload()">&#x2B06; Hochladen</button>
+                    <button class="tool-btn" id="btn-download" style="display:none" onclick="downloadSelected()">&#x2B07; Herunterladen</button>
+                    <button class="tool-btn danger" id="btn-delete" style="display:none" onclick="deleteSelected()">&#x1F5D1; Loeschen</button>
+                </div>
+                <div class="file-area" id="file-area">
+                    <div class="empty-state" id="empty-state">
+                        <div class="big-icon">&#x1F4C2;</div>
+                        <p>Keine Dateien vorhanden.<br>Lade Dateien hoch oder erstelle einen Ordner.</p>
+                    </div>
+                    <div class="file-grid" id="file-grid"></div>
+                </div>
+            </div>
+
+            <!-- SMART HOME SECTION -->
+            <div id="smarthome-section" style="display:none; flex:1; overflow-y:auto; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2>Meine Smart-Home Geräte</h2>
+                    <button class="tool-btn primary" onclick="openAddDeviceDialog()">+ Gerät hinzufügen</button>
+                </div>
+                <div id="devices-container" style="display:grid; gap:14px;"></div>
+                <div id="empty-devices" class="empty-state" style="display:none; padding:40px 20px;">
+                    <div class="big-icon">&#x1F3E1;</div>
+                    <p>Keine Geräte hinzugefügt.<br>Füge Smart-Home-Geräte hinzu, um sie zu steuern.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPLOAD OVERLAY -->
+    <div class="upload-overlay" id="upload-overlay">
+        <div class="upload-box">
+            <h3>&#x2B06; Dateien hochladen</h3>
+            <div class="drop-area" id="drop-area" onclick="document.getElementById('file-input').click()">
+                <p>Dateien hierher ziehen<br>oder klicken zum Auswaehlen</p>
+                <input type="file" id="file-input" multiple hidden>
+            </div>
+            <div class="progress-bar" id="upload-progress"><div class="fill" id="upload-fill"></div></div>
+            <div id="upload-status" style="font-size:13px;margin-top:8px;color:var(--text-secondary)"></div>
+            <div style="display:flex;gap:8px;margin-top:14px">
+                <button class="tool-btn" style="flex:1" onclick="closeUpload()">Schliessen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREVIEW OVERLAY -->
+    <div class="preview-overlay" id="preview-overlay" onclick="closePreview()">
+        <span class="preview-close" onclick="closePreview()">&times;</span>
+        <div class="preview-content" id="preview-content" onclick="event.stopPropagation()"></div>
+        <div class="preview-fname" id="preview-fname"></div>
+    </div>
+
+    <!-- NEW FOLDER DIALOG -->
+    <div class="dialog-overlay" id="folder-dialog">
+        <div class="dialog-box">
+            <h3>&#x1F4C1; Neuer Ordner</h3>
+            <input type="text" id="folder-name-input" placeholder="Ordnername">
+            <div class="btn-row">
+                <button class="tool-btn" onclick="closeFolderDialog()">Abbrechen</button>
+                <button class="tool-btn primary" onclick="createFolder()">Erstellen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD DEVICE DIALOG -->
+    <div class="dialog-overlay" id="device-dialog">
+        <div class="dialog-box" style="max-width:450px;">
+            <h3>&#x1F3E1; Smart-Home Gerät hinzufügen</h3>
+            <div style="margin:14px 0;">
+                <label style="font-size:12px;color:var(--text-secondary)">Gerätename</label>
+                <input type="text" id="device-name" placeholder="z.B. Wohnzimmer Licht" style="margin-top:4px;">
+            </div>
+            <div style="margin:14px 0;">
+                <label style="font-size:12px;color:var(--text-secondary)">Gerätetyp</label>
+                <select id="device-type" style="width:100%;padding:10px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);margin-top:4px;">
+                    <option value="light">Lichter (Philips Hue, LIFX, etc.)</option>
+                    <option value="appliance">Haushaltsgerät (Stecker, Schalter)</option>
+                    <option value="television">Fernseher</option>
+                    <option value="thermostat">Thermostat</option>
+                    <option value="door_lock">Türschloss</option>
+                    <option value="camera">Kamera</option>
+                    <option value="sensor">Sensor</option>
+                    <option value="other">Sonstiges</option>
+                </select>
+            </div>
+            <div style="margin:14px 0;">
+                <label style="font-size:12px;color:var(--text-secondary)">IP-Adresse</label>
+                <input type="text" id="device-ip" placeholder="192.168.1.100" style="margin-top:4px;">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary)">Port</label>
+                    <input type="number" id="device-port" value="80" placeholder="80" style="margin-top:4px;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary)">Protokoll</label>
+                    <select id="device-protocol" style="width:100%;padding:10px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);margin-top:4px;">
+                        <option value="http">HTTP</option>
+                        <option value="https">HTTPS</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin:14px 0;">
+                <label style="font-size:12px;color:var(--text-secondary)">Auth-Token (optional)</label>
+                <input type="password" id="device-token" placeholder="Authentifizierungstoken" style="margin-top:4px;">
+            </div>
+            <div class="btn-row">
+                <button class="tool-btn" onclick="closeAddDeviceDialog()">Abbrechen</button>
+                <button class="tool-btn primary" onclick="addDevice()">Hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEVICE CONTROL DIALOG -->
+    <div class="dialog-overlay" id="control-dialog">
+        <div class="dialog-box" style="max-width:450px;">
+            <h3 id="control-title">Gerät steuern</h3>
+            <div id="control-buttons" style="margin:14px 0;"></div>
+            <div class="btn-row">
+                <button class="tool-btn" onclick="closeControlDialog()">Schliessen</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+/* ═══════════════════════════════════════════════ */
+/*  HOME CLOUD – Client Logic                      */
+/* ═══════════════════════════════════════════════ */
+let user = null;
+let currentPath = '';          // relative path inside user storage
+let files = [];                // current directory listing
+let selectedFiles = new Set(); // selected file names
+let devices = [];              // smart home devices
+let currentDeviceId = null;    // for control dialog
+const API = '';
+
+/* ── Auth ── */
+function checkAuth() {
+    try {
+        const s = localStorage.getItem('portalUser');
+        if (s) { user = JSON.parse(s); }
+    } catch(e) {}
+    if (!user || !user.id) {
+        window.location.href = '/';
+        return false;
+    }
+    document.getElementById('top-user').textContent = user.username;
+    return true;
+}
+
+async function checkHomeAccess() {
+    try {
+        const r = await fetch(`/api/user/check-access?user_id=${user.id}&feature=home`, {credentials: 'include'});
+        const d = await r.json();
+        if (!d.allowed) {
+            // User not allowed - redirect to lernapp or show message
+            alert('Sie haben keinen Zugriff auf die Home Cloud. Sie werden zur Lernapp weitergeleitet.');
+            window.location.href = '/lernapp';
+            return false;
+        }
+        return true;
+    } catch(e) {
+        console.error('Home access check failed:', e);
+        return false;
+    }
+}
+
+function doLogout() {
+    localStorage.removeItem('portalUser');
+    localStorage.removeItem('lernappUser');
+    window.location.href = '/';
+}
+
+/* ── Navigation ── */
+function navigate(path) {
+    currentPath = path;
+    selectedFiles.clear();
+    updateDeleteBtn();
+    loadFiles();
+    updateSidebar();
+    closeMobileSidebar();
+}
+
+function updateSidebar() {
+    document.querySelectorAll('.nav-item[data-cat]').forEach(el => {
+        const cat = el.getAttribute('data-cat');
+        el.classList.toggle('active', cat === currentPath.split('/')[0] || (cat === '' && currentPath === ''));
+    });
+}
+
+function renderBreadcrumb() {
+    const bc = document.getElementById('breadcrumb');
+    const parts = currentPath ? currentPath.split('/') : [];
+    let html = '<a onclick="navigate(\'\')">Home</a>';
+    let built = '';
+    parts.forEach((p, i) => {
+        built += (built ? '/' : '') + p;
+        html += ' <span class="sep">/</span> ';
+        if (i === parts.length - 1) {
+            html += `<span class="current">${p}</span>`;
+        } else {
+            const bp = built;
+            html += `<a onclick="navigate('${bp}')">${p}</a>`;
+        }
+    });
+    bc.innerHTML = html;
+}
+
+/* ── Load Files ── */
+async function loadFiles() {
+    renderBreadcrumb();
+    const grid = document.getElementById('file-grid');
+    const empty = document.getElementById('empty-state');
+    grid.innerHTML = '';
+    try {
+        const r = await fetch(`${API}/api/files/list?user_id=${user.id}&path=${encodeURIComponent(currentPath)}`, {credentials: 'include'});
+        const d = await r.json();
+        if (!d.success) { empty.style.display = 'block'; return; }
+        files = d.files || [];
+        updateBadges(d.counts || {});
+        document.getElementById('storage-info').textContent = d.storage_used || '0 B';
+    } catch(e) {
+        files = [];
+    }
+    if (files.length === 0) {
+        empty.style.display = 'block';
+        grid.style.display = 'none';
+        return;
+    }
+    empty.style.display = 'none';
+    grid.style.display = 'grid';
+
+    // Folders first, then files
+    const folders = files.filter(f => f.is_dir);
+    const regularFiles = files.filter(f => !f.is_dir);
+    [...folders, ...regularFiles].forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'file-card' + (selectedFiles.has(f.name) ? ' selected' : '');
+        const thumb = getThumb(f);
+        card.innerHTML = `
+            <div class="check">${selectedFiles.has(f.name)?'&#10003;':''}</div>
+            <div class="thumb">${thumb}</div>
+            <div class="fname">${f.name}</div>
+            <div class="fmeta">${f.is_dir ? 'Ordner' : formatSize(f.size)}</div>
+        `;
+        card.onclick = (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                toggleSelect(f.name);
+            } else if (f.is_dir) {
+                navigate(currentPath ? currentPath + '/' + f.name : f.name);
+            } else {
+                previewFile(f);
+            }
+        };
+        card.oncontextmenu = (e) => { e.preventDefault(); toggleSelect(f.name); };
+        grid.appendChild(card);
+    });
+}
+
+function toggleSelect(name) {
+    if (selectedFiles.has(name)) selectedFiles.delete(name);
+    else selectedFiles.add(name);
+    refreshSelection();
+}
+function refreshSelection() {
+    document.querySelectorAll('.file-card').forEach((card, i) => {
+        const allItems = [...files.filter(f=>f.is_dir), ...files.filter(f=>!f.is_dir)];
+        if (i < allItems.length) {
+            const f = allItems[i];
+            card.classList.toggle('selected', selectedFiles.has(f.name));
+            card.querySelector('.check').innerHTML = selectedFiles.has(f.name) ? '&#10003;' : '';
+        }
+    });
+    updateDeleteBtn();
+}
+function updateDeleteBtn() {
+    document.getElementById('btn-delete').style.display = selectedFiles.size > 0 ? 'flex' : 'none';
+    document.getElementById('btn-download').style.display = selectedFiles.size > 0 ? 'flex' : 'none';
+}
+
+function updateBadges(counts) {
+    ['bilder','musik','videos','dokumente','sonstiges'].forEach(cat => {
+        const el = document.getElementById('badge-' + cat);
+        if (el) el.textContent = counts[cat] || 0;
+    });
+}
+
+/* ── Thumbnails ── */
+function getThumb(f) {
+    if (f.is_dir) return '<span style="font-size:42px">&#x1F4C1;</span>';
+    const ext = (f.name.split('.').pop() || '').toLowerCase();
+    const imgExts = ['jpg','jpeg','png','gif','webp','svg','bmp','ico'];
+    const vidExts = ['mp4','webm','mkv','avi','mov'];
+    const audExts = ['mp3','wav','flac','ogg','m4a','aac'];
+    const docExts = ['pdf','doc','docx','txt','md','odt','xls','xlsx','csv'];
+    if (imgExts.includes(ext)) {
+        if (f.thumb_url) return `<img src="${f.thumb_url}" alt="">`;
+        return '<span style="font-size:42px">&#x1F5BC;</span>';
+    }
+    if (vidExts.includes(ext)) return '<span style="font-size:42px">&#x1F3AC;</span>';
+    if (audExts.includes(ext)) return '<span style="font-size:42px">&#x1F3B5;</span>';
+    if (docExts.includes(ext)) return '<span style="font-size:42px">&#x1F4C4;</span>';
+    return '<span style="font-size:42px">&#x1F4C4;</span>';
+}
+
+function formatSize(bytes) {
+    if (!bytes) return '0 B';
+    const u = ['B','KB','MB','GB'];
+    let i = 0;
+    while (bytes >= 1024 && i < u.length - 1) { bytes /= 1024; i++; }
+    return bytes.toFixed(i > 0 ? 1 : 0) + ' ' + u[i];
+}
+
+/* ── Preview ── */
+function previewFile(f) {
+    const ext = (f.name.split('.').pop() || '').toLowerCase();
+    const url = `${API}/api/files/download?user_id=${user.id}&path=${encodeURIComponent(currentPath ? currentPath + '/' + f.name : f.name)}`;
+    const container = document.getElementById('preview-content');
+    document.getElementById('preview-fname').textContent = f.name;
+    const imgExts = ['jpg','jpeg','png','gif','webp','svg','bmp'];
+    const vidExts = ['mp4','webm'];
+    const audExts = ['mp3','wav','flac','ogg','m4a','aac'];
+    if (imgExts.includes(ext)) {
+        container.innerHTML = `<img src="${url}">`;
+    } else if (vidExts.includes(ext)) {
+        container.innerHTML = `<video controls autoplay src="${url}"></video>`;
+    } else if (audExts.includes(ext)) {
+        container.innerHTML = `<audio controls autoplay src="${url}"></audio>`;
+    } else {
+        // Just download
+        window.open(url, '_blank');
+        return;
+    }
+    document.getElementById('preview-overlay').classList.add('active');
+}
+function closePreview() {
+    document.getElementById('preview-overlay').classList.remove('active');
+    document.getElementById('preview-content').innerHTML = '';
+}
+
+/* ── Upload ── */
+function openUpload() {
+    document.getElementById('upload-overlay').classList.add('active');
+    document.getElementById('upload-status').textContent = '';
+    document.getElementById('upload-progress').style.display = 'none';
+}
+function closeUpload() {
+    document.getElementById('upload-overlay').classList.remove('active');
+    loadFiles();
+}
+
+// Drag & Drop
+const dropArea = document.getElementById('drop-area');
+['dragenter','dragover'].forEach(ev => {
+    dropArea.addEventListener(ev, e => { e.preventDefault(); dropArea.classList.add('over'); });
+});
+['dragleave','drop'].forEach(ev => {
+    dropArea.addEventListener(ev, e => { e.preventDefault(); dropArea.classList.remove('over'); });
+});
+dropArea.addEventListener('drop', e => {
+    const dt = e.dataTransfer;
+    if (dt.files.length > 0) uploadFiles(dt.files);
+});
+document.getElementById('file-input').addEventListener('change', e => {
+    if (e.target.files.length > 0) uploadFiles(e.target.files);
+});
+
+async function uploadFiles(fileList) {
+    const bar = document.getElementById('upload-progress');
+    const fill = document.getElementById('upload-fill');
+    const status = document.getElementById('upload-status');
+    bar.style.display = 'block';
+    fill.style.width = '0%';
+    status.textContent = `0 / ${fileList.length} Dateien...`;
+
+    for (let i = 0; i < fileList.length; i++) {
+        const fd = new FormData();
+        fd.append('file', fileList[i]);
+        fd.append('user_id', user.id);
+        fd.append('path', currentPath);
+        try {
+            await fetch(`${API}/api/files/upload`, { method: 'POST', body: fd, credentials: 'include' });
+        } catch(e) {}
+        const pct = Math.round(((i+1) / fileList.length) * 100);
+        fill.style.width = pct + '%';
+        status.textContent = `${i+1} / ${fileList.length} hochgeladen`;
+    }
+    status.textContent = `Fertig! ${fileList.length} Datei(en) hochgeladen.`;
+    document.getElementById('file-input').value = '';
+    loadFiles();
+}
+
+/* ── Delete ── */
+async function deleteSelected() {
+    if (selectedFiles.size === 0) return;
+    if (!confirm(`${selectedFiles.size} Element(e) wirklich loeschen?`)) return;
+    for (const name of selectedFiles) {
+        const p = currentPath ? currentPath + '/' + name : name;
+        try {
+            await fetch(`${API}/api/files/delete`, {
+                method: 'POST',                credentials: 'include',                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: user.id, path: p })
+            });
+        } catch(e) {}
+    }
+    selectedFiles.clear();
+    updateDeleteBtn();
+    loadFiles();
+}
+
+/* ── Download ── */
+function downloadSelected() {
+    if (selectedFiles.size === 0) return;
+    if (selectedFiles.size === 1) {
+        // Single file - download directly
+        const name = Array.from(selectedFiles)[0];
+        const p = currentPath ? currentPath + '/' + name : name;
+        const url = `${API}/api/files/download?user_id=${user.id}&path=${encodeURIComponent(p)}`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        // Multiple files - offer to download each individually
+        if (confirm(`${selectedFiles.size} Dateien werden einzeln heruntergeladen. Verfahren?`)) {
+            selectedFiles.forEach(name => {
+                const p = currentPath ? currentPath + '/' + name : name;
+                const url = `${API}/api/files/download?user_id=${user.id}&path=${encodeURIComponent(p)}`;
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                // Small delay between downloads
+                setTimeout(() => {}, 100);
+            });
+        }
+    }
+}
+
+/* ── New Folder ── */
+function openNewFolderDialog() {
+    document.getElementById('folder-dialog').classList.add('active');
+    const inp = document.getElementById('folder-name-input');
+    inp.value = '';
+    setTimeout(() => inp.focus(), 100);
+}
+function closeFolderDialog() {
+    document.getElementById('folder-dialog').classList.remove('active');
+}
+async function createFolder() {
+    const name = document.getElementById('folder-name-input').value.trim();
+    if (!name) return;
+    const p = currentPath ? currentPath + '/' + name : name;
+    try {
+        await fetch(`${API}/api/files/mkdir`, {
+            method: 'POST',            credentials: 'include',            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: user.id, path: p })
+        });
+    } catch(e) {}
+    closeFolderDialog();
+    loadFiles();
+}
+document.getElementById('folder-name-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') createFolder();
+});
+
+/* ── SMART HOME FUNCTIONS ── */
+function showSmartHome() {
+    document.getElementById('file-section').style.display = 'none';
+    document.getElementById('smarthome-section').style.display = 'flex';
+    closeMobileSidebar();
+    loadDevices();
+}
+
+function hideSmartHome() {
+    document.getElementById('file-section').style.display = 'block';
+    document.getElementById('smarthome-section').style.display = 'none';
+}
+
+async function loadDevices() {
+    try {
+        const response = await fetch('/api/smarthome/devices', {credentials: 'include'});
+        const data = await response.json();
+        if (data.success) {
+            devices = data.devices;
+            updateDeviceDisplay();
+            document.getElementById('badge-devices').textContent = devices.length;
+        }
+    } catch(e) {
+        console.error('Failed to load devices:', e);
+    }
+}
+
+function updateDeviceDisplay() {
+    const container = document.getElementById('devices-container');
+    const empty = document.getElementById('empty-devices');
+    
+    // Filter: Nur Online-Geräte anzeigen
+    const onlineDevices = devices.filter(d => d.status === 'online');
+    
+    if (onlineDevices.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    
+    empty.style.display = 'none';
+    container.innerHTML = onlineDevices.map(device => `
+        <div class="device-card online">
+            <div class="device-header">
+                <div>
+                    <div class="device-name">${device.device_name}</div>
+                    <div class="device-type">${device.device_type}</div>
+                </div>
+            </div>
+            <div class="device-status online">
+                <div class="status-dot"></div>
+                Online - Bereit
+            </div>
+            <div class="device-info">
+                ${device.ip_address}:${device.port}
+            </div>
+            ${device.last_seen ? `<div class="device-info" style="font-size:11px;">Verbunden: ${new Date(device.last_seen).toLocaleString('de-DE')}</div>` : ''}
+            <div class="device-controls">
+                <button onclick="openControlDialog(${device.id}, '${device.device_name}')">⚙️ Steuern</button>
+                <button class="delete" onclick="deleteDevice(${device.id})">🗑️ Löschen</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openAddDeviceDialog() {
+    document.getElementById('device-dialog').classList.add('active');
+}
+
+function closeAddDeviceDialog() {
+    document.getElementById('device-dialog').classList.remove('active');
+    document.getElementById('device-name').value = '';
+    document.getElementById('device-ip').value = '';
+    document.getElementById('device-port').value = '80';
+    document.getElementById('device-token').value = '';
+}
+
+async function addDevice() {
+    const name = document.getElementById('device-name').value.trim();
+    const type = document.getElementById('device-type').value;
+    const ip = document.getElementById('device-ip').value.trim();
+    const port = parseInt(document.getElementById('device-port').value);
+    const protocol = document.getElementById('device-protocol').value;
+    const token = document.getElementById('device-token').value.trim();
+    
+    if (!name || !ip) {
+        alert('Bitte Gerätename und IP eingeben');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/smarthome/device/add', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                device_name: name,
+                device_type: type,
+                ip_address: ip,
+                port: port,
+                protocol: protocol,
+                auth_token: token
+            })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Gerät hinzugefügt!');
+            closeAddDeviceDialog();
+            loadDevices();
+        } else {
+            alert('Fehler: ' + data.message);
+        }
+    } catch(e) {
+        alert('Fehler beim Hinzufügen: ' + e.message);
+    }
+}
+
+async function deleteDevice(id) {
+    if (!confirm('Dieses Gerät wirklich löschen?')) return;
+    
+    try {
+        const response = await fetch(`/api/smarthome/device/${id}/delete`, {method: 'DELETE', credentials: 'include'});
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Gerät gelöscht');
+            loadDevices();
+        } else {
+            alert('Fehler: ' + data.message);
+        }
+    } catch(e) {
+        alert('Fehler beim Löschen: ' + e.message);
+    }
+}
+
+async function refreshDeviceStatus(id) {
+    try {
+        const response = await fetch(`/api/smarthome/device/${id}/status`, {credentials: 'include'});
+        const data = await response.json();
+        
+        if (data.success) {
+            loadDevices();
+        }
+    } catch(e) {
+        console.error('Status refresh failed:', e);
+    }
+}
+
+function openControlDialog(id, name) {
+    currentDeviceId = id;
+    document.getElementById('control-title').textContent = 'Steuern: ' + name;
+    
+    const device = devices.find(d => d.id === id);
+    const buttons = document.getElementById('control-buttons');
+    
+    if (!device) {
+        buttons.innerHTML = '<p>Gerät nicht gefunden</p>';
+        document.getElementById('control-dialog').classList.add('active');
+        return;
+    }
+    
+    // Generate control buttons based on device type
+    let html = '';
+    
+    if (device.device_type.toLowerCase().includes('light')) {
+        html = `
+            <button class="tool-btn primary" onclick="sendCommand('power', true)" style="width:100%;margin-bottom:8px;">💡 An</button>
+            <button class="tool-btn" onclick="sendCommand('power', false)" style="width:100%;margin-bottom:8px;">⚫ Aus</button>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <input type="range" id="brightness" min="0" max="100" value="100" style="flex:1;">
+                <button class="tool-btn" onclick="sendCommand('brightness', document.getElementById('brightness').value)">Helligkeit</button>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <input type="color" id="color" value="#ffffff" style="flex:1;height:40px;cursor:pointer;border:none;border-radius:4px;">
+                <button class="tool-btn" onclick="sendCommand('color', document.getElementById('color').value)">Farbe</button>
+            </div>
+        `;
+    } else if (device.device_type.toLowerCase().includes('television')) {
+        html = `
+            <button class="tool-btn primary" onclick="sendCommand('power', true)" style="width:100%;margin-bottom:8px;">📺 An</button>
+            <button class="tool-btn" onclick="sendCommand('power', false)" style="width:100%;margin-bottom:8px;">⚫ Aus</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                <button class="tool-btn" onclick="sendCommand('volume', 'up')">🔊 Lauter</button>
+                <button class="tool-btn" onclick="sendCommand('volume', 'down')">🔉 Leiser</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <input type="number" id="channel" placeholder="Kanal" min="1" value="1" style="flex:1;padding:10px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);">
+                <button class="tool-btn" onclick="sendCommand('channel', document.getElementById('channel').value)">Wechsel</button>
+            </div>
+            <button class="tool-btn" onclick="sendCommand('command', 'mute')" style="width:100%;">🔇 Stumm</button>
+        `;
+    } else if (device.device_type.toLowerCase().includes('appliance') || device.device_type.toLowerCase().includes('schalter')) {
+        html = `
+            <button class="tool-btn primary" onclick="sendCommand('power', true)" style="width:100%;margin-bottom:8px;">✓ Einschalten</button>
+            <button class="tool-btn" onclick="sendCommand('power', false)" style="width:100%;">✗ Ausschalten</button>
+        `;
+    } else if (device.device_type.toLowerCase().includes('therm')) {
+        html = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                <input type="number" id="temp" placeholder="Temperatur" min="10" max="30" value="21" style="padding:10px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);">
+                <button class="tool-btn" onclick="sendCommand('temperature', document.getElementById('temp').value)">Setzen</button>
+            </div>
+        `;
+    } else {
+        html = `
+            <div style="display:grid;gap:8px;">
+                <input type="text" id="custom-cmd" placeholder="Befehl" style="padding:10px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);">
+                <input type="text" id="custom-val" placeholder="Wert (optional)" style="padding:10px;background:var(--bg-main);border:1px solid var(--border);color:var(--text-primary);">
+                <button class="tool-btn primary" onclick="sendCommand(document.getElementById('custom-cmd').value, document.getElementById('custom-val').value)">Senden</button>
+            </div>
+        `;
+    }
+    
+    buttons.innerHTML = html;
+    document.getElementById('control-dialog').classList.add('active');
+}
+
+function closeControlDialog() {
+    document.getElementById('control-dialog').classList.remove('active');
+    currentDeviceId = null;
+}
+
+async function sendCommand(command, value) {
+    if (!currentDeviceId) return;
+    
+    try {
+        const response = await fetch(`/api/smarthome/device/${currentDeviceId}/command`, {
+            credentials: 'include',
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({command: command, value: value})
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Befehl gesendet!');
+            setTimeout(() => refreshDeviceStatus(currentDeviceId), 1000);
+        } else {
+            alert('Fehler: ' + data.message);
+        }
+    } catch(e) {
+        alert('Fehler beim Senden: ' + e.message);
+    }
+}
+
+/* ── Mobile ── */
+function toggleMobileSidebar() {
+    document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+function closeMobileSidebar() {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+}
+
+/* ── Drag on whole page for upload ── */
+document.body.addEventListener('dragover', e => e.preventDefault());
+document.body.addEventListener('drop', e => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length > 0 && !document.getElementById('upload-overlay').classList.contains('active')) {
+        openUpload();
+        uploadFiles(e.dataTransfer.files);
+    }
+});
+
+/* ── Init ── */
+if (checkAuth()) {
+    checkHomeAccess().then(allowed => {
+        if (allowed) {
+            navigate('');
+        }
+    });
+}
+</script>
+</body>
+</html>

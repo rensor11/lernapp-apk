@@ -645,42 +645,15 @@
             </div>
         </div>
 
-        <!-- VENDOR VIEW (new: choose cloud provider) -->
-        <div id="vendor-view" class="hidden">
-            <div class="header">
-                <h1>📚 Quiz Lernapp</h1>
-                <p>Wähle einen Anbieter</p>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span id="vendor-user-status" style="font-size:13px;color:var(--text-secondary);"></span>
-                <div style="display:flex;gap:8px;">
-                    <button id="vendor-admin-btn" class="btn" style="display:none;padding:6px 12px;background:#7C3AED;color:white;font-size:12px;" onclick="showView('admin-view')">⚙️ Admin</button>
-                    <button class="btn" style="padding:6px 12px;background:var(--danger);color:white;font-size:12px;" onclick="logoutUser()">Abmelden</button>
-                </div>
-            </div>
-            <div class="category-grid" id="vendor-grid"></div>
-        </div>
-
-        <!-- CERT VIEW (new: choose certification) -->
-        <div id="cert-view" class="hidden">
-            <div class="header">
-                <h1 id="cert-view-title">📜 Zertifikate</h1>
-                <p id="cert-view-subtitle">Wähle ein Zertifikat</p>
-            </div>
-            <button class="btn" style="margin:10px 0;padding:8px 16px;" onclick="goToVendors()">← Zurück</button>
-            <div class="category-grid" id="cert-grid"></div>
-        </div>
-
         <div id="menu-view" class="hidden">
             <div class="header">
                 <h1>📚 Quiz Lernapp</h1>
-                <p id="menu-subtitle">Wähle eine Kategorie</p>
+                <p>Verbessere dein Linux-Wissen!</p>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <span id="menu-user-status" style="font-size:13px;color:var(--text-secondary);"></span>
                 <div style="display:flex;gap:8px;">
                     <button id="admin-panel-btn" class="btn" style="display:none;padding:6px 12px;background:#7C3AED;color:white;font-size:12px;" onclick="showView('admin-view')">⚙️ Admin</button>
-                    <button class="btn" style="padding:8px 16px;" onclick="goToCurrentCert()">← Zurück</button>
                     <button class="btn" style="padding:6px 12px;background:var(--danger);color:white;font-size:12px;" onclick="logoutUser()">Abmelden</button>
                 </div>
             </div>
@@ -744,13 +717,8 @@
 
             <div class="setup-card">
                 <h3>👥 Alle Benutzer & Statistiken</h3>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0;">
-                    <input id="admin-user-search" type="text" placeholder="Benutzername suchen..." style="flex:1;min-width:200px;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg-window);color:var(--text-primary);">
-                    <button class="btn" style="padding:10px 14px;" onclick="adminLoadUsers()">🔎 Suchen</button>
-                    <button class="btn" style="padding:10px 14px;" onclick="adminLoadUsers(true)">↻ Alle laden</button>
-                </div>
+                <button class="btn" style="margin:10px 0;" onclick="adminLoadUsers()">🔄 Laden</button>
                 <div id="admin-users-table"></div>
-                <div id="admin-user-detail" style="margin-top:15px;"></div>
                 <p style="margin-top:10px;font-size:12px;color:var(--text-secondary);">Es wird der Passwort-Hash angezeigt. Klartext-Passwörter sind technisch nicht auslesbar.</p>
             </div>
         </div>
@@ -888,39 +856,6 @@
         let isFillOnlyMode = false;
         let repeatFillOnWrong = false;
         let fillRetryState = {};
-
-        // Vendor/Cert navigation state
-        let vendorData = [];
-        let selectedVendor = null;
-        let selectedCert = null;
-
-        // Vendor icons mapping
-        const vendorIcons = {
-            'Microsoft': '🪟',
-            'AWS': '☁️',
-            'Google Cloud': '🌐',
-            'Oracle Cloud': '🔶',
-            'CompTIA': '🏅',
-            'Cisco': '🌉',
-            'Linux/LPI': '🐧',
-            'VMware': '💻'
-        };
-
-        const certLevels = {
-            'LPIC-1': '🟢 Anfänger',
-            'LPIC-2': '🟡 Fortgeschritten',
-            'LPIC-3': '🔴 Experte',
-            'Linux Essentials': '🟢 Anfänger',
-            'AZ-900': '🟢 Anfänger', 'AZ-104': '🟡 Mittel', 'AZ-500': '🟡 Mittel', 'AZ-700': '🟡 Mittel', 'AZ-305': '🔴 Experte',
-            'MS-900': '🟢 Anfänger', 'MS-102': '🟡 Mittel', 'MD-102': '🟡 Mittel',
-            'SC-900': '🟢 Anfänger', 'SC-200': '🟡 Mittel', 'SC-300': '🟡 Mittel', 'SC-400': '🟡 Mittel',
-            'CLF-C02': '🟢 Anfänger', 'SAA-C03': '🟡 Mittel', 'SOA-C02': '🟡 Mittel', 'SAP-C02': '🔴 Experte', 'DOP-C02': '🔴 Experte', 'SCS-C02': '🔴 Spezial',
-            'Cloud Digital Leader': '🟢 Anfänger', 'Associate Cloud Engineer': '🟡 Mittel', 'Professional Cloud Architect': '🔴 Experte',
-            '1Z0-1085': '🟢 Anfänger', '1Z0-1072': '🟡 Mittel',
-            'ITF+': '🟢 Anfänger', 'A+': '🟢 Anfänger', 'Network+': '🟡 Mittel', 'Security+': '🟡 Mittel', 'CASP+': '🔴 Experte',
-            'CCNA': '🟢 Anfänger', 'CCNP Enterprise': '🟡 Mittel', 'CCNP Security': '🟡 Mittel',
-            'VCTA': '🟢 Anfänger', 'VCP-DCV': '🟡 Mittel', 'VCAP-DCV': '🔴 Experte',
-        };
 
 
         function loadFromFile() {
@@ -1352,27 +1287,16 @@
         }
 
         function loadAndGoToMenu() {
-            const userQuery = currentUser && currentUser.username !== 'admin' ? `?user_id=${currentUser.id}` : '';
-            // Load fragenpool (needed for quiz logic)
-            fetch(`/api/load-fragenpool${userQuery}`)
+            fetch('/api/load-fragenpool')
                 .then(r => r.ok ? r.json() : Promise.reject())
                 .then(data => {
                     fragenpool = data;
-                })
-                .catch(() => {});
-            // Load vendor hierarchy and show vendor selection
-            fetch(`/api/vendors${userQuery}`)
-                .then(r => r.ok ? r.json() : Promise.reject())
-                .then(data => {
-                    vendorData = data;
-                    renderVendors();
-                    showView('vendor-view');
-                    updateVendorUser();
-                })
-                .catch(() => {
-                    // Fallback: go directly to old menu
                     renderCategories();
                     setupRangeInputSync();
+                    showView('menu-view');
+                    updateMenuUser();
+                })
+                .catch(() => {
                     showView('menu-view');
                     updateMenuUser();
                 });
@@ -1564,81 +1488,6 @@
             updateOverallStatsUI();
         }
 
-        function updateVendorUser() {
-            const el = document.getElementById('vendor-user-status');
-            if (el && currentUser) el.textContent = `👤 ${currentUser.username}`;
-            const adminBtn = document.getElementById('vendor-admin-btn');
-            if (adminBtn) adminBtn.style.display = (currentUser && currentUser.username === 'admin') ? 'block' : 'none';
-        }
-
-        function renderVendors() {
-            const grid = document.getElementById('vendor-grid');
-            grid.innerHTML = '';
-            if (vendorData.length === 0) {
-                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1;">Keine Zertifikate vorhanden. Lade Fragen im Admin-Panel hoch.</p>';
-                return;
-            }
-            vendorData.forEach(vendor => {
-                const btn = document.createElement('button');
-                const icon = vendorIcons[vendor.name] || '📂';
-                btn.className = 'category-btn';
-                btn.innerHTML = `<span class="cat-icon">${icon}</span><span class="cat-name">${vendor.name}</span><span class="cat-count">${vendor.certs.length} Zertifikat${vendor.certs.length !== 1 ? 'e' : ''} · ${vendor.total} Fragen</span>`;
-                btn.onclick = () => goToCerts(vendor.name);
-                grid.appendChild(btn);
-            });
-        }
-
-        function goToCerts(vendorName) {
-            selectedVendor = vendorData.find(v => v.name === vendorName);
-            if (!selectedVendor) return;
-            const icon = vendorIcons[vendorName] || '📂';
-            document.getElementById('cert-view-title').textContent = `${icon} ${vendorName}`;
-            document.getElementById('cert-view-subtitle').textContent = `${selectedVendor.certs.length} Zertifikat${selectedVendor.certs.length !== 1 ? 'e' : ''} verfügbar`;
-            renderCerts();
-            showView('cert-view');
-        }
-
-        function renderCerts() {
-            const grid = document.getElementById('cert-grid');
-            grid.innerHTML = '';
-            if (!selectedVendor) return;
-            selectedVendor.certs.forEach(cert => {
-                const btn = document.createElement('button');
-                const level = certLevels[cert.name] || '';
-                btn.className = 'category-btn';
-                btn.innerHTML = `<span class="cat-icon">📜</span><span class="cat-name">${cert.name}</span><span class="cat-count">${level ? level + ' · ' : ''}${cert.total} Fragen · ${cert.topics.length} Themen</span>`;
-                btn.onclick = () => goToTopics(cert.name);
-                grid.appendChild(btn);
-            });
-        }
-
-        function goToTopics(certName) {
-            if (!selectedVendor) return;
-            selectedCert = selectedVendor.certs.find(c => c.name === certName);
-            if (!selectedCert) return;
-            document.getElementById('menu-subtitle').textContent = `${selectedVendor.name} > ${certName}`;
-            renderCategories();
-            setupRangeInputSync();
-            showView('menu-view');
-            updateMenuUser();
-        }
-
-        function goToVendors() {
-            selectedVendor = null;
-            selectedCert = null;
-            renderVendors();
-            showView('vendor-view');
-            updateVendorUser();
-        }
-
-        function goToCurrentCert() {
-            if (selectedVendor) {
-                goToCerts(selectedVendor.name);
-            } else {
-                goToVendors();
-            }
-        }
-
         function renderCategories() {
             const grid = document.getElementById('category-grid');
             const addSec = document.getElementById('add-section');
@@ -1649,40 +1498,18 @@
                 return;
             }
             addSec.style.display = 'none';
-
-            // Filter categories by selected cert (if any)
-            let filteredCats;
-            if (selectedCert && selectedCert.topics) {
-                filteredCats = selectedCert.topics.map(t => t.full_category);
-            } else {
-                filteredCats = Object.keys(fragenpool);
-            }
-
-            if (filteredCats.length === 0) {
-                grid.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1/-1;">Keine Themen in diesem Zertifikat.</p>';
-                return;
-            }
-
             const scoreRatio = overallStats.questions > 0 ? overallStats.correct / overallStats.questions : 0;
             const moodClass = scoreRatio >= 0.6 ? 'angel' : 'demon';
 
-            // Count only categories with actual questions
-            const catsWithQuestions = filteredCats.filter(c => fragenpool[c] && fragenpool[c].length > 0);
-            const totalQ = catsWithQuestions.reduce((s, c) => s + fragenpool[c].length, 0);
-
-            // "All topics" test button (only if there are questions)
-            if (totalQ > 0) {
-                const testBtn = document.createElement('button');
-                testBtn.className = `category-btn ${moodClass}`;
-                testBtn.innerHTML = `<span class="cat-icon">📋</span><span class="cat-name">Übungstest</span><span class="cat-count">(${totalQ} Fragen)</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
-                testBtn.onclick = () => goToTestSetup();
-                testBtn.addEventListener('mouseenter', () => document.body.classList.add('body-dark-shake'));
-                testBtn.addEventListener('mouseleave', () => document.body.classList.remove('body-dark-shake'));
-                grid.appendChild(testBtn);
-            }
-
+            const testBtn = document.createElement('button');
+            testBtn.className = `category-btn ${moodClass}`;
+            testBtn.innerHTML = '<span class="cat-icon">📋</span><span class="cat-name">Übungstest</span><span class="cat-count">(Alle)</span><div class="hover-effect">' + (moodClass === 'angel' ? '😇' : '👿') + '</div>';
+            testBtn.onclick = () => goToTestSetup();
+            testBtn.addEventListener('mouseenter', () => document.body.classList.add('body-dark-shake'));
+            testBtn.addEventListener('mouseleave', () => document.body.classList.remove('body-dark-shake'));
+            grid.appendChild(testBtn);
             let fillCount = 0;
-            filteredCats.forEach(cat => { if (fragenpool[cat]) fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
+            Object.keys(fragenpool).forEach(cat => { fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
             if (fillCount > 0) {
                 const fillBtn = document.createElement('button');
                 fillBtn.className = `category-btn ${moodClass}`;
@@ -1690,22 +1517,11 @@
                 fillBtn.onclick = () => goToFillInSetup();
                 grid.appendChild(fillBtn);
             }
-            filteredCats.forEach(cat => {
-                // Extract short topic name (after last ">")
-                const parts = cat.split('>').map(p => p.trim());
-                const displayName = parts.length > 1 ? parts[parts.length - 1] : cat;
-                const qCount = fragenpool[cat] ? fragenpool[cat].length : 0;
+            Object.keys(fragenpool).forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = `category-btn ${moodClass}`;
-                if (qCount === 0) {
-                    btn.innerHTML = `<span class="cat-icon">🔒</span><span class="cat-name">${displayName}</span><span class="cat-count" style="color: #FFB74D;">(bald verfügbar)</span>`;
-                    btn.style.opacity = '0.5';
-                    btn.style.cursor = 'default';
-                    btn.title = 'Fragen werden bald hinzugefügt';
-                } else {
-                    btn.innerHTML = `<span class="cat-icon">📖</span><span class="cat-name">${displayName}</span><span class="cat-count">(${qCount})</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
-                    btn.onclick = () => goToSetup(cat);
-                }
+                btn.innerHTML = `<span class="cat-icon">📖</span><span class="cat-name">${cat}</span><span class="cat-count">(${fragenpool[cat].length})</span><div class="hover-effect">${moodClass === 'angel' ? '😇' : '👿'}</div>`;
+                btn.onclick = () => goToSetup(cat);
                 grid.appendChild(btn);
             });
         }
@@ -1737,19 +1553,7 @@
             document.getElementById('question-range').max = max;
             document.getElementById('question-number').max = max;
             document.getElementById('max-questions').textContent = max;
-            // Show short topic name in setup
-            const parts = cat.split('>').map(p => p.trim());
-            const displayName = parts.length > 1 ? parts[parts.length - 1] : cat;
-            document.getElementById('setup-category').textContent = displayName;
             showView('setup-view');
-        }
-
-        // Helper: get categories filtered by selected cert
-        function getFilteredCats() {
-            if (selectedCert && selectedCert.topics) {
-                return selectedCert.topics.map(t => t.full_category).filter(c => fragenpool[c] && fragenpool[c].length > 0);
-            }
-            return Object.keys(fragenpool).filter(c => fragenpool[c] && fragenpool[c].length > 0);
         }
 
         function goToTestSetup() {
@@ -1759,14 +1563,12 @@
             }
             isFillOnlyMode = false;
             isTestMode = true;
-            const cats = getFilteredCats();
             let total = 0;
-            cats.forEach(cat => total += (fragenpool[cat] ? fragenpool[cat].length : 0));
+            Object.keys(fragenpool).forEach(cat => total += fragenpool[cat].length);
             document.getElementById('test-range').max = total;
             document.getElementById('test-number').max = total;
             document.getElementById('max-test-questions').textContent = total;
-            const title = selectedCert ? `📋 Übungstest - ${selectedCert.name}` : '📋 Übungstest - Alle Kategorien';
-            document.getElementById('test-setup-title').textContent = title;
+            document.getElementById('test-setup-title').textContent = '📋 Übungstest - Alle Kategorien';
             showView('test-setup-view');
         }
 
@@ -1777,9 +1579,8 @@
             }
             isFillOnlyMode = true;
             isTestMode = true;
-            const cats = getFilteredCats();
             let fillCount = 0;
-            cats.forEach(cat => { if (fragenpool[cat]) fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
+            Object.keys(fragenpool).forEach(cat => { fragenpool[cat].forEach(q => { if (q.type === 'fill') fillCount++; }); });
             document.getElementById('test-range').max = fillCount;
             document.getElementById('test-number').max = fillCount;
             document.getElementById('max-test-questions').textContent = fillCount;
@@ -1803,14 +1604,13 @@
             repeatFillOnWrong = document.getElementById('repeat-fill-checkbox')?.checked || false;
             const num = parseInt(document.getElementById('test-number').value);
             let all = [];
-            const cats = getFilteredCats();
             if (isFillOnlyMode) {
-                cats.forEach(cat => {
-                    if (fragenpool[cat]) fragenpool[cat].forEach(q => { if (q.type === 'fill') all.push({...q, category: cat}); });
+                Object.keys(fragenpool).forEach(cat => {
+                    fragenpool[cat].forEach(q => { if (q.type === 'fill') all.push({...q, category: cat}); });
                 });
             } else {
-                cats.forEach(cat => {
-                    if (fragenpool[cat]) fragenpool[cat].forEach(q => all.push({...q, category: cat}));
+                Object.keys(fragenpool).forEach(cat => {
+                    fragenpool[cat].forEach(q => all.push({...q, category: cat}));
                 });
             }
             const scope = isFillOnlyMode ? 'fill-only' : 'all-categories';
@@ -2184,15 +1984,7 @@
         }
 
         function goToMenu() {
-            if (selectedCert) {
-                // Go back to topics list for this cert
-                renderCategories();
-                setupRangeInputSync();
-                showView('menu-view');
-                updateMenuUser();
-            } else {
-                goToVendors();
-            }
+            showView('menu-view');
             selectedCategory = null;
             currentQuizMode = null;
             isTestMode = false;
@@ -2235,7 +2027,7 @@
         }
 
         function showView(id) {
-            ['login-view','vendor-view','cert-view','menu-view','setup-view','test-setup-view','quiz-view','admin-view'].forEach(v => {
+            ['login-view','menu-view','setup-view','test-setup-view','quiz-view','admin-view'].forEach(v => {
                 const el = document.getElementById(v);
                 if (el) el.classList.add('hidden');
             });
@@ -2308,18 +2100,11 @@
                 statusEl.textContent = saved ? '✅ Frage gelöscht!' : '✅ Lokal gelöscht (Server nicht erreichbar)';
             }
 
-            async function adminLoadUsers(loadAll = false) {
+            async function adminLoadUsers() {
                 const container = document.getElementById('admin-users-table');
-                const detail = document.getElementById('admin-user-detail');
                 container.innerHTML = '⏳ Lade...';
-                if (detail) detail.innerHTML = '';
                 try {
-                    let url = '/api/admin/users';
-                    const search = document.getElementById('admin-user-search').value.trim();
-                    if (search && !loadAll) {
-                        url += '?q=' + encodeURIComponent(search);
-                    }
-                    const resp = await fetch(url, {
+                    const resp = await fetch('/api/admin/users', {
                         headers: { 'X-Admin-User': currentUser ? currentUser.username : '' }
                     });
                     const data = await resp.json();
@@ -2327,92 +2112,16 @@
                     const users = data.users;
                     if (!users.length) { container.innerHTML = 'Keine Benutzer gefunden.'; return; }
                     let html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
-                    html += '<tr style="background:var(--bg-window);"><th style="padding:6px;text-align:left;">ID</th><th style="padding:6px;text-align:left;">Benutzername</th><th style="padding:6px;text-align:left;">Registriert</th><th style="padding:6px;text-align:left;">Passwort-Hash</th><th style="padding:6px;text-align:left;">Neues Passwort</th><th style="padding:6px;text-align:left;">Letzte IP</th><th style="padding:6px;text-align:left;">Bekannte IPs</th><th style="padding:6px;text-align:left;">Gerät</th><th style="padding:6px;text-align:left;">Prüfungen</th><th style="padding:6px;text-align:left;">Bestes Fach</th><th style="padding:6px;text-align:left;">Schwächstes Fach</th><th style="padding:6px;text-align:left;">R/F</th><th style="padding:6px;text-align:left;">Aktion</th></tr>';
+                    html += '<tr style="background:var(--bg-window);"><th style="padding:6px;text-align:left;">ID</th><th style="padding:6px;text-align:left;">Benutzername</th><th style="padding:6px;text-align:left;">Registriert</th><th style="padding:6px;text-align:left;">Passwort-Hash</th><th style="padding:6px;text-align:left;">Neues Passwort</th><th style="padding:6px;text-align:left;">Letzte IP</th><th style="padding:6px;text-align:left;">Bekannte IPs</th><th style="padding:6px;text-align:left;">Gerät</th><th style="padding:6px;text-align:left;">Prüfungen</th><th style="padding:6px;text-align:left;">Bestes Fach</th><th style="padding:6px;text-align:left;">Schwächstes Fach</th><th style="padding:6px;text-align:left;">R/F</th></tr>';
                     users.forEach((u, i) => {
                         const bg = i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-window)';
                         const device = (u.last_user_agent || '').split(')')[0] ? (u.last_user_agent || '').split(')')[0] + ')' : '–';
-                        html += `<tr style="background:${bg};"><td style="padding:6px;">${u.id}</td><td style="padding:6px;font-weight:bold;">${u.username}</td><td style="padding:6px;">${(u.created_at||'').split('T')[0]}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.password_hash||''}">${u.password_hash||'–'}</td><td style="padding:6px;"><div style="display:flex;gap:6px;"><input id="admin-new-pass-${u.id}" type="text" placeholder="neues Passwort" style="width:130px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg-window);color:var(--text-primary);"><button class="btn" style="padding:4px 8px;font-size:11px;" onclick="adminSetPassword(${u.id})">Setzen</button></div></td><td style="padding:6px;">${u.last_ip||'–'}</td><td style="padding:6px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.known_ips||''}">${u.known_ips||'–'}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.last_user_agent||''}">${device}</td><td style="padding:6px;">${u.exams_taken||0}</td><td style="padding:6px;">${u.best_category||'–'}</td><td style="padding:6px;">${u.worst_category||'–'}</td><td style="padding:6px;"><span style="color:#48bb78;">${u.correct||0}</span>/<span style="color:#EF5350;">${u.wrong||0}</span></td><td style="padding:6px;"><button class="btn" style="padding:6px 10px;font-size:11px;" onclick="adminShowUserDetails(${u.id}, '${u.username}')">Details</button></td></tr>`;
+                        html += `<tr style="background:${bg};"><td style="padding:6px;">${u.id}</td><td style="padding:6px;font-weight:bold;">${u.username}</td><td style="padding:6px;">${(u.created_at||'').split('T')[0]}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.password_hash||''}">${u.password_hash||'–'}</td><td style="padding:6px;"><div style="display:flex;gap:6px;"><input id="admin-new-pass-${u.id}" type="text" placeholder="neues Passwort" style="width:130px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg-window);color:var(--text-primary);"><button class="btn" style="padding:4px 8px;font-size:11px;" onclick="adminSetPassword(${u.id})">Setzen</button></div></td><td style="padding:6px;">${u.last_ip||'–'}</td><td style="padding:6px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.known_ips||''}">${u.known_ips||'–'}</td><td style="padding:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.last_user_agent||''}">${device}</td><td style="padding:6px;">${u.exams_taken||0}</td><td style="padding:6px;">${u.best_category||'–'}</td><td style="padding:6px;">${u.worst_category||'–'}</td><td style="padding:6px;"><span style="color:#48bb78;">${u.correct||0}</span>/<span style="color:#EF5350;">${u.wrong||0}</span></td></tr>`;
                     });
                     html += '</table>';
                     container.innerHTML = html;
                 } catch(e) {
                     container.innerHTML = '❌ Server nicht erreichbar: ' + e.message;
-                }
-            }
-
-            async function adminShowUserDetails(userId, username) {
-                const detail = document.getElementById('admin-user-detail');
-                if (!detail) return;
-                detail.innerHTML = '<div style="padding:15px;background:var(--bg-window);border:1px solid var(--border);border-radius:12px;">⏳ Lade Benutzerdetails...</div>';
-                try {
-                    const [accessResp, statsResp] = await Promise.all([
-                        fetch(`/api/admin/user-access?user_id=${encodeURIComponent(userId)}`, { headers: { 'X-Admin-User': currentUser ? currentUser.username : '' }}),
-                        fetch(`/api/admin/user-category-stats?user_id=${encodeURIComponent(userId)}`, { headers: { 'X-Admin-User': currentUser ? currentUser.username : '' }})
-                    ]);
-                    const accessData = await accessResp.json();
-                    const statsData = await statsResp.json();
-                    if (!accessData.success) { detail.innerHTML = '❌ ' + (accessData.message || 'Fehler beim Laden der Zugriffsrechte'); return; }
-                    if (!statsData.success) { detail.innerHTML = '❌ ' + (statsData.message || 'Fehler beim Laden der Statistik'); return; }
-
-                    let html = `<div data-current-username="${username}" style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="font-size:1.05em;">Benutzer: ${username}</strong><div style="font-size:12px;color:var(--text-secondary);">ID: ${userId}</div></div></div>`;
-                    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
-                    html += `<div style="background:var(--bg-card);padding:12px;border-radius:10px;border:1px solid var(--border);"><h4 style="margin:0 0 10px 0;">🔐 Kategorienzugriff</h4><div style="max-height:320px;overflow:auto;">`;
-                    accessData.access.forEach(item => {
-                        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:13px;">${item.category}</span><button class="btn" style="padding:4px 10px;font-size:11px;" onclick="adminSetCategoryAccess(${userId}, '${item.category.replace(/'/g, "\\'")}', ${item.allowed ? 0 : 1})">${item.allowed ? '� Sperren' : '🔓 Freigeben'}</button></div>`;
-                    });
-                    html += '</div></div>';
-                    html += '<div style="background:var(--bg-card);padding:12px;border-radius:10px;border:1px solid var(--border);"><h4 style="margin:0 0 10px 0;">📊 Kategorie-Statistik</h4>';
-                    html += `<div style="font-size:13px;color:var(--text-primary);margin-bottom:10px;">Gesamt: ${statsData.summary.correct}/${statsData.summary.total} (${statsData.summary.percent}%)</div>`;
-                    html += '<div style="max-height:320px;overflow:auto;">';
-                    statsData.categories.slice(0, 30).forEach(item => {
-                        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:12px;">${item.category}</span><span style="font-size:12px;color:var(--text-secondary);">${item.correct}/${item.total} (${item.percent}%)</span></div>`;
-                    });
-                    if (statsData.categories.length > 30) {
-                        html += `<div style="padding:8px 0;color:var(--text-secondary);font-size:12px;">Es gibt ${statsData.categories.length} Kategorien mit Antworten; zeige nur die ersten 30.</div>`;
-                    }
-                    html += '</div></div></div>';
-                    html += '</div>';
-                    detail.innerHTML = html;
-                } catch (e) {
-                    detail.innerHTML = '❌ Serverfehler: ' + e.message;
-                }
-            }
-
-            async function adminSetCategoryAccess(userId, category, allowed) {
-                try {
-                    const resp = await fetch('/api/admin/set-category-access', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Admin-User': currentUser ? currentUser.username : ''
-                        },
-                        body: JSON.stringify({ user_id: userId, category, allowed })
-                    });
-                    const data = await resp.json();
-                    if (!data.success) { alert('Fehler: ' + (data.message || 'Zugriff konnte nicht geändert werden.')); return; }
-                    adminShowUserDetails(userId, document.getElementById('admin-user-search')?.value || '');
-                } catch (e) {
-                    alert('Serverfehler: ' + e.message);
-                }
-            }
-
-            async function adminSetCategoryAccess(userId, category, allowed) {
-                try {
-                    const resp = await fetch('/api/admin/set-category-access', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Admin-User': currentUser ? currentUser.username : ''
-                        },
-                        body: JSON.stringify({ user_id: userId, category, allowed })
-                    });
-                    const data = await resp.json();
-                    if (!data.success) { alert('Fehler: ' + (data.message || 'Zugriff konnte nicht geändert werden.')); return; }
-                    const detail = document.getElementById('admin-user-detail');
-                    const username = detail?.querySelector('[data-current-username]')?.getAttribute('data-current-username') || '';
-                    adminShowUserDetails(userId, username);
-                } catch (e) {
-                    alert('Serverfehler: ' + e.message);
                 }
             }
 
@@ -2440,7 +2149,25 @@
             }
             // ===== ENDE ADMIN =====
 
-        window.onload = function() {
+        async function checkLernappAccess() {
+            if (!currentUser) return true; // Noch nicht angemeldet, wird später geprüft
+            try {
+                const resp = await fetch(`/api/user/check-access?user_id=${currentUser.id}&feature=lernapp`);
+                const data = await resp.json();
+                if (!data.allowed) {
+                    alert('Du hast keinen Zugriff auf die Lernapp. Kontaktiere einen Administrator.');
+                    localStorage.removeItem('lernappUser');
+                    window.location.href = '/portal.html';
+                    return false;
+                }
+                return true;
+            } catch(e) {
+                console.error('Lernapp access check failed:', e);
+                return true; // Wenn der Check fehlschlägt, erlaube trotzdem
+            }
+        }
+
+        window.onload = async function() {
             loadOverallStats();
             loadQuestionHistory();
             loadWrongAttempts();
@@ -2448,9 +2175,24 @@
             if (savedUser) {
                 try { currentUser = JSON.parse(savedUser); } catch (e) { currentUser = null; }
             }
+            
+            // Prüfe Zugriff auf Lernapp
+            if (currentUser && !await checkLernappAccess()) {
+                return; // Zugriff verweigert, Redirect erfolgt in checkLernappAccess
+            }
+            
             if (currentUser) {
-                // Bereits eingeloggt - direkt zu Vendor-Auswahl
-                loadAndGoToMenu();
+                // Bereits eingeloggt - direkt zu Kategorien
+                fetch('/api/load-fragenpool')
+                    .then(r => r.ok ? r.json() : Promise.reject())
+                    .then(data => {
+                        fragenpool = data;
+                        renderCategories();
+                        setupRangeInputSync();
+                        showView('menu-view');
+                        updateMenuUser();
+                    })
+                    .catch(() => showView('login-view'));
             } else {
                 showView('login-view');
             }

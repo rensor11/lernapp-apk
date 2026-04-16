@@ -1,0 +1,252 @@
+# RenLern Hyper-V VM Tools - Quick Reference
+## 3 Tools für komplettes Backup & Restore Management
+
+---
+
+## 🚀 **QUICK START (3 Befehle)**
+
+### 1️⃣ Backup JETZT erstellen
+```powershell
+.\export_vm.ps1 -VMName "RenLern-Debian" -ExportPath "C:\Hyper-V\Exports"
+```
+✓ VM wird automatisch heruntergefahren  
+✓ Snapshot erstellt für Konsistenz  
+✓ Alle Einstellungen gespeichert (JSON)  
+✓ Größe: ~30-50 GB je nach Daten  
+
+---
+
+### 2️⃣ Aus Backup wiederherstellen
+```powershell
+.\import_vm.ps1 -VMName "RenLern-Debian-Restored" -ImportPath "C:\Hyper-V\Exports" -StartVM
+```
+✓ Findet neustes Backup automatisch  
+✓ Stellt CPU/RAM/Netzwerk wieder her  
+✓ Startet VM automatisch  
+✓ Zeigt neue VM-IP  
+
+---
+
+### 3️⃣ Interaktives Management-Menü
+```powershell
+.\vm_manager.ps1 -VMName "RenLern-Debian" -BackupPath "C:\Hyper-V\Backups"
+```
+Wähle:
+- [1] Backup jetzt
+- [2] Wiederherstellen  
+- [3] VM klonen
+- [4] Automatisierung
+- [5] Speicher freigeben
+- [6] Info anzeigen
+
+---
+
+## 📋 **Dateiübersicht**
+
+| Datei | Größe | Funktion |
+|-------|-------|---------|
+| **export_vm.ps1** | ~8 KB | VM exportieren mit Snapshot |
+| **import_vm.ps1** | ~9 KB | VM importieren & konfigurieren |
+| **vm_manager.ps1** | ~18 KB | Interaktives Menü |
+| **VM_MANAGEMENT.md** | ~25 KB | Vollständige Dokumentation |
+
+---
+
+## 🎯 **Häufige Szenarien**
+
+### Scenario 1: Tägliches Backup (empfohlen)
+```powershell
+# Vor dem Shutdown
+.\vm_manager.ps1 -VMName "RenLern-Debian" -Action backup
+
+# Ergebnis: RenLern_Backup_YYYYMMDD_HHMMSS
+```
+
+### Scenario 2: Schnelle Wiederherstellung nach Fehler  
+```powershell
+# Gib alte Backups an
+.\vm_manager.ps1 -VMName "RenLern-Debian" -Action restore
+
+# Wähle Backup aus Liste
+# Neue VM wird erstellt & gestartet
+```
+
+### Scenario 3: Parallel-System für Testing
+```powershell
+# Klone für Test-Umgebung
+.\vm_manager.ps1 -VMName "RenLern-Debian" -Action clone
+
+# Enters: "RenLern-Test"
+# Beide VMs laufen parallel mit unterschiedlichen IPs
+```
+
+### Scenario 4: Automatische nächtliche Backups
+```powershell
+# Im Menü Option [4] wählen
+.\vm_manager.ps1 -VMName "RenLern-Debian" -BackupPath "C:\Hyper-V\Backups"
+
+# Wähle: [1] Täglich um 02:00
+# Dann: Windows Task Scheduler übernimmt
+```
+
+### Scenario 5: Alte Backups löschen (Speicher freigeben)
+```powershell
+.\vm_manager.ps1 -VMName "RenLern-Debian" -BackupPath "C:\Hyper-V\Backups" -Action cleanup
+
+# Wähle: [3] Behalte nur letzte 5
+# Löscht automatisch alte Backups
+```
+
+---
+
+## ⚡ **Performance Overview**
+
+| Vorgang | Dauer | Größe |
+|---------|-------|-------|
+| VM Export | 5-10 min | 30-50 GB |
+| VM Import | 3-5 min | Diskraum-abhängig |
+| Komprimierung ZIP | 10-20 min | ~10-15 GB |
+| VM Kloning | 8-12 min | 30-50 GB (Double) |
+
+---
+
+## 🔧 **Parameter Übersicht**
+
+### export_vm.ps1
+```powershell
+-VMName        # QB: "RenLern-Debian"
+-ExportPath    # Default: "C:\Hyper-V\Exports"
+-Compress      # Optional: ZIP-Datei erstellen
+-NoCleanup     # Optional: Originalordner behalten
+```
+
+### import_vm.ps1
+```powershell
+-VMName             # Default: "RenLern-Debian-Restored"
+-ImportPath         # Default: "C:\Hyper-V\Exports"
+-StartVM            # Optional: VM nach Import starten
+-SkipConfiguration  # Optional: Nur VM kopieren nicht Einstellungen
+```
+
+### vm_manager.ps1
+```powershell
+-VMName       # Default: "RenLern-Debian"
+-BackupPath   # Default: "C:\Hyper-V\Backups"
+-Action       # "menu" | "backup" | "restore" | "clone"
+```
+
+---
+
+## 💡 **Pro-Tipps**
+
+### Tip 1: Backup mit Komprimierung (spart ~20 GB)
+```powershell
+.\export_vm.ps1 -VMName "RenLern-Debian" -ExportPath "C:\Hyper-V\Exports" -Compress
+# Resultat: .ZIP Datei statt Ordner
+```
+
+### Tip 2: Mehrere Backups automatisch
+```powershell
+# Setup im vm_manager -> Option 4
+# Dann läuft jeden Tag um 02:00 Uhr automatisch
+```
+
+### Tip 3: Backup auf NAS kopieren
+```powershell
+robocopy C:\Hyper-V\Exports \\NAS\RenLern_Backups /MIR /Z
+```
+
+### Tip 4: Backup-Größe prüfen
+```powershell
+$backups = Get-ChildItem C:\Hyper-V\Exports -Directory
+foreach ($b in $backups) {
+    $size = (Get-ChildItem $b -Recurse | Measure-Object -Sum -Property Length).Sum
+    Write-Host "$($b.Name): $([math]::Round($size/1GB,2))GB"
+}
+```
+
+### Tip 5: Schnelle Test-VM
+```powershell
+# Ohne Konfiguration = schneller
+.\import_vm.ps1 -VMName "RenLern-QuickTest" -ImportPath "..." -SkipConfiguration
+```
+
+---
+
+## ⚠️ **WICHTIG: Sicherheitshinweise**
+
+1. ✅ **Backups extern speichern** (USB, NAS, Cloud)
+2. ✅ **Regelmäßig testen** (Monatlich wiederherstellen)
+3. ✅ **Mehrere Kopien** (Min. 2 an verschiedenen Orten)
+4. ✅ **Zeitstempel prüfen** (Backup-Datum = Sicherungszeit)
+5. ⚠️ **Keine VM zu früh löschen** (Erst nach erfolgreicher Wiederherstellung)
+
+---
+
+## 🔄 **Lebenszyklus einer VM**
+
+```
+1. VM läuft in Produktion
+          ↓
+2. [Option 1] Backup erstellen
+          ↓
+3. RenLern_Export_YYYYMMDD_HHMMSS/ gespeichert
+          ↓
+4. VM getestet bei Bedarf
+          ↓
+5. Nach 1 Monat: Alte Backups löschen [Option 5]
+          ↓
+6. Neuer Zyklus oder Recovery bei Fehler
+```
+
+---
+
+## 🎓 **Lernpfad**
+
+1. **Tag 1**: Mit `export_vm.ps1` erste Backup erstellen
+2. **Woche 1**: Mit `import_vm.ps1` Wiederherstellung testen
+3. **Woche 2**: Mit `vm_manager.ps1` Menü erkunden
+4. **Woche 3**: [4] Automatische Backups einrichten
+5. **Monat 2**: Regelmäßige Backups validieren
+
+---
+
+## 📞 **Hilfe & Fehlerbehebung**
+
+### "VM hinzufügen fehlgeschlagen"
+→ Siehe Seite 2 in **VM_MANAGEMENT.md** / Troubleshooting
+
+### "Speicherplatz voll"
+→ Option [5] im vm_manager zum Cleanup
+→ Oder: Alte Backups auf externe Festplatte verschieben
+
+### "Import dauert lange"
+→ Mit `-SkipConfiguration` schneller
+→ Oder: Nur VHDX (ohne RAM/CPU Restore)
+
+---
+
+## 📚 **Weiterführende Ressourcen**
+
+- **Vollständige Doku**: `VM_MANAGEMENT.md`
+- **Status Monitor**: `Get-VM | Select Name, State, MemoryAssigned`
+- **Logs**: Hyper-V Manager → Event Viewer
+- **Hilfe im Skript**: `Get-Help .\export_vm.ps1 -Full`
+
+---
+
+## ✓ **Checklist für Produktionsstart**
+
+- [ ] Backup-Verzeichnis erstellt: `C:\Hyper-V\Backups`
+- [ ] Erstes Backup erfolgreich durchgeführt
+- [ ] Wiederherstellung getestet (zur Sicherheit)
+- [ ] Automatische Backups konfiguriert (vm_manager Option 4)
+- [ ] Backup außerhalb des lokalen PCs gespeichert
+- [ ] Notfall-Prozedur dokumentiert
+- [ ] Team eingewiesen (Export/Import-Prozess)
+
+---
+
+**Stand: April 2026**  
+**Version: 1.0**  
+**Wartung: Admin Team**

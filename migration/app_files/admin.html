@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Admin Panel - RenLern</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #1A73E8;
+            --success: #26A69A;
+            --danger: #EF5350;
+            --warning: #FFB74D;
+            --text-primary: #E8EAED;
+            --text-secondary: #B0BEC5;
+            --bg-main: #1F1F2A;
+            --bg-window: #292B3D;
+            --border: #3F4259;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565C0;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c62828;
+        }
+        
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: #4D516A;
+        }
+        
+        .card {
+            background: var(--bg-window);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .user-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .user-item {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 6px;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .user-info h3 {
+            margin-bottom: 5px;
+        }
+        
+        .user-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .user-permissions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .permission {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .permission:hover {
+            background: rgba(26, 115, 232, 0.2);
+        }
+        
+        .permission input {
+            cursor: pointer;
+        }
+        
+        .permission label {
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .user-actions button {
+            padding: 8px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .login-form {
+            background: var(--bg-window);
+            border: 1px solid var(--border);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        
+        .login-form h2 {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 4px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: rgba(38, 166, 154, 0.2);
+            border-left: 4px solid var(--success);
+            color: #4db8a8;
+        }
+        
+        .alert-danger {
+            background: rgba(239, 83, 80, 0.2);
+            border-left: 4px solid var(--danger);
+            color: #f0a09b;
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN FORM (shown if not authenticated) -->
+    <div id="loginPage" style="display: block;">
+        <div class="login-form">
+            <h2>🔐 Admin Panel Login</h2>
+            <div class="form-group">
+                <label>Admin-Passwort:</label>
+                <input type="password" id="adminPassword" placeholder="Gib das Admin-Passwort ein">
+            </div>
+            <button class="btn-primary" style="width: 100%;" onclick="loginAdmin()">Anmelden</button>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL (shown after login) -->
+    <div id="adminPage" style="display: none;">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1>🔐 RenLern Admin Panel</h1>
+                <div class="header-actions">
+                    <button class="btn-secondary" onclick="refreshData()">🔄 Aktualisieren</button>
+                    <button class="btn-danger" onclick="logout()">Abmelden</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats" id="statsContainer"></div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('users')">👥 Benutzer & Berechtigungen</button>
+                <button class="tab" onclick="switchTab('permissions')">✅ Berechtigungsübersicht</button>
+                <button class="tab" onclick="switchTab('audit')">📊 Aktivitätslogs</button>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content active">
+                <div class="card">
+                    <h2>👥 Benutzerverwaltu ng</h2>
+                    <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                        Kontrolliere hier welche Features jeder Benutzer nutzen darf.
+                    </p>
+                    <div id="alert-container"></div>
+                    <div class="user-list" id="userList"></div>
+                </div>
+            </div>
+
+            <!-- Permissions Tab -->
+            <div id="permissions-tab" class="tab-content">
+                <div class="card">
+                    <h2>✅ Berechtigungsübersicht</h2>
+                    <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                        Übersicht aller Berechtigungen nach Features.
+                    </p>
+                    <div id="permissionsOverview"></div>
+                </div>
+            </div>
+
+            <!-- Audit Tab -->
+            <div id="audit-tab" class="tab-content">
+                <div class="card">
+                    <h2>📊 Aktivitätslogs</h2>
+                    <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                        Letzte Änderungen an Benutzerberechtigungen.
+                    </p>
+                    <div id="auditLog"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '';
+        let adminPassword = '';
+        let users = [];
+        
+        // Check login on load
+        window.addEventListener('load', () => {
+            const stored = sessionStorage.getItem('adminAuth');
+            if (stored) {
+                adminPassword = stored;
+                showAdminPanel();
+                refreshData();
+            }
+        });
+        
+        function loginAdmin() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (!pwd) {
+                alert('Bitte ein Passwort eingeben');
+                return;
+            }
+            
+            adminPassword = pwd;
+            sessionStorage.setItem('adminAuth', pwd);
+            showAdminPanel();
+            refreshData();
+        }
+        
+        function logout() {
+            sessionStorage.removeItem('adminAuth');
+            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('adminPage').style.display = 'none';
+        }
+        
+        function showAdminPanel() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'block';
+        }
+        
+        async function refreshData() {
+            try {
+                const response = await fetch('/api/admin/users', {
+                    headers: { 'X-Admin-Password': adminPassword }
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    alert('Admin-Passwort ungültig');
+                    logout();
+                    return;
+                }
+                
+                users = data.users || [];
+                renderUsers();
+                renderStats();
+                renderPermissionsOverview();
+                
+            } catch (e) {
+                console.error('Fehler beim Laden:', e);
+                alert('Fehler beim Laden der Benutzerdaten: ' + e.message);
+            }
+        }
+        
+        function renderUsers() {
+            const list = document.getElementById('userList');
+            list.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <div>
+                        <h3>${escapeHtml(user.username)}</h3>
+                        <p>ID: ${user.id} | Erstellt: ${new Date(user.created_at).toLocaleDateString('de-DE')}</p>
+                    </div>
+                    <div class="user-permissions">
+                        <div class="permission" title="Benutzer kann Smart Home Geräte nutzen">
+                            <input type="checkbox" id="perm-smarthome-${user.id}" 
+                                   ${user.smarthome_access_allowed ? 'checked' : ''} 
+                                   onchange="updatePermission(${user.id}, 'smarthome', this.checked)">
+                            <label for="perm-smarthome-${user.id}">🏠 Smart Home</label>
+                        </div>
+                        <div class="permission" title="Benutzer kann Cloud Storage nutzen">
+                            <input type="checkbox" id="perm-home-${user.id}" 
+                                   ${user.home_access_allowed ? 'checked' : ''} 
+                                   onchange="updatePermission(${user.id}, 'home', this.checked)">
+                            <label for="perm-home-${user.id}">☁️ Home Cloud</label>
+                        </div>
+                        <div class="permission" title="Benutzer kann die Lernapp nutzen">
+                            <input type="checkbox" id="perm-lernapp-${user.id}" 
+                                   ${user.lernapp_access_allowed ? 'checked' : ''} 
+                                   onchange="updatePermission(${user.id}, 'lernapp', this.checked)">
+                            <label for="perm-lernapp-${user.id}">📚 Lernapp</label>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn-secondary" onclick="resetUserPassword(${user.id})">🔑 Passwort</button>
+                        <button class="btn-danger" onclick="deleteUser(${user.id})">🗑️ Löschen</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderStats() {
+            const stats = document.getElementById('statsContainer');
+            const totalUsers = users.length;
+            const smartHomeUsers = users.filter(u => u.smarthome_access_allowed).length;
+            const homeUsers = users.filter(u => u.home_access_allowed).length;
+            const lernappUsers = users.filter(u => u.lernapp_access_allowed).length;
+            
+            stats.innerHTML = `
+                <div class="stat-card">
+                    <div class="value">${totalUsers}</div>
+                    <div class="label">Gesamt Benutzer</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${smartHomeUsers}</div>
+                    <div class="label">Smart Home Zugriff</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${homeUsers}</div>
+                    <div class="label">Home Cloud Zugriff</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${lernappUsers}</div>
+                    <div class="label">Lernapp Zugriff</div>
+                </div>
+            `;
+        }
+        
+        function renderPermissionsOverview() {
+            const overview = document.getElementById('permissionsOverview');
+            const features = ['🏠 Smart Home', '☁️ Home Cloud', '📚 Lernapp'];
+            
+            let html = '<table style="width:100%; border-collapse: collapse;">';
+            html += '<tr style="background: var(--border);"><th style="padding:10px; text-align:left;">Benutzer</th>';
+            features.forEach(f => html += `<th style="padding:10px; text-align:center;">${f}</th>`);
+            html += '</tr>';
+            
+            users.forEach((u, i) => {
+                html += `<tr style="background: ${i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.2)'}; border-top: 1px solid var(--border);">`;
+                html += `<td style="padding:10px;">${escapeHtml(u.username)}</td>`;
+                html += `<td style="padding:10px; text-align:center;">${u.smarthome_access_allowed ? '✅' : '❌'}</td>`;
+                html += `<td style="padding:10px; text-align:center;">${u.home_access_allowed ? '✅' : '❌'}</td>`;
+                html += `<td style="padding:10px; text-align:center;">${u.lernapp_access_allowed ? '✅' : '❌'}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            overview.innerHTML = html;
+        }
+        
+        async function updatePermission(userId, feature, allowed) {
+            try {
+                const response = await fetch('/api/admin/user/permission', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Password': adminPassword
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        feature: feature,
+                        allowed: allowed
+                    })
+                });
+                
+                const data = await response.json();
+                if (!data.success) {
+                    alert('Fehler: ' + (data.message || 'Unbekannter Fehler'));
+                    refreshData();
+                } else {
+                    showAlert(`✅ ${feature === 'smarthome' ? 'Smart Home' : feature === 'home' ? 'Home Cloud' : 'Lernapp'} ${allowed ? 'freigegeben' : 'gesperrt'}`, 'success');
+                }
+            } catch (e) {
+                alert('Fehler: ' + e.message);
+                refreshData();
+            }
+        }
+        
+        function resetUserPassword(userId) {
+            const user = users.find(u => u.id === userId);
+            const newPwd = prompt(`Neues Passwort für ${user.username}:`, '');
+            if (newPwd === null) return;
+            if (newPwd.length < 6) {
+                alert('Passwort muss mindestens 6 Zeichen lang sein');
+                return;
+            }
+            // Call API to reset password
+            alert('Passwort zurücksetzen: ' + newPwd + '\n(Diese Funktion wird noch implementiert)');
+        }
+        
+        function deleteUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!confirm(`Benutzer "${user.username}" wirklich löschen?`)) return;
+            alert('Benutzer löschen: ' + user.username + '\n(Diese Funktion wird noch implementiert)');
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+        
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-' + type;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+        
+        function escapeHtml(text) {
+            const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'};
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>

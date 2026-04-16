@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RenLern Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1A73E8;
+            --success: #26A69A;
+            --danger: #EF5350;
+            --text-primary: #E8EAED;
+            --text-secondary: #B0BEC5;
+            --bg-main: #1F1F2A;
+            --bg-window: #292B3D;
+            --border: #3F4259;
+            --border-dark: #121428;
+            --border-light: #4D516A;
+        }
+        body {
+            font-family: 'Segoe UI', 'MS Sans Serif', sans-serif;
+            background: var(--bg-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+        .container {
+            width: 100%;
+            max-width: 520px;
+            padding: 20px;
+        }
+        /* ── LOGIN ────────────────────────────── */
+        .login-box {
+            background: var(--bg-window);
+            border: 2px solid var(--border);
+            border-top-color: var(--border-light);
+            border-left-color: var(--border-light);
+            border-right-color: var(--border-dark);
+            border-bottom-color: var(--border-dark);
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.45);
+        }
+        .login-box h1 {
+            text-align: center;
+            font-size: 26px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #7eb4ff, #56d4c8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .login-box p.sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 28px;
+        }
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .field input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border .2s;
+        }
+        .field input:focus { border-color: var(--primary); }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--border-light);
+            border-left-color: var(--border-light);
+            border-right-color: var(--border-dark);
+            border-bottom-color: var(--border-dark);
+            background: var(--bg-window);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background .15s;
+        }
+        .btn:hover { background: #353850; }
+        .btn-primary { background: var(--primary); border-color: #1565C0; color: #fff; }
+        .btn-primary:hover { background: #1565C0; }
+        .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-row .btn { flex: 1; }
+        .status-msg {
+            margin-top: 12px;
+            font-size: 13px;
+            text-align: center;
+            min-height: 20px;
+        }
+        .status-msg.error { color: var(--danger); }
+        .status-msg.ok { color: var(--success); }
+
+        /* ── DASHBOARD ────────────────────────── */
+        .dashboard { display: none; }
+        .dashboard.active { display: block; }
+        .login-box.active-login { display: block; }
+        .login-box.hidden { display: none; }
+        .dash-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .dash-header h2 {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+        .dash-header .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .logout-btn {
+            padding: 6px 14px;
+            background: var(--danger);
+            border: none;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .logout-btn:hover { background: #d32f2f; }
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .app-card {
+            background: var(--bg-window);
+            border: 2px solid var(--border);
+            border-top-color: var(--border-light);
+            border-left-color: var(--border-light);
+            border-right-color: var(--border-dark);
+            border-bottom-color: var(--border-dark);
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .2s;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .app-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 24px rgba(0,0,0,.5);
+            border-color: var(--primary);
+        }
+        .app-card .icon { font-size: 48px; margin-bottom: 14px; }
+        .app-card h3 { font-size: 18px; margin-bottom: 6px; }
+        .app-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
+        /* ── ADMIN PANEL ────────────────────────*/
+        .admin-panel { display: none; }
+        .admin-panel.active { display: block; }
+        .admin-section { margin-bottom: 24px; }
+        .admin-section h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #FFB300;
+        }
+        .users-table {
+            width: 100%;
+            background: var(--bg-window);
+            border: 1px solid var(--border);
+            border-collapse: collapse;
+        }
+        .users-table th,
+        .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .users-table th {
+            background: #1a1a2e;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .users-table tr:hover { background: #353850; }
+        .toggle-home {
+            padding: 6px 12px;
+            background: var(--success);
+            border: none;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .toggle-home:hover { background: #1e8e82; }
+        .toggle-home.off { background: var(--danger); }
+        .toggle-home.off:hover { background: #d32f2f; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .stat-card {
+            background: var(--bg-window);
+            border: 1px solid var(--border);
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .admin-btn {
+            padding: 8px 16px;
+            background: var(--primary);
+            border: none;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .admin-btn:hover { background: #1565C0; }
+
+        @media (max-width: 500px) {
+            .container { padding: 12px; }
+            .login-box { padding: 28px 18px; }
+            .app-grid { grid-template-columns: 1fr; }
+            .users-table th,
+            .users-table td { padding: 8px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ═══ LOGIN VIEW ═══ -->
+        <div class="login-box" id="login-view">
+            <h1>RenLern Portal</h1>
+            <p class="sub">Melde dich an, um fortzufahren</p>
+
+            <div class="field">
+                <label>Benutzername</label>
+                <input type="text" id="inp-user" placeholder="Benutzername" autocomplete="username">
+            </div>
+            <div class="field">
+                <label>Passwort</label>
+                <input type="password" id="inp-pass" placeholder="Passwort" autocomplete="current-password">
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="doLogin()">Anmelden</button>
+                <button class="btn" onclick="doRegister()">Registrieren</button>
+            </div>
+            <div class="status-msg" id="login-status"></div>
+        </div>
+
+        <!-- ═══ DASHBOARD VIEW ═══ -->
+        <div class="dashboard" id="dashboard-view">
+            <div class="dash-header">
+                <h2>Dashboard</h2>
+                <div class="user-badge">
+                    <span id="dash-username"></span>
+                    <button class="logout-btn" onclick="doLogout()">Abmelden</button>
+                </div>
+            </div>
+
+            <div class="app-grid">
+                <a class="app-card" href="/home" id="card-home">
+                    <div class="icon">&#x1F3E0;</div>
+                    <h3>Home</h3>
+                    <p>Bilder, Musik, Videos &amp; Dokumente &ndash; deine persoenliche Cloud</p>
+                </a>
+                <a class="app-card" href="/smarthome" id="card-smarthome">
+                    <div class="icon">&#x1F4A1;</div>
+                    <h3>Smart Home</h3>
+                    <p>Steuere deine Geräte &ndash; Fritz!Box, Geräte & Sensoren</p>
+                </a>
+                <a class="app-card" href="/lernapp" id="card-lernapp">
+                    <div class="icon">&#x1F4DA;</div>
+                    <h3>Lernapp</h3>
+                    <p>Quiz &amp; Lernmodus &ndash; verbessere dein Wissen</p>
+                </a>
+            </div>
+
+            <!-- Admin Panel Button -->
+            <div id="admin-button-container" style="margin-top: 24px; display: none;">
+                <button class="admin-btn" onclick="showAdminPanel()">[ADMIN] Admin Panel</button>
+            </div>
+        </div>
+
+        <!-- ═══ ADMIN PANEL VIEW ═══ -->
+        <div class="admin-panel" id="admin-panel-view">
+            <div class="dash-header">
+                <h2>Admin Panel</h2>
+                <div class="user-badge">
+                    <span id="admin-username"></span>
+                    <button class="logout-btn" onclick="doLogout()">Abmelden</button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="admin-section">
+                <h3>[STATS] Statistiken</h3>
+                <div class="stats-grid" id="stats-container">
+                    <div class="stat-card">
+                        <div class="label">Lädt...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Management -->
+            <div class="admin-section">
+                <h3>[USERS] Benutzerverwaltung</h3>
+                <div style="margin-bottom: 12px;">
+                    <button class="admin-btn" onclick="loadUsers()">[REFRESH] Aktualisieren</button>
+                    <button onclick="showDashboard()" style="padding: 8px 16px; background: var(--border); border: none; color: var(--text-primary); font-size: 12px; font-weight: 600; cursor: pointer;">← Zurück</button>
+                </div>
+                <table class="users-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Benutzer</th>
+                            <th>ID</th>
+                            <th>Registriert</th>
+                            <th>Home-Zugriff</th>
+                            <th>Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <tr><td colspan="5" style="text-align: center;">Benutzer werden geladen...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ USER DETAILS VIEW ═══ -->
+        <div class="admin-panel" id="user-details-view" style="display: none;">
+            <div class="dash-header">
+                <h2>Benutzer bearbeiten: <span id="detail-username"></span></h2>
+                <div class="user-badge">
+                    <button class="logout-btn" onclick="backToUsers()">← Zurück</button>
+                </div>
+            </div>
+
+            <!-- User Statistics -->
+            <div class="admin-section">
+                <h3>[STATS] Benutzerstatistiken</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" id="user-stats-container">
+                    <div class="stat-card">
+                        <div class="label">Lädt...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Password Management -->
+            <div class="admin-section">
+                <h3>[PASSWORT] Passwort ändern</h3>
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <input type="password" id="new-password-input" placeholder="Neues Passwort" style="flex: 1; padding: 8px 12px; background: var(--bg-main); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px;">
+                    <button class="admin-btn" onclick="changeUserPassword()" style="padding: 8px 16px;">Speichern</button>
+                </div>
+                <div id="password-status" style="font-size: 12px; padding: 8px; border-radius: 4px; display: none;"></div>
+            </div>
+
+            <!-- User Delete -->
+            <div class="admin-section">
+                <h3>[LÖSCHEN] Benutzer entfernen</h3>
+                <button onclick="deleteUserConfirm()" style="padding: 8px 16px; background: var(--danger); border: none; color: white; border-radius: 4px; cursor: pointer; font-weight: 600;">Benutzer löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API = '';
+    let portalUser = null;
+
+    /* ── helpers ── */
+    function $(id) { return document.getElementById(id); }
+    function showStatus(msg, ok) {
+        const el = $('login-status');
+        el.textContent = msg;
+        el.className = 'status-msg ' + (ok ? 'ok' : 'error');
+    }
+
+    /* ── auth ── */
+    async function doLogin() {
+        const user = $('inp-user').value.trim();
+        const pass = $('inp-pass').value.trim();
+        if (!user || !pass) return showStatus('Benutzername und Passwort eingeben.', false);
+        try {
+            const r = await fetch(API + '/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+            const d = await r.json();
+            if (d.success) {
+                portalUser = d.user;
+                localStorage.setItem('portalUser', JSON.stringify(portalUser));
+                // Also store for lernapp compatibility
+                localStorage.setItem('lernappUser', JSON.stringify(portalUser));
+                showDashboard();
+            } else {
+                showStatus(d.message || 'Login fehlgeschlagen.', false);
+            }
+        } catch (e) {
+            showStatus('Server nicht erreichbar.', false);
+        }
+    }
+
+    async function doRegister() {
+        const user = $('inp-user').value.trim();
+        const pass = $('inp-pass').value.trim();
+        if (!user || !pass) return showStatus('Benutzername und Passwort eingeben.', false);
+        try {
+            const r = await fetch(API + '/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+            const d = await r.json();
+            if (d.success) {
+                portalUser = d.user;
+                localStorage.setItem('portalUser', JSON.stringify(portalUser));
+                localStorage.setItem('lernappUser', JSON.stringify(portalUser));
+                showDashboard();
+            } else {
+                showStatus(d.message || 'Registrierung fehlgeschlagen.', false);
+            }
+        } catch (e) {
+            showStatus('Server nicht erreichbar.', false);
+        }
+    }
+
+    function doLogout() {
+        portalUser = null;
+        localStorage.removeItem('portalUser');
+        localStorage.removeItem('lernappUser');
+        $('login-view').classList.remove('hidden');
+        $('dashboard-view').classList.remove('active');
+        $('admin-panel-view').classList.remove('active');
+    }
+
+    /* ── admin functions ── */
+    function isAdmin() {
+        return portalUser && portalUser.username === 'admin';
+    }
+
+    function showAdminPanel() {
+        if (!isAdmin()) return alert('Nur Admin kann diesen Bereich aufrufen.');
+        $('admin-username').textContent = portalUser.username + ' (Admin)';
+        $('dashboard-view').classList.remove('active');
+        $('admin-panel-view').classList.add('active');
+        loadUsers();
+        loadStats();
+    }
+
+    async function loadStats() {
+        try {
+            const r = await fetch(API + '/api/admin/users', {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': 'admin123'
+                }
+            });
+            const d = await r.json();
+            if (d.success && Array.isArray(d.users)) {
+                const stats = `
+                    <div class="stat-card">
+                        <div class="number">${d.users.length}</div>
+                        <div class="label">Benutzer gesamt</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${d.users.filter(u => u.home_access_allowed).length}</div>
+                        <div class="label">Mit Home-Zugriff</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${d.users.filter(u => !u.home_access_allowed).length}</div>
+                        <div class="label">Ohne Home-Zugriff</div>
+                    </div>
+                `;
+                $('stats-container').innerHTML = stats;
+            }
+        } catch (e) {
+            console.error('Stats error:', e);
+        }
+    }
+
+    async function loadUsers() {
+        try {
+            const r = await fetch(API + '/api/admin/users', {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': 'admin123'
+                }
+            });
+            const d = await r.json();
+            if (d.success && Array.isArray(d.users)) {
+                let html = '';
+                for (const user of d.users) {
+                    const hasAccess = user.home_access_allowed ? '✓ Ja' : '✗ Nein';
+                    const created = new Date(user.created_at).toLocaleDateString('de-DE');
+                    const btnClass = user.home_access_allowed ? 'toggle-home' : 'toggle-home off';
+                    const btnText = user.home_access_allowed ? 'Deaktivieren' : 'Aktivieren';
+                    html += `<tr>
+                        <td>${user.username}</td>
+                        <td>#${user.id}</td>
+                        <td>${created}</td>
+                        <td>${hasAccess}</td>
+                        <td>
+                            <button class="${btnClass}" onclick="toggleHomeAccess(${user.id}, ${!user.home_access_allowed})">${btnText}</button>
+                            <button onclick="editUser(${user.id}, '${user.username}')" style="margin-left: 4px; padding: 4px 8px; background: var(--primary); border: none; color: white; border-radius: 3px; cursor: pointer; font-size: 11px;">Edit</button>
+                        </td>
+                    </tr>`;
+                }
+                $('users-tbody').innerHTML = html;
+            } else {
+                $('users-tbody').innerHTML = '<tr><td colspan="5">Fehler beim Laden der Benutzer</td></tr>';
+            }
+        } catch (e) {
+            console.error('Users error:', e);
+            $('users-tbody').innerHTML = '<tr><td colspan="5">Server nicht erreichbar</td></tr>';
+        }
+    }
+
+    async function toggleHomeAccess(userId, enable) {
+        try {
+            const r = await fetch(API + '/api/admin/home-access/set', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': 'admin123'
+                },
+                body: JSON.stringify({ user_id: userId, allowed: enable })
+            });
+            const d = await r.json();
+            if (d.success) {
+                loadUsers();
+                loadStats();
+            } else {
+                alert('Fehler: ' + (d.message || 'Unbekannter Fehler'));
+            }
+        } catch (e) {
+            console.error('Toggle error:', e);
+            alert('Server nicht erreichbar');
+        }
+    }
+
+    let currentEditUserId = null;
+
+    async function editUser(userId, username) {
+        currentEditUserId = userId;
+        $('detail-username').textContent = username;
+        
+        // Hide admin panel, show details
+        $('admin-panel-view').style.display = 'none';
+        $('user-details-view').style.display = 'block';
+        
+        // Clear inputs
+        $('new-password-input').value = '';
+        $('password-status').style.display = 'none';
+        
+        // Load user statistics
+        await loadUserStats(userId);
+    }
+
+    function backToUsers() {
+        currentEditUserId = null;
+        $('user-details-view').style.display = 'none';
+        $('admin-panel-view').style.display = 'block';
+        loadUsers();
+    }
+
+    async function loadUserStats(userId) {
+        try {
+            const r = await fetch(API + `/api/admin/user/${userId}/stats`, {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': 'admin123'
+                }
+            });
+            const d = await r.json();
+            if (d.success) {
+                const statsHtml = `
+                    <div class="stat-card">
+                        <div class="number">${d.quiz_count}</div>
+                        <div class="label">Quiz absolviert</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${d.avg_score}%</div>
+                        <div class="label">Durchschnittsscore</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${d.last_quiz ? 'Ja' : 'Nein'}</div>
+                        <div class="label">Aktiv</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${d.home_access_allowed ? '✓' : '✗'}</div>
+                        <div class="label">Home Access</div>
+                    </div>
+                `;
+                $('user-stats-container').innerHTML = statsHtml;
+            }
+        } catch (e) {
+            console.error('User stats error:', e);
+            $('user-stats-container').innerHTML = '<div class="stat-card" style="grid-column: 1/3;"><div class="label">Fehler beim Laden</div></div>';
+        }
+    }
+
+    async function changeUserPassword() {
+        const newPassword = $('new-password-input').value.trim();
+        if (!newPassword) {
+            showPasswordStatus('Bitte Passwort eingeben', false);
+            return;
+        }
+        if (newPassword.length < 6) {
+            showPasswordStatus('Passwort muss mindestens 6 Zeichen lang sein', false);
+            return;
+        }
+
+        try {
+            const r = await fetch(API + `/api/admin/user/${currentEditUserId}/password`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': 'admin123'
+                },
+                body: JSON.stringify({ password: newPassword })
+            });
+            const d = await r.json();
+            if (d.success) {
+                showPasswordStatus('✓ Passwort erfolgreich geändert', true);
+                $('new-password-input').value = '';
+                setTimeout(() => {
+                    $('password-status').style.display = 'none';
+                }, 2000);
+            } else {
+                showPasswordStatus('✗ Fehler: ' + (d.message || 'Unbekannter Fehler'), false);
+            }
+        } catch (e) {
+            console.error('Password change error:', e);
+            showPasswordStatus('✗ Server nicht erreichbar', false);
+        }
+    }
+
+    function showPasswordStatus(msg, success) {
+        const el = $('password-status');
+        el.textContent = msg;
+        el.style.background = success ? 'rgba(38, 166, 154, 0.2)' : 'rgba(239, 83, 80, 0.2)';
+        el.style.color = success ? '#26A69A' : '#EF5350';
+        el.style.display = 'block';
+    }
+
+    function deleteUserConfirm() {
+        const username = $('detail-username').textContent;
+        if (confirm(`⚠️ Benutzer "${username}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`)) {
+            deleteUser();
+        }
+    }
+
+    async function deleteUser() {
+        try {
+            const r = await fetch(API + `/api/admin/user/${currentEditUserId}/delete`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': 'admin123'
+                }
+            });
+            const d = await r.json();
+            if (d.success) {
+                alert('✓ Benutzer gelöscht');
+                backToUsers();
+            } else {
+                alert('✗ Fehler: ' + (d.message || 'Unbekannter Fehler'));
+            }
+        } catch (e) {
+            console.error('Delete error:', e);
+            alert('✗ Server nicht erreichbar');
+        }
+    }
+
+    /* ── views ── */
+    function showDashboard() {
+        $('login-view').classList.add('hidden');
+        $('dashboard-view').classList.add('active');
+        $('admin-panel-view').classList.remove('active');
+        $('dash-username').textContent = portalUser.username;
+        
+        // Show admin button for admin users
+        const adminBtn = $('admin-button-container');
+        if (isAdmin()) {
+            adminBtn.style.display = 'block';
+        } else {
+            adminBtn.style.display = 'none';
+        }
+    }
+
+    /* ── init ── */
+    (function init() {
+        // Enter-Taste zum Einloggen
+        $('inp-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+        $('inp-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('inp-pass').focus(); });
+
+        // Session wiederherstellen
+        try {
+            const saved = localStorage.getItem('portalUser');
+            if (saved) {
+                portalUser = JSON.parse(saved);
+                if (portalUser && portalUser.username) {
+                    showDashboard();
+                    return;
+                }
+            }
+        } catch (e) {}
+    })();
+    </script>
+</body>
+</html>

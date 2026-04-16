@@ -1,0 +1,11 @@
+[Unit]
+Description=Cloudflared Tunnel
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=cloudflared tunnel run ddae2756-eb01-46d4-be69-d47bf9e5404f
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
