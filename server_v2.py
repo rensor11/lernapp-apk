@@ -31,6 +31,19 @@ except Exception as e:
     print(f"[WARN] Fritz!Box Proxy error: {e}")
     FRITZBOX_PROXY = None
 
+# Import Smart Home Portal
+try:
+    from smarthome_portal import SmartHomePortal
+    SMARTHOME_PORTAL = SmartHomePortal(
+        fritzbox_url="http://192.168.178.1",
+        homeassistant_url=os.getenv('HOMEASSISTANT_URL', 'http://localhost:8123'),
+        homeassistant_token=os.getenv('HOMEASSISTANT_TOKEN')
+    )
+    print("[SETUP] Smart Home Portal initialized")
+except Exception as e:
+    print(f"[WARN] Smart Home Portal error: {e}")
+    SMARTHOME_PORTAL = None
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.path.join(BASE_DIR, 'lernapp.db')
 QUESTIONPOOL_FILE = os.path.join(BASE_DIR, 'fragenpool.json')
@@ -391,6 +404,11 @@ def account_page():
 def smarthome_settings_page():
     """Smart Home Einstellungen und Geräte-Verwaltung"""
     return send_from_directory(os.path.join(BASE_DIR, 'pages'), 'smarthome_settings.html')
+
+@app.route('/smarthome-portal')
+def smarthome_portal_page():
+    """Smart Home Portal - Alle Geräte steuern"""
+    return send_from_directory(os.path.join(BASE_DIR, 'pages'), 'smarthome_portal.html')
 
 @app.route('/user-management')
 def user_management_page():
@@ -1924,6 +1942,84 @@ def smarthome_connect_fritzbox():
             'success': False,
             'message': f'Fehler beim Speichern der Fritz!Box-Verbindung: {str(e)}'
         }), 500
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SMART HOME DISCOVERY (All Devices - Network + Home Assistant)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.route('/api/smarthome/discover', methods=['GET'])
+def smarthome_discover_all():
+    """Discover ALL devices: network devices + Home Assistant entities"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentication required'}), 401
+    
+    # Check smart home access
+    db = get_db()
+    user = db.execute('SELECT smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if not user or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Smart Home access denied'}), 403
+    
+    if not SMARTHOME_PORTAL:
+        return jsonify({
+            'success': False,
+            'message': 'Smart Home Portal not available',
+            'devices': []
+        }), 503
+    
+    try:
+        devices = SMARTHOME_PORTAL.get_all_devices()
+        return jsonify({
+            'success': True,
+            'devices': devices,
+            'total': len(devices),
+            'network_devices': len([d for d in devices if d.get('domain') == 'fritzbox']),
+            'homeassistant_devices': len([d for d in devices if d.get('domain') == 'homeassistant']),
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Discovery error: {str(e)}',
+            'devices': []
+        }), 500
+
+@app.route('/api/smarthome/device/<device_id>/control', methods=['POST'])
+def smarthome_control_device(device_id):
+    """Control any discovered device (network or HA)"""
+    if not g.user:
+        return jsonify({'success': False, 'message': 'Authentication required'}), 401
+    
+    # Check smart home access
+    db = get_db()
+    user = db.execute('SELECT username, smarthome_access_allowed FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    
+    if not user or not user['smarthome_access_allowed']:
+        return jsonify({'success': False, 'message': 'Smart Home access denied'}), 403
+    
+    if not SMARTHOME_PORTAL:
+        return jsonify({'success': False, 'message': 'Smart Home Portal not available'}), 503
+    
+    try:
+        data = request.get_json() or {}
+        command = (data.get('command') or '').strip().lower()
+        value = data.get('value')
+        
+        if not command:
+            return jsonify({'success': False, 'message': 'Command required'}), 400
+        
+        result = SMARTHOME_PORTAL.send_command(device_id, command, value)
+        
+        if result.get('success'):
+            return jsonify({'success': True, 'message': result.get('message')})
+        else:
+            return jsonify({
+                'success': False,
+                'message': result.get('error', 'Unknown error')
+            }), 400
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # FRITZ!BOX ROUTER CONTROL (Direct Proxy Integration)

@@ -557,21 +557,31 @@
             const results = document.getElementById('scanResults');
             results.innerHTML = '<div class="loading"><div class="spinner"></div>Scanne Netzwerk...</div>';
 
-            fetch('/api/smarthome/scan')
-                .then (r => r.json())
+            fetch('/api/smarthome/discover')
+                .then(r => r.json())
                 .then(data => {
-                    if (data.success && data.devices.length > 0) {
-                        results.innerHTML = '<h3 style="margin-bottom: 15px;">Gefundene Geräte:</h3>' + data.devices.map(device => `
-                            <div class="scan-device" onclick="addScannedDevice('${device.name}', '${device.device_type}', '${device.ip_address}', ${device.port})">
-                                <div class="scan-device-name">${device.name}</div>
+                    if (data.success && data.devices && data.devices.length > 0) {
+                        results.innerHTML = '<h3 style="margin-bottom: 15px;">Gefundene Geräte:</h3>' + data.devices.map(device => {
+                            const name = device.name || device.hostname || device.ip || 'Unknown';
+                            const type = device.type || 'network_device';
+                            const ip = device.ip || 'N/A';
+                            const port = device.port || 80;
+                            
+                            return `
+                            <div class="scan-device" onclick="addScannedDevice('${name.replace(/'/g, "\\'")}', '${type}', '${ip}', ${port})">
+                                <div class="scan-device-name">${name}</div>
                                 <div class="scan-device-info">
-                                    ${device.device_type} • IP: ${device.ip_address} • Port: ${device.port}
+                                    ${type} • IP: ${ip} • Status: ${device.status || 'online'}
                                 </div>
                             </div>
-                        `).join('');
+                        `;
+                        }).join('');
                     } else {
-                        results.innerHTML = '<p style="color: #999;">Keine Geräte gefunden</p>';
+                        results.innerHTML = '<p style="color: #999;">Keine Geräte gefunden. Stelle sicher, dass das Netzwerk erreichbar ist.</p>';
                     }
+                })
+                .catch(e => {
+                    results.innerHTML = '<p style="color: red;">Fehler beim Scan: ' + e.message + '</p>';
                 });
         }
 
