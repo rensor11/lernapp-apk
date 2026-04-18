@@ -67,7 +67,26 @@ REM ─────────────────────────�
 REM 3. Starte Flask Server (server_v2.py)
 REM ─────────────────────────────────────────────────────────────────────────────
 
-echo [3/5] 🐍 Starte Flask Server (server_v2.py)...
+REM Setze Home Assistant Umgebungsvariablen für Smart Home Integration  
+echo [3a/5] 🏠 Konfiguriere Home Assistant Integration...
+set HOMEASSISTANT_URL=http://localhost:8123
+set HOMEASSISTANT_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJNb2NrIEhBIiwiaWF0IjoxNzQ1MDAwMDAwfQ.mock_token_for_testing
+echo     ✓ HOMEASSISTANT_URL=%HOMEASSISTANT_URL%
+echo     ✓ HOMEASSISTANT_TOKEN gesetzt
+echo.
+
+REM Starte Mock Home Assistant (separat)
+echo [3b/5] 🏠 Starte Mock Home Assistant Server (Port 8123)...
+if exist "%SERVER_DIR%\mock_homeassistant.py" (
+    start "Mock Home Assistant" cmd /k %PYTHON_EXE% "%SERVER_DIR%\mock_homeassistant.py"
+    timeout /t 3 >nul
+    echo     ✓ Mock Home Assistant gestartet
+) else (
+    echo     ⚠️  mock_homeassistant.py nicht gefunden - übersprungen
+)
+echo.
+
+echo [3c/5] 🐍 Starte Flask Server (server_v2.py)...
 start "RenLern Server" cmd /k %PYTHON_EXE% "%SERVER_DIR%\%SERVER_SCRIPT%"
 if errorlevel 1 (
     echo     ❌ Fehler beim Starten des Flask Servers
@@ -75,9 +94,10 @@ if errorlevel 1 (
     echo        und "py" Befehl verfügbar ist
 ) else (
     echo     ✓ Flask Server gestartet
-    echo        Portal:   https://renlern.org
-    echo        Home:     https://renlern.org/home
-    echo        Lernapp:  https://renlern.org/lernapp
+    echo        🌐 Smart Home Portal: http://localhost:5000/smarthome-portal
+    echo        🏠 Home:     http://localhost:5000/home
+    echo        🎓 Lernapp:  http://localhost:5000/lernapp
+    echo        📊 Login: admin / admin123
 )
 echo.
 
